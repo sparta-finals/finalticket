@@ -1,16 +1,10 @@
 package com.sparta.finalticket.domain.seat.entity;
 
 import com.sparta.finalticket.domain.game.entity.Game;
+import com.sparta.finalticket.domain.seatsetting.entity.Seatsetting;
 import com.sparta.finalticket.domain.timeStamped.TimeStamped;
 import com.sparta.finalticket.domain.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,9 +17,6 @@ public class Seat extends TimeStamped {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column
-	private String seat;
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
@@ -33,4 +24,14 @@ public class Seat extends TimeStamped {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "game_id")
 	private Game game;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "seatsetting_id")
+	private Seatsetting seatsetting;
+
+	public Seat(Game game, Seatsetting seatSetting, User user) {
+		this.game = game;
+		this.seatsetting = seatSetting;
+		this.user = user;
+	}
 }
