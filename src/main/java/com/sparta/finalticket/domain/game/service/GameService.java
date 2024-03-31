@@ -25,7 +25,10 @@ public class GameService {
     }
     //예매가능경기 전체 조회
     public List<GameResponseDto> getAvailableGame() {
-        return null;
+        List<Game> gameList = getGames();
+        return gameList.stream()
+                .filter(game -> game.getStartDate().isAfter(LocalDateTime.now()))
+                .map(game -> new GameResponseDto(game.getName(), game.getCategory())).toList();
     }
     private List<Game> getGames() {
         List<Game> gameList = gameRepository.findAll();

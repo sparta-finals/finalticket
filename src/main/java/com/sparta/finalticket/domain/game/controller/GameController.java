@@ -26,7 +26,7 @@ public class GameController {
 
     //예매가능경기 전체 조회
     @GetMapping("/available")
-    public ResponseEntity getAvailableGame () {
+    public ResponseEntity<List<GameResponseDto>> getAvailableGame () {
         List<GameResponseDto> GameResponseDtos = gameService.getAvailableGame();
         return ResponseEntity.status(200).body(GameResponseDtos);
     }
