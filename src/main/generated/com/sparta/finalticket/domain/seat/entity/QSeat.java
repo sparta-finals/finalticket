@@ -20,7 +20,7 @@ public class QSeat extends EntityPathBase<Seat> {
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QSeat seat1 = new QSeat("seat1");
+    public static final QSeat seat = new QSeat("seat");
 
     public final com.sparta.finalticket.domain.timeStamped.QTimeStamped _super = new com.sparta.finalticket.domain.timeStamped.QTimeStamped(this);
 
@@ -33,8 +33,6 @@ public class QSeat extends EntityPathBase<Seat> {
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
-
-    public final StringPath seat = createString("seat");
 
     public final com.sparta.finalticket.domain.user.entity.QUser user;
 
