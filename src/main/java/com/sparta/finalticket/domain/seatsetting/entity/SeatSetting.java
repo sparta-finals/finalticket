@@ -1,4 +1,4 @@
-package com.sparta.finalticket.domain.seatSetting.entity;
+package com.sparta.finalticket.domain.seatsetting.entity;
 
 import com.sparta.finalticket.domain.seatsetting.entity.SeatTypeEnum;
 import jakarta.persistence.*;
