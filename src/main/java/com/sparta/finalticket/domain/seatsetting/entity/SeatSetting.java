@@ -1,5 +1,6 @@
-package com.sparta.finalticket.domain.seatsetting.entity;
+package com.sparta.finalticket.domain.seatSetting.entity;
 
+import com.sparta.finalticket.domain.seatsetting.entity.SeatTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
