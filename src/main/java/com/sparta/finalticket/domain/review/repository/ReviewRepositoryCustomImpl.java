@@ -3,6 +3,7 @@ package com.sparta.finalticket.domain.review.repository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
+import com.sparta.finalticket.domain.review.entity.QReview;
 import com.sparta.finalticket.domain.review.entity.Review;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,7 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
+
 
     private final JPAQueryFactory queryFactory;
     private final QReview qReview = QReview.review;
