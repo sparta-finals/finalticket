@@ -11,12 +11,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
-@Entity
+
+@Entity(name = "review")
+@Builder
 @Getter
+@ToString
 @NoArgsConstructor
+@AllArgsConstructor
+@SQLDelete(sql = "UPDATE review SET state = true WHERE id = ?")
+@Where(clause = "state = false")
 public class Review extends TimeStamped {
 
 	@Id
@@ -30,7 +37,7 @@ public class Review extends TimeStamped {
 	private Long score;
 
 	@Column
-	private Boolean state;
+	private Boolean state = false;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")

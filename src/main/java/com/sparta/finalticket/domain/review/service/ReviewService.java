@@ -16,7 +16,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
 
     @Transactional
-    public void createReview(Long id, ReviewRequestDto reviewRequestDto) {
+    public void createReview(Long id, ReviewRequestDto reviewRequestDto, Long userId) {
         Review review = new Review();
         review.setReview(reviewRequestDto.getReview());
         review.setScore(reviewRequestDto.getScore());
@@ -32,7 +32,7 @@ public class ReviewService {
         return new ReviewResponseDto(review);
     }
 
-    public ReviewResponseDto updateReview(Long id, ReviewRequestDto reviewRequestDto) {
+    public ReviewResponseDto updateReview(Long id, ReviewRequestDto reviewRequestDto, Long userId) {
         Review review = reviewRepository.findByGameId(id)
             .orElseThrow(() -> new EntityNotFoundException("해당 ID에 대한 경기 리뷰를 찾을 수 없습니다."));
         review.setReview(reviewRequestDto.getReview());
@@ -42,7 +42,7 @@ public class ReviewService {
         return new ReviewResponseDto(updatedReview);
     }
 
-    public void deleteReview(Long id) {
+    public void deleteReview(Long id, Long userId) {
         Review review = reviewRepository.findByGameId(id)
             .orElseThrow(() -> new EntityNotFoundException("해당 ID에 대한 경기 리뷰를 찾을 수 없습니다."));
         reviewRepository.delete(review);
