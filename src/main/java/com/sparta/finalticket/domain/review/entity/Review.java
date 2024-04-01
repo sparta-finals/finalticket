@@ -3,23 +3,16 @@ package com.sparta.finalticket.domain.review.entity;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.timeStamped.TimeStamped;
 import com.sparta.finalticket.domain.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-
-@Entity(name = "review")
+@Entity
+@Table(name = "review")
 @Builder
 @Getter
-@ToString
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE review SET state = true WHERE id = ?")
@@ -46,20 +39,4 @@ public class Review extends TimeStamped {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "game_id")
 	private Game game;
-
-	public void setReview(String review) {
-		this.review = review;
-	}
-
-	public void setScore(Long score) {
-		this.score = score;
-	}
-
-	public void setState(Boolean state) {
-		this.state = state;
-	}
-
-	public void setGame(Game game) {
-		this.game = game;
-	}
 }

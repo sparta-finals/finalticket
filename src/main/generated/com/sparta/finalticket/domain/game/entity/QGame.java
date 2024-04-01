@@ -26,7 +26,7 @@ public class QGame extends EntityPathBase<Game> {
 
     public final EnumPath<CategoryEnum> category = createEnum("category", CategoryEnum.class);
 
-    public final NumberPath<Integer> Count = createNumber("Count", Integer.class);
+    public final NumberPath<Integer> count = createNumber("count", Integer.class);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
@@ -41,6 +41,8 @@ public class QGame extends EntityPathBase<Game> {
     public final EnumPath<PlaceEnum> place = createEnum("place", PlaceEnum.class);
 
     public final DateTimePath<java.time.LocalDateTime> startDate = createDateTime("startDate", java.time.LocalDateTime.class);
+
+    public final BooleanPath state = createBoolean("state");
 
     public final com.sparta.finalticket.domain.user.entity.QUser user;
 

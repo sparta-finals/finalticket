@@ -1,7 +1,7 @@
 package com.sparta.finalticket.domain.review.controller;
 
-import com.sparta.finalticket.domain.review.dto.ReviewRequestDto;
-import com.sparta.finalticket.domain.review.dto.ReviewResponseDto;
+import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
+import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.service.ReviewService;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ public class ReviewController {
         @RequestBody ReviewRequestDto reviewRequestDto,
         HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
-        reviewService.createReview(id, reviewRequestDto, user.getId());
+        reviewService.createReview(id, reviewRequestDto, user);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -40,7 +40,7 @@ public class ReviewController {
         @RequestBody ReviewRequestDto reviewRequestDto,
         HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
-        ReviewResponseDto reviewResponseDto = reviewService.updateReview(id, reviewRequestDto, user.getId());
+        ReviewResponseDto reviewResponseDto = reviewService.updateReview(id, reviewRequestDto, user);
         return ResponseEntity.ok().body(reviewResponseDto);
     }
 
@@ -49,7 +49,7 @@ public class ReviewController {
         @PathVariable Long id,
         HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
-        reviewService.deleteReview(id, user.getId());
+        reviewService.deleteReview(id, user);
         return ResponseEntity.noContent().build();
     }
 }

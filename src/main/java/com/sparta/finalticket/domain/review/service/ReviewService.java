@@ -1,9 +1,10 @@
 package com.sparta.finalticket.domain.review.service;
 
-import com.sparta.finalticket.domain.review.dto.ReviewRequestDto;
-import com.sparta.finalticket.domain.review.dto.ReviewResponseDto;
+import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
+import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
+import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,13 +17,13 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
 
     @Transactional
-    public void createReview(Long id, ReviewRequestDto reviewRequestDto, Long userId) {
+    public void createReview(Long id, ReviewRequestDto reviewRequestDto, User user) {
         Review review = new Review();
         review.setReview(reviewRequestDto.getReview());
         review.setScore(reviewRequestDto.getScore());
         review.setState(reviewRequestDto.getState());
-        Review getReviews =  reviewRepository.save(review);
-        new ReviewResponseDto(getReviews);
+        review.setUser(user);
+        reviewRepository.save(review);
     }
 
     @Transactional(readOnly = true)
@@ -32,19 +33,23 @@ public class ReviewService {
         return new ReviewResponseDto(review);
     }
 
-    public ReviewResponseDto updateReview(Long id, ReviewRequestDto reviewRequestDto, Long userId) {
+    public ReviewResponseDto updateReview(Long id, ReviewRequestDto reviewRequestDto, User user) {
         Review review = reviewRepository.findByGameId(id)
             .orElseThrow(() -> new EntityNotFoundException("해당 ID에 대한 경기 리뷰를 찾을 수 없습니다."));
         review.setReview(reviewRequestDto.getReview());
         review.setScore(reviewRequestDto.getScore());
         review.setState(reviewRequestDto.getState());
+        review.setUser(user);
         Review updatedReview = reviewRepository.save(review);
         return new ReviewResponseDto(updatedReview);
     }
 
-    public void deleteReview(Long id, Long userId) {
+    public void deleteReview(Long id, User user) {
         Review review = reviewRepository.findByGameId(id)
             .orElseThrow(() -> new EntityNotFoundException("해당 ID에 대한 경기 리뷰를 찾을 수 없습니다."));
+        if (!review.getUser().equals(user)) {
+            throw new SecurityException("사용자는 이 리뷰를 삭제할 권한이 없습니다.");
+        }
         reviewRepository.delete(review);
     }
 }
