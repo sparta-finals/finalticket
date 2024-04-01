@@ -29,6 +29,9 @@ public class Review extends TimeStamped {
 	@Column
 	private Long score;
 
+	@Column
+	private Boolean state;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
@@ -36,4 +39,20 @@ public class Review extends TimeStamped {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "game_id")
 	private Game game;
+
+	public void setReview(String review) {
+		this.review = review;
+	}
+
+	public void setScore(Long score) {
+		this.score = score;
+	}
+
+	public void setState(Boolean state) {
+		this.state = state;
+	}
+
+	public void setGame(Game game) {
+		this.game = game;
+	}
 }

@@ -1,5 +1,6 @@
 package com.sparta.finalticket.domain.review.dto;
 
+import com.sparta.finalticket.domain.review.entity.Review;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +9,11 @@ import lombok.NoArgsConstructor;
 public class ReviewRequestDto {
     private String review;
     private Long score;
-    private Long userId;
-    private Long gameId;
+    private Boolean state;
+
+    public ReviewRequestDto(Review review) {
+        this.review = review.getReview();
+        this.score = review.getScore();
+        this.state = review.getState();
+    }
 }

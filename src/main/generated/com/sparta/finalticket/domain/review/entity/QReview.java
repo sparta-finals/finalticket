@@ -38,6 +38,8 @@ public class QReview extends EntityPathBase<Review> {
 
     public final NumberPath<Long> score = createNumber("score", Long.class);
 
+    public final BooleanPath state = createBoolean("state");
+
     public final com.sparta.finalticket.domain.user.entity.QUser user;
 
     public QReview(String variable) {
