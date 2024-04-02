@@ -2,6 +2,7 @@ package com.sparta.finalticket.domain.user.entity;
 
 import com.sparta.finalticket.domain.user.dto.request.InfoRequestDto;
 import com.sparta.finalticket.domain.user.dto.request.SignupRequestDto;
+import com.sparta.finalticket.domain.user.dto.request.UserRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,17 +48,17 @@ public class User {
 	@Column
 	private boolean state;
 
-	public User(SignupRequestDto requestDto, String password, UserRoleEnum role) {
+	public User(UserRequestDto requestDto) {
 		this.username = requestDto.getUsername();
-		this.password = password;
+		this.password = requestDto.getPassword();
 		this.email = requestDto.getEmail();
 		this.nickname = requestDto.getNickname();
-		this.role = role;
+		this.role = requestDto.getRole();
 		this.address = requestDto.getAddress();
 		this.state = true;
 	}
 
-	public User(InfoRequestDto requestDto, UserRoleEnum role){
+	public User(UserRequestDto requestDto, UserRoleEnum role){
 		this.username = requestDto.getUsername();
 		this.password = requestDto.getPassword();
 		this.email = requestDto.getEmail();
