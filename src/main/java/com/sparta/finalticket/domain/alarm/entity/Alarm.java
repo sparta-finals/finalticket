@@ -25,6 +25,9 @@ public class Alarm extends TimeStamped {
 	@Column
 	private String content;
 
+	@Column
+	private Boolean state;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;

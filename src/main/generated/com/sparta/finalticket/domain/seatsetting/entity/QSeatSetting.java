@@ -1,4 +1,4 @@
-package com.sparta.finalticket.domain.seatSetting.entity;
+package com.sparta.finalticket.domain.seatsetting.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -15,7 +15,7 @@ import com.querydsl.core.types.Path;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QSeatSetting extends EntityPathBase<SeatSetting> {
 
-    private static final long serialVersionUID = -2134942341L;
+    private static final long serialVersionUID = -1142308517L;
 
     public static final QSeatSetting seatSetting = new QSeatSetting("seatSetting");
 
