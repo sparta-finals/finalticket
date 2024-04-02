@@ -1,5 +1,6 @@
 package com.sparta.finalticket.domain.seatsetting.entity;
 
+import  com.sparta.finalticket.domain.seatsetting.entity.SeatTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,5 +26,4 @@ public class SeatSetting {
     public int getPrice() {
         return seatType.getPrice();
     }
-
 }
