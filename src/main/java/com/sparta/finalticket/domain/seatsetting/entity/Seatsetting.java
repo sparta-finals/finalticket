@@ -1,22 +1,29 @@
 package com.sparta.finalticket.domain.seatsetting.entity;
 
-import com.sparta.finalticket.domain.seat.entity.Seat;
+import  com.sparta.finalticket.domain.seatsetting.entity.SeatTypeEnum;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor
-public class Seatsetting {
+@Table(name = "seat_setting")
+public class SeatSetting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String seatNumber;
 
-    @OneToOne
-    private Seat seat;
+    @Enumerated
+    private SeatTypeEnum seatType;
+
+    public int getPrice() {
+        return seatType.getPrice();
+    }
 }

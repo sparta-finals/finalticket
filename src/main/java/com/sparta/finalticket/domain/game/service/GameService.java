@@ -1,8 +1,8 @@
 package com.sparta.finalticket.domain.game.service;
 
-import com.sparta.finalticket.domain.game.dto.GameResponseDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.game.dto.request.GameRequestDto;
+import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
 import com.sparta.finalticket.domain.game.entity.CategoryEnum;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.entity.PlaceEnum;

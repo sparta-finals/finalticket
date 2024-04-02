@@ -1,7 +1,7 @@
 package com.sparta.finalticket.domain.game.controller;
 
-import com.sparta.finalticket.domain.game.dto.GameResponseDto;
 import com.sparta.finalticket.domain.game.dto.request.GameRequestDto;
+import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
 import com.sparta.finalticket.domain.game.service.GameService;
 import com.sparta.finalticket.domain.user.dto.response.CommonResponse;
 import com.sparta.finalticket.domain.user.entity.User;

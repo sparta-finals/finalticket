@@ -1,8 +1,7 @@
 package com.sparta.finalticket.domain.seat.entity;
 
 import com.sparta.finalticket.domain.game.entity.Game;
-import com.sparta.finalticket.domain.seatSetting.entity.SeatSetting;
-import com.sparta.finalticket.domain.seatsetting.entity.Seatsetting;
+import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
 import com.sparta.finalticket.domain.timeStamped.TimeStamped;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -22,6 +21,12 @@ public class Seat extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
+    private Integer price;
+
+    @Column
+    private Boolean state;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -30,11 +35,22 @@ public class Seat extends TimeStamped {
     @JoinColumn(name = "game_id")
     private Game game;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seatsetting_id")
-    private SeatSetting seatSetting;
+    private SeatSetting seatsetting;
 
-    public Seat(Game game, Seatsetting seatSetting, User user) {
+    public Seat(Game game, SeatSetting seatSetting, User user, boolean b) {
+        this.game = game;
+        this.seatsetting = seatSetting;
+        this.user = user;
+        this.state = b;
+    }
+
+    public void update(boolean b) {
+        this.state = b;
+    }
+
+    public Seat(Game game, SeatSetting seatSetting, User user) {
         this.game = game;
         this.seatsetting = seatSetting;
         this.user = user;

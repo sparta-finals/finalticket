@@ -7,6 +7,7 @@ import com.sparta.finalticket.domain.seat.entity.Seat;
 import com.sparta.finalticket.domain.seat.repository.SeatRepository;
 import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
 import com.sparta.finalticket.domain.seatsetting.repository.SeatSettingRepository;
+import com.sparta.finalticket.domain.ticket.dto.TicketResponseDto;
 import com.sparta.finalticket.domain.ticket.entity.QTicket;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
 import com.sparta.finalticket.domain.ticket.repository.TicketRepository;
@@ -31,9 +32,9 @@ public class TicketService {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<TicketResponseDto> getUserTicketList(User user) {
+    public List<Ticket> getUserTicketList(User user) {
         QTicket ticket = QTicket.ticket;
-        return jpaQueryFactory.selectFrom(ticket).where(ticket.user.id.eq(user.getId())).fetchAll().stream().map(TicketResponseDto::new).toList();
+        return jpaQueryFactory.selectFrom(ticket).where(ticket.user.id.eq(user.getId())).fetchAll().stream().toList();
     }
 
     //티켓팅
@@ -86,12 +87,6 @@ public class TicketService {
     private Ticket getTicket(Long gameId) {
         return ticketRepository.findBySeatId(gameId)
                 .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 티켓 입니다."));
-    }
-
-    private void validateTicketExist(User user, Game game, Seat seat, Boolean b) {
-        if (ticketRepository.existsByUserAndGameAndSeatAndState(user, game, seat, b)) {
-            throw new IllegalArgumentException("이미 예매된 티켓입니다.");
-        }
     }
 
     private void validateSeatExist(User user, Game game, Long seatId, Boolean b) {
