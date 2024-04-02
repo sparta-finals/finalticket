@@ -1,5 +1,7 @@
 package com.sparta.finalticket.domain.game.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.sparta.finalticket.domain.game.entity.CategoryEnum;
 import com.sparta.finalticket.domain.game.entity.Game;
 
 import java.time.LocalDateTime;
@@ -13,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GameResponseDto {
 
     private Long id;
@@ -34,5 +37,10 @@ public class GameResponseDto {
         this.startDate = game.getStartDate();
         this.place = String.valueOf(game.getPlace());
         this.category = String.valueOf(game.getCategory());
+    }
+
+    public GameResponseDto(String name, CategoryEnum category) {
+        this.name = name;
+        this.category = String.valueOf(category);
     }
 }

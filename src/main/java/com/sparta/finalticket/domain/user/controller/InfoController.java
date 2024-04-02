@@ -47,7 +47,7 @@ public class InfoController {
 
   @GetMapping("/tickets")
   public ResponseEntity<List<Ticket>> userTicket(HttpServletRequest request){
-    return new ResponseEntity<>(ticketService.getUserTicketList((User)request.getAttribute("user")), HttpStatus.OK);
+    return new ResponseEntity(ticketService.getUserTicketList((User)request.getAttribute("user")), HttpStatus.OK);
   }
 
   @GetMapping("/reviews")
