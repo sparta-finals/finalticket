@@ -5,16 +5,16 @@ import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.seat.entity.Seat;
 import com.sparta.finalticket.domain.seat.repository.SeatRepository;
+import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
 import com.sparta.finalticket.domain.seatsetting.repository.SeatSettingRepository;
 import com.sparta.finalticket.domain.ticket.entity.QTicket;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
 import com.sparta.finalticket.domain.ticket.repository.TicketRepository;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
