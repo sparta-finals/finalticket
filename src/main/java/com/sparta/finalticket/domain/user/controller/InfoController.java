@@ -5,6 +5,7 @@ import com.sparta.finalticket.domain.review.service.ReviewService;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
 import com.sparta.finalticket.domain.ticket.service.TicketService;
 import com.sparta.finalticket.domain.user.dto.request.InfoRequestDto;
+import com.sparta.finalticket.domain.user.dto.request.UserRequestDto;
 import com.sparta.finalticket.domain.user.dto.response.InfoResponseDto;
 import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.domain.user.service.UserService;
@@ -40,7 +41,7 @@ public class InfoController {
 
   @PutMapping("/info")
   public ResponseEntity modifyInfo(HttpServletRequest request,
-      @Valid @RequestBody InfoRequestDto infoRequestDto) {
+      @Valid @RequestBody UserRequestDto infoRequestDto) {
     userService.modifyInfo((User) request.getAttribute("user"), infoRequestDto);
     return new ResponseEntity<>(HttpStatus.OK);
   }
