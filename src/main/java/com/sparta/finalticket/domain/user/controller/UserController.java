@@ -82,4 +82,5 @@ public class UserController {
 		userService.withdrawal((User)request.getAttribute("user"),request);
 		return "redirect:/v1/users/login-page";
 	}
+
 }

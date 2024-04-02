@@ -1,11 +1,16 @@
 package com.sparta.finalticket.domain.user.controller;
 
+import com.sparta.finalticket.domain.game.service.GameService;
+import com.sparta.finalticket.domain.review.service.ReviewService;
+import com.sparta.finalticket.domain.ticket.entity.Ticket;
+import com.sparta.finalticket.domain.ticket.service.TicketService;
 import com.sparta.finalticket.domain.user.dto.request.InfoRequestDto;
 import com.sparta.finalticket.domain.user.dto.response.InfoResponseDto;
 import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class InfoController {
 
   private final UserService userService;
+  private final TicketService ticketService;
+  private final GameService gameService;
+  private final ReviewService reviewService;
 
   @GetMapping("/info")
   public ResponseEntity<InfoResponseDto> getInfo(HttpServletRequest request) {
@@ -33,9 +41,23 @@ public class InfoController {
   @PutMapping("/info")
   public ResponseEntity modifyInfo(HttpServletRequest request,
       @Valid @RequestBody InfoRequestDto infoRequestDto) {
-    log.info("컨트롤러 진입");
     userService.modifyInfo((User) request.getAttribute("user"), infoRequestDto);
-    log.info("서비스 처리 완료");
     return new ResponseEntity<>(HttpStatus.OK);
   }
+
+  @GetMapping("/tickets")
+  public ResponseEntity<List<Ticket>> userTicket(HttpServletRequest request){
+    return new ResponseEntity<>(ticketService.getUserTicketList((User)request.getAttribute("user")), HttpStatus.OK);
+  }
+
+  @GetMapping("/reviews")
+  public ResponseEntity userReview(HttpServletRequest request){
+    return new ResponseEntity(reviewService.getUserReviewList((User)request.getAttribute("user")),HttpStatus.OK);
+  }
+
+  @GetMapping("/games")
+  public ResponseEntity userGame(HttpServletRequest request){
+    return new ResponseEntity(gameService.getUserGameList((User)request.getAttribute("user")),HttpStatus.OK);
+  }
+
 }
