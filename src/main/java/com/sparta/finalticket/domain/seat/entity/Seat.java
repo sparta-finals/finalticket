@@ -1,7 +1,7 @@
 package com.sparta.finalticket.domain.seat.entity;
 
 import com.sparta.finalticket.domain.game.entity.Game;
-import com.sparta.finalticket.domain.seatsetting.entity.Seatsetting;
+import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
 import com.sparta.finalticket.domain.timeStamped.TimeStamped;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -37,9 +37,9 @@ public class Seat extends TimeStamped {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seatsetting_id")
-    private Seatsetting seatsetting;
+    private SeatSetting seatsetting;
 
-    public Seat(Game game, Seatsetting seatSetting, User user, boolean b) {
+    public Seat(Game game, SeatSetting seatSetting, User user, boolean b) {
         this.game = game;
         this.seatsetting = seatSetting;
         this.user = user;
@@ -50,7 +50,7 @@ public class Seat extends TimeStamped {
         this.state = b;
     }
 
-    public Seat(Game game, Seatsetting seatSetting, User user) {
+    public Seat(Game game, SeatSetting seatSetting, User user) {
         this.game = game;
         this.seatsetting = seatSetting;
         this.user = user;

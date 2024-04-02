@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "seat_setting")
-public class Seatsetting {
+public class SeatSetting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
