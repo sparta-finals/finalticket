@@ -5,6 +5,7 @@ import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.seat.entity.Seat;
 import com.sparta.finalticket.domain.seat.repository.SeatRepository;
+import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
 import com.sparta.finalticket.domain.seatsetting.repository.SeatSettingRepository;
 import com.sparta.finalticket.domain.ticket.entity.QTicket;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
