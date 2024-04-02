@@ -1,6 +1,9 @@
 package com.sparta.finalticket.domain.review.repository;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
+import com.sparta.finalticket.domain.review.entity.QReview;
 import com.sparta.finalticket.domain.review.entity.Review;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -12,29 +15,50 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
 
+    private final JPAQueryFactory jpaQueryFactory;
+    private final QReview qReview = QReview.review;
+
     @Override
     public Optional<Review> findByGameId(Long id) {
-        return Optional.empty();
+        Review review = jpaQueryFactory.selectFrom(qReview)
+            .where(qReview.id.eq(id))
+            .fetchOne();
+        return Optional.ofNullable(review);
     }
 
     @Override
     public List<ReviewResponseDto> findAllReviews() {
-        return null;
+        return jpaQueryFactory.select(Projections.constructor(ReviewResponseDto.class,
+                qReview.id, qReview.score, qReview.id))
+            .from(qReview)
+            .fetch();
     }
 
     @Override
     public List<ReviewResponseDto> findReviewsByUserId(Long userId) {
-        return null;
+        return jpaQueryFactory.select(Projections.constructor(ReviewResponseDto.class,
+                qReview.id, qReview.score, qReview.id))
+            .from(qReview)
+            .where(qReview.id.eq(userId))
+            .fetch();
     }
 
     @Override
     public List<ReviewResponseDto> findReviewsByScoreGreaterThan(int score) {
-        return null;
+        return jpaQueryFactory.select(Projections.constructor(ReviewResponseDto.class,
+                qReview.id, qReview.score, qReview.id))
+            .from(qReview)
+            .where(qReview.score.gt(score))
+            .fetch();
     }
 
     @Override
     public List<ReviewResponseDto> findReviewsByScoreLessThan(int score) {
-        return null;
+        return jpaQueryFactory.select(Projections.constructor(ReviewResponseDto.class,
+                qReview.id, qReview.score, qReview.id))
+            .from(qReview)
+            .where(qReview.score.lt(score))
+            .fetch();
     }
 }
 
