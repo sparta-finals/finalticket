@@ -119,13 +119,13 @@ public class GameService {
     //예매예정경기 전체 조회
     public List<GameResponseDto> getUpcomingGame() {
         List<Game> gameList = getGames();
-        return filterGames(game -> game.getStartDate().isBefore(LocalDateTime.now()));
+        return filterGames(game -> game.getStartDate().isAfter(LocalDateTime.now()));
     }
 
     //예매가능경기 전체 조회
     public List<GameResponseDto> getAvailableGame() {
         List<Game> gameList = getGames();
-        return filterGames(game -> game.getStartDate().isAfter(LocalDateTime.now()));
+        return filterGames(game -> game.getStartDate().isBefore(LocalDateTime.now()));
     }
 
     private List<Game> getGames() {
