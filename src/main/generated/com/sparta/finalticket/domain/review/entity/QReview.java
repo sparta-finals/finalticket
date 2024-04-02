@@ -20,8 +20,6 @@ public class QReview extends EntityPathBase<Review> {
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QReview review = new QReview("review");
-
     public static final QReview review1 = new QReview("review1");
 
     public final com.sparta.finalticket.domain.timeStamped.QTimeStamped _super = new com.sparta.finalticket.domain.timeStamped.QTimeStamped(this);
@@ -35,6 +33,8 @@ public class QReview extends EntityPathBase<Review> {
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
+
+    public final StringPath review = createString("review");
 
     public final NumberPath<Long> score = createNumber("score", Long.class);
 

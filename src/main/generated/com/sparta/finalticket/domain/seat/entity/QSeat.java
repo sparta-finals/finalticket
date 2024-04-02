@@ -34,7 +34,11 @@ public class QSeat extends EntityPathBase<Seat> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 
-    public final com.sparta.finalticket.domain.seatsetting.entity.QSeatSetting seatSetting;
+    public final NumberPath<Integer> price = createNumber("price", Integer.class);
+
+    public final com.sparta.finalticket.domain.seatsetting.entity.QSeatSetting seatsetting;
+
+    public final BooleanPath state = createBoolean("state");
 
     public final com.sparta.finalticket.domain.user.entity.QUser user;
 
@@ -57,7 +61,7 @@ public class QSeat extends EntityPathBase<Seat> {
     public QSeat(Class<? extends Seat> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.game = inits.isInitialized("game") ? new com.sparta.finalticket.domain.game.entity.QGame(forProperty("game"), inits.get("game")) : null;
-        this.seatSetting = inits.isInitialized("seatSetting") ? new com.sparta.finalticket.domain.seatsetting.entity.QSeatSetting(forProperty("seatSetting")) : null;
+        this.seatsetting = inits.isInitialized("seatsetting") ? new com.sparta.finalticket.domain.seatsetting.entity.QSeatSetting(forProperty("seatsetting")) : null;
         this.user = inits.isInitialized("user") ? new com.sparta.finalticket.domain.user.entity.QUser(forProperty("user")) : null;
     }
 

@@ -1,9 +1,12 @@
 package com.sparta.finalticket.domain.review.service;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
+import com.sparta.finalticket.domain.review.entity.QReview;
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
+import com.sparta.finalticket.domain.ticket.entity.QTicket;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final JPAQueryFactory jpaQueryFactory;
 
     @Transactional
     public void createReview(Long id, ReviewRequestDto reviewRequestDto, User user) {
@@ -51,5 +55,10 @@ public class ReviewService {
             throw new SecurityException("사용자는 이 리뷰를 삭제할 권한이 없습니다.");
         }
         reviewRepository.delete(review);
+    }
+
+    public Object getUserReviewList(User user) {
+        QReview qReview = QReview.review1;
+        return jpaQueryFactory.selectFrom(qReview).where(qReview.user.id.eq(user.getId())).fetchAll().stream().map(ReviewResponseDto::new).toList();
     }
 }

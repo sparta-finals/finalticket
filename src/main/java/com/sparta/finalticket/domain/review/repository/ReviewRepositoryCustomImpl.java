@@ -16,7 +16,7 @@ import java.util.Optional;
 public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
-    private final QReview qReview = QReview.review;
+    private final QReview qReview = QReview.review1;
 
     @Override
     public Optional<Review> findByGameId(Long id) {
