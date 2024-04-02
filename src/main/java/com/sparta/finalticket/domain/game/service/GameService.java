@@ -1,10 +1,12 @@
 package com.sparta.finalticket.domain.game.service;
 
 import com.sparta.finalticket.domain.game.dto.GameResponseDto;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.game.dto.request.GameRequestDto;
 import com.sparta.finalticket.domain.game.entity.CategoryEnum;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.entity.PlaceEnum;
+import com.sparta.finalticket.domain.game.entity.QGame;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.domain.user.entity.UserRoleEnum;
@@ -22,6 +24,7 @@ import java.util.function.Predicate;
 @Transactional
 public class GameService {
 
+    private final JPAQueryFactory jpaQueryFactory;
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
 
@@ -106,6 +109,11 @@ public class GameService {
         return gameRepository.findById(gameId).orElseThrow(
                 () -> new IllegalArgumentException("해당 게임을 찾을 수 없습니다.")
         );
+    }
+
+    public List<GameResponseDto> getUserGameList(User user) {
+        QGame qGame = QGame.game;
+        return jpaQueryFactory.selectFrom(qGame).where(qGame.user.id.eq(user.getId())).stream().map(GameResponseDto::new).toList();
     }
 
     //예매예정경기 전체 조회

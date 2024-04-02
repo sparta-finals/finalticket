@@ -2,10 +2,12 @@ package com.sparta.finalticket.domain.user.controller;
 
 import com.sparta.finalticket.domain.user.dto.request.LoginRequestDto;
 import com.sparta.finalticket.domain.user.dto.request.SignupRequestDto;
+import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +58,7 @@ public class UserController {
 
 	@PostMapping("/login")
 	public String login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult,
-		HttpServletResponse response) {
+		HttpServletResponse response) throws IOException {
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
 		if (fieldErrors.size() > 0) {
 			for (FieldError fieldError : bindingResult.getFieldErrors()) {
@@ -72,6 +74,12 @@ public class UserController {
 	@DeleteMapping("/logout")
 	public String logout(HttpServletRequest request) {
 		userService.logout(request);
+		return "redirect:/v1/users/login-page";
+	}
+
+	@DeleteMapping("/withdrawal")
+	public String withdrawal(HttpServletRequest request){
+		userService.withdrawal((User)request.getAttribute("user"),request);
 		return "redirect:/v1/users/login-page";
 	}
 
