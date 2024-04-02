@@ -4,6 +4,7 @@ import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.seat.entity.Seat;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
 import com.sparta.finalticket.domain.user.entity.User;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -15,4 +16,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     Optional<Ticket> findBySeatId(Long gameId);
 
     boolean existsByUserAndGameIdAndSeatIdAndState(User user, Long gameId, Long seatId, Boolean b);
+
+    List<Ticket> findByUserId(Long userId);
 }

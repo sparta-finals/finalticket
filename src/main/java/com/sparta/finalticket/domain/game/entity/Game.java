@@ -19,8 +19,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE game SET state = true WHERE id = ?")
 @Where(clause = "state = false")
-
-
 public class Game extends TimeStamped {
 
     @Id
