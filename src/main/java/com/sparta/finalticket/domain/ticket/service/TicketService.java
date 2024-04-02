@@ -5,9 +5,8 @@ import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.seat.entity.Seat;
 import com.sparta.finalticket.domain.seat.repository.SeatRepository;
-import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
+import com.sparta.finalticket.domain.seatsetting.entity.Seatsetting;
 import com.sparta.finalticket.domain.seatsetting.repository.SeatSettingRepository;
-import com.sparta.finalticket.domain.ticket.dto.TicketResponseDto;
 import com.sparta.finalticket.domain.ticket.entity.QTicket;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
 import com.sparta.finalticket.domain.ticket.repository.TicketRepository;
@@ -44,7 +43,7 @@ public class TicketService {
         boolean existingTicket = seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, false);
         if (!existingTicket) {
             Game game = getGame(gameId);
-            SeatSetting seatSetting = getSeatsetting(seatId);
+            Seatsetting seatSetting = getSeatsetting(seatId);
 
             validateSeatExist(user, game, seatId, true);
             Seat seat = new Seat(game, seatSetting, user, true);
@@ -80,7 +79,7 @@ public class TicketService {
                 .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 좌석 입니다."));
     }
 
-    private SeatSetting getSeatsetting(Long seatId) {
+    private Seatsetting getSeatsetting(Long seatId) {
         return seatsettingRepository.findById(seatId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 좌석입니다"));
     }
 
