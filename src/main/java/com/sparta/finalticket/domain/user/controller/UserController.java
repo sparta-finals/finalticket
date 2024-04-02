@@ -2,6 +2,7 @@ package com.sparta.finalticket.domain.user.controller;
 
 import com.sparta.finalticket.domain.user.dto.request.LoginRequestDto;
 import com.sparta.finalticket.domain.user.dto.request.SignupRequestDto;
+import com.sparta.finalticket.domain.user.dto.request.UserRequestDto;
 import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +40,7 @@ public class UserController {
 	}
 
 	@PostMapping("/signup")
-	public String signup(@RequestBody @Valid SignupRequestDto requestDto,
+	public String signup(@RequestBody @Valid UserRequestDto requestDto,
 		BindingResult bindingResult) {
 		// Validation 예외처리
 		log.info("컨트롤러 진입");
