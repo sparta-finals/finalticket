@@ -1,7 +1,6 @@
 package com.sparta.finalticket.domain.seat.entity;
 
 import com.sparta.finalticket.domain.game.entity.Game;
-import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
 import com.sparta.finalticket.domain.timeStamped.TimeStamped;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.persistence.*;
