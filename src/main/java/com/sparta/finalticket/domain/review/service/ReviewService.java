@@ -58,7 +58,7 @@ public class ReviewService {
     }
 
     public Object getUserReviewList(User user) {
-        QReview qReview = QReview.review;
+        QReview qReview = QReview.review1;
         return jpaQueryFactory.selectFrom(qReview).where(qReview.user.id.eq(user.getId())).fetchAll().stream().map(ReviewResponseDto::new).toList();
     }
 }

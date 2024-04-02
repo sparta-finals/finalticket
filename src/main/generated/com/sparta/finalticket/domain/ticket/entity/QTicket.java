@@ -36,6 +36,8 @@ public class QTicket extends EntityPathBase<Ticket> {
 
     public final com.sparta.finalticket.domain.seat.entity.QSeat seat;
 
+    public final BooleanPath state = createBoolean("state");
+
     public final com.sparta.finalticket.domain.user.entity.QUser user;
 
     public QTicket(String variable) {
