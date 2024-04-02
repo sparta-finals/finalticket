@@ -25,4 +25,5 @@ public class SeatSetting {
     public int getPrice() {
         return seatType.getPrice();
     }
+
 }
