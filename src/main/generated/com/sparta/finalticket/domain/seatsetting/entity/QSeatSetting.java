@@ -1,4 +1,4 @@
-package com.sparta.finalticket.domain.seatSetting.entity;
+package com.sparta.finalticket.domain.seatsetting.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -7,7 +7,6 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
-import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
 
 
 /**
@@ -16,7 +15,7 @@ import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QSeatSetting extends EntityPathBase<SeatSetting> {
 
-    private static final long serialVersionUID = -2134942341L;
+    private static final long serialVersionUID = -1142308517L;
 
     public static final QSeatSetting seatSetting = new QSeatSetting("seatSetting");
 
@@ -24,7 +23,7 @@ public class QSeatSetting extends EntityPathBase<SeatSetting> {
 
     public final StringPath seatNumber = createString("seatNumber");
 
-    public final EnumPath<com.sparta.finalticket.domain.seatsetting.entity.SeatTypeEnum> seatType = createEnum("seatType", com.sparta.finalticket.domain.seatsetting.entity.SeatTypeEnum.class);
+    public final EnumPath<SeatTypeEnum> seatType = createEnum("seatType", SeatTypeEnum.class);
 
     public QSeatSetting(String variable) {
         super(SeatSetting.class, forVariable(variable));

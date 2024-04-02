@@ -1,6 +1,6 @@
-//package com.sparta.finalticket.domain.seatSetting.entity;
+//package com.sparta.finalticket.domain.seatsetting.entity;
 //
-//import com.sparta.finalticket.domain.seatSetting.repository.SeatSettingRepository;
+//import com.sparta.finalticket.domain.seatsetting.repository.SeatSettingRepository;
 //import org.springframework.boot.CommandLineRunner;
 //import org.springframework.stereotype.Component;
 //

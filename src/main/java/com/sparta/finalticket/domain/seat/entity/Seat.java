@@ -4,34 +4,55 @@ import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
 import com.sparta.finalticket.domain.timeStamped.TimeStamped;
 import com.sparta.finalticket.domain.user.entity.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Seat extends TimeStamped {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
-	private User user;
+    @Column
+    private Integer price;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "game_id")
-	private Game game;
+    @Column
+    private Boolean state;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "seatsetting_id")
-	private SeatSetting seatSetting;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id")
+    private Game game;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seatsetting_id")
+    private SeatSetting seatsetting;
+
+    public Seat(Game game, SeatSetting seatSetting, User user, boolean b) {
+        this.game = game;
+        this.seatsetting = seatSetting;
+        this.user = user;
+        this.state = b;
+    }
+
+    public void update(boolean b) {
+        this.state = b;
+    }
+
+    public Seat(Game game, SeatSetting seatSetting, User user) {
+        this.game = game;
+        this.seatsetting = seatSetting;
+        this.user = user;
+    }
 }

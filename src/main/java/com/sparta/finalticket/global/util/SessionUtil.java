@@ -49,8 +49,7 @@ public class SessionUtil {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
 					String userId = valueOperations.get(cookie.getValue());
-					User user = userRepository.findByUsername(userId)
-						.orElseThrow(() -> new IllegalArgumentException("일치하는 유저가 없습니다."));
+					User user = userRepository.findByUsernameAndState(userId,true).orElseThrow(() -> new IllegalArgumentException("일치하는 유저가 없습니다."));
 					request.setAttribute("user", user);
 					return true;
 				}
