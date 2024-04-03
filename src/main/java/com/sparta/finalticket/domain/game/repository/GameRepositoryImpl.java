@@ -7,6 +7,9 @@ import static com.sparta.finalticket.domain.seat.entity.QSeat.seat;
 import static com.sparta.finalticket.domain.ticket.entity.QTicket.ticket;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
+import com.sparta.finalticket.domain.user.entity.User;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -35,5 +38,8 @@ public class GameRepositoryImpl implements CustomGameRepository {
                 .execute();
     }
 
-
+    @Override
+    public List<GameResponseDto> getUserGameList(User user) {
+        return queryFactory.selectFrom(game).where(game.user.id.eq(user.getId())).stream().map(GameResponseDto::new).toList();
+    }
 }

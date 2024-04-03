@@ -56,12 +56,13 @@ public class User {
 		this.state = true;
 	}
 
-	public User(UserRequestDto requestDto, UserRoleEnum role){
+	public User(UserRequestDto requestDto, User user){
+		this.id = user.getId();
 		this.username = requestDto.getUsername();
 		this.password = requestDto.getPassword();
 		this.email = requestDto.getEmail();
 		this.nickname = requestDto.getNickname();
-		this.role = role;
+		this.role = user.getRole();
 		this.address = requestDto.getAddress();
 		this.state = true;
 	}

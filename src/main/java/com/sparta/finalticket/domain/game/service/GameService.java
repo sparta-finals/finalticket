@@ -24,7 +24,6 @@ import java.util.function.Predicate;
 @Transactional
 public class GameService {
 
-    private final JPAQueryFactory jpaQueryFactory;
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
 
@@ -112,8 +111,7 @@ public class GameService {
     }
 
     public List<GameResponseDto> getUserGameList(User user) {
-        QGame qGame = QGame.game;
-        return jpaQueryFactory.selectFrom(qGame).where(qGame.user.id.eq(user.getId())).stream().map(GameResponseDto::new).toList();
+        return gameRepository.getUserGameList(user);
     }
 
     //예매예정경기 전체 조회
