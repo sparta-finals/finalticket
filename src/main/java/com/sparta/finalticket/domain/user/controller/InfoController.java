@@ -1,7 +1,9 @@
 package com.sparta.finalticket.domain.user.controller;
 
 import com.sparta.finalticket.domain.game.service.GameService;
+import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.service.ReviewService;
+import com.sparta.finalticket.domain.ticket.dto.TicketResponseDto;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
 import com.sparta.finalticket.domain.ticket.service.TicketService;
 import com.sparta.finalticket.domain.user.dto.request.InfoRequestDto;
@@ -47,12 +49,12 @@ public class InfoController {
   }
 
   @GetMapping("/tickets")
-  public ResponseEntity<List<Ticket>> userTicket(HttpServletRequest request){
+  public ResponseEntity<List<TicketResponseDto>> userTicket(HttpServletRequest request){
     return new ResponseEntity(ticketService.getUserTicketList((User)request.getAttribute("user")), HttpStatus.OK);
   }
 
   @GetMapping("/reviews")
-  public ResponseEntity userReview(HttpServletRequest request){
+  public ResponseEntity<List<ReviewResponseDto>> userReview(HttpServletRequest request){
     return new ResponseEntity(reviewService.getUserReviewList((User)request.getAttribute("user")),HttpStatus.OK);
   }
 

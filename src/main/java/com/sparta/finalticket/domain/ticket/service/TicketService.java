@@ -5,7 +5,9 @@ import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.seat.entity.Seat;
 import com.sparta.finalticket.domain.seat.repository.SeatRepository;
+import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
 import com.sparta.finalticket.domain.seatsetting.repository.SeatSettingRepository;
+import com.sparta.finalticket.domain.ticket.dto.TicketResponseDto;
 import com.sparta.finalticket.domain.ticket.entity.QTicket;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
 import com.sparta.finalticket.domain.ticket.repository.TicketRepository;
@@ -29,9 +31,11 @@ public class TicketService {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<Ticket> getUserTicketList(User user) {
-        QTicket ticket = QTicket.ticket;
-        return jpaQueryFactory.selectFrom(ticket).where(ticket.user.id.eq(user.getId())).fetchAll().stream().toList();
+
+    public List<TicketResponseDto> getUserTicketList(User user) {
+        QTicket qTicket = QTicket.ticket;
+        List<TicketResponseDto> ticketList = jpaQueryFactory.selectFrom(qTicket).where(qTicket.user.id.eq(user.getId())).fetch().stream().map(TicketResponseDto::new).toList();
+        return ticketList;
     }
 
     //티켓팅

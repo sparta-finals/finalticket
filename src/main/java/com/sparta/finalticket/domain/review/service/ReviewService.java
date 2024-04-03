@@ -8,6 +8,7 @@ import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,8 +57,8 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
-    public Object getUserReviewList(User user) {
+    public List<ReviewResponseDto> getUserReviewList(User user) {
         QReview qReview = QReview.review1;
-        return jpaQueryFactory.selectFrom(qReview).where(qReview.user.id.eq(user.getId())).fetchAll().stream().map(ReviewResponseDto::new).toList();
+        return jpaQueryFactory.selectFrom(qReview).where(qReview.user.id.eq(user.getId())).fetch().stream().map(ReviewResponseDto::new).toList();
     }
 }
