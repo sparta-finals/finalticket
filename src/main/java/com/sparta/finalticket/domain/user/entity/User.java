@@ -1,7 +1,5 @@
 package com.sparta.finalticket.domain.user.entity;
 
-import com.sparta.finalticket.domain.user.dto.request.InfoRequestDto;
-import com.sparta.finalticket.domain.user.dto.request.SignupRequestDto;
 import com.sparta.finalticket.domain.user.dto.request.UserRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
