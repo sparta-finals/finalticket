@@ -9,8 +9,7 @@ public class PasswordEncoder {
     }
 
     public boolean matches(String rawPassword , String hashedPassword){
-        boolean isMatch = hashedPassword.equals(DigestUtils.sha256Hex(rawPassword));
-        return isMatch;
+        return hashedPassword.equals(DigestUtils.sha256Hex(rawPassword));
     }
 
 }
