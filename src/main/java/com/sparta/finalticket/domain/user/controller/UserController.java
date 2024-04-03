@@ -1,7 +1,6 @@
 package com.sparta.finalticket.domain.user.controller;
 
 import com.sparta.finalticket.domain.user.dto.request.LoginRequestDto;
-import com.sparta.finalticket.domain.user.dto.request.SignupRequestDto;
 import com.sparta.finalticket.domain.user.dto.request.UserRequestDto;
 import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.domain.user.service.UserService;
@@ -43,7 +42,6 @@ public class UserController {
 	public String signup(@RequestBody @Valid UserRequestDto requestDto,
 		BindingResult bindingResult) {
 		// Validation 예외처리
-		log.info("컨트롤러 진입");
 		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
 		if (fieldErrors.size() > 0) {
 			for (FieldError fieldError : bindingResult.getFieldErrors()) {

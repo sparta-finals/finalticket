@@ -16,7 +16,7 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE review SET state = true WHERE id = ?")
-@Where(clause = "state = false")
+@Where(clause = "state = true")
 public class Review extends TimeStamped {
 
 	@Id
@@ -30,7 +30,7 @@ public class Review extends TimeStamped {
 	private Long score;
 
 	@Column
-	private Boolean state = false;
+	private Boolean state;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")

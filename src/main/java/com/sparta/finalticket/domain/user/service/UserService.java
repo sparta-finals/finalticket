@@ -8,6 +8,7 @@ import com.sparta.finalticket.domain.user.entity.QUser;
 import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.domain.user.entity.UserRoleEnum;
 import com.sparta.finalticket.domain.user.repository.UserRepository;
+import com.sparta.finalticket.global.util.PasswordEncoder;
 import com.sparta.finalticket.global.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,7 +16,6 @@ import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
