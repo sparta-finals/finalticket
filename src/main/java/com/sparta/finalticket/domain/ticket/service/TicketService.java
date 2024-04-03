@@ -41,15 +41,18 @@ public class TicketService {
 
     //티켓팅
     @Transactional
+//    @DistributedLock(key = "#seatId")
     public void createTicket(Long gameId, Long seatId, User user) {
-
+        if (seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, true)) {
+            throw new IllegalArgumentException("해당 좌석은 이미 예매 되었습니다.");
+        }
         boolean existingTicket = seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, false);
         if (!existingTicket) {
             Game game = getGame(gameId);
             SeatSetting seatSetting = getSeatsetting(seatId);
 
-            validateSeatExist(user, game, seatId, true);
-            Seat seat = new Seat(game, seatSetting, user, true);
+            int price = seatSetting.getSeatType().getPrice();
+            Seat seat = new Seat(game, seatSetting, user, true, price);
             seatRepository.save(seat);
 
             Ticket ticket = new Ticket(user, game, seat, true);
@@ -91,9 +94,4 @@ public class TicketService {
                 .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 티켓 입니다."));
     }
 
-    private void validateSeatExist(User user, Game game, Long seatId, Boolean b) {
-        if (seatRepository.existsByUserAndGameAndSeatsettingIdAndState(user, game, seatId, b)) {
-            throw new IllegalArgumentException("이미 예매된 좌석입니다.");
-        }
-    }
 }
