@@ -39,11 +39,12 @@ public class Seat extends TimeStamped {
     @JoinColumn(name = "seatsetting_id")
     private SeatSetting seatsetting;
 
-    public Seat(Game game, SeatSetting seatSetting, User user, boolean b) {
+    public Seat(Game game, SeatSetting seatSetting, User user, boolean b, int price) {
         this.game = game;
         this.seatsetting = seatSetting;
         this.user = user;
         this.state = b;
+        this.price = price;
     }
 
     public void update(boolean b) {
