@@ -40,6 +40,7 @@ public class GameRepositoryImpl implements CustomGameRepository {
 
     @Override
     public List<GameResponseDto> getUserGameList(User user) {
-        return queryFactory.selectFrom(game).where(game.user.id.eq(user.getId())).stream().map(GameResponseDto::new).toList();
+        return queryFactory.selectFrom(game)
+            .where(game.user.id.eq(user.getId())).stream().map(GameResponseDto::new).toList();
     }
 }

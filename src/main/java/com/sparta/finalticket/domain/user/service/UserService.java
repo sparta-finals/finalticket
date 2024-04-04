@@ -74,25 +74,30 @@ public class UserService {
         requestDto.setPassword(passwordEncoder.encode(requestDto.getPassword()));
         // 회원 중복 확인
         String usernamae = requestDto.getUsername();
-        if ((conversionEnum.equals(DataConversionEnum.INFO) && usernamae.equals(user.getUsername()))
-            || conversionEnum.equals(DataConversionEnum.SIGNUP)) {
+        if(conversionEnum.equals(DataConversionEnum.INFO)&&!user.getUsername().equals(usernamae)){
             Optional<User> checkUsername = userRepository.findByUsername(usernamae);
             if (checkUsername.isPresent()) {
                 throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
             }
         }
 
+
+
         // email 중복확인
         String email = requestDto.getEmail();
-        Optional<User> checkEmail = userRepository.findByEmail(email);
-        if (checkEmail.isPresent()) {
-            throw new IllegalArgumentException("중복된 Email 입니다.");
+        if(conversionEnum.equals(DataConversionEnum.INFO)&&!user.getEmail().equals(email)){
+            Optional<User> checkEmail = userRepository.findByEmail(email);
+            if (checkEmail.isPresent()) {
+                throw new IllegalArgumentException("중복된 Email 입니다.");
+            }
         }
 
         String nickname = requestDto.getNickname();
-        Optional<User> checkNickname = userRepository.findByNickname(nickname);
-        if (checkNickname.isPresent()) {
-            throw new IllegalArgumentException("중복된 Nickname 입니다.");
+        if(conversionEnum.equals(DataConversionEnum.INFO)&&!user.getNickname().equals(nickname)){
+            Optional<User> checkNickname = userRepository.findByNickname(nickname);
+            if (checkNickname.isPresent()) {
+                throw new IllegalArgumentException("중복된 Nickname 입니다.");
+            }
         }
 
         if (conversionEnum.equals(DataConversionEnum.SIGNUP)) {
