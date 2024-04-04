@@ -29,7 +29,9 @@ public class TicketService {
 
 
     public List<TicketResponseDto> getUserTicketList(User user) {
-        return ticketRepository.findByUserId(user.getId()).stream().map(TicketResponseDto::new).toList();
+
+        return ticketRepository.getUserTicketList(user.getId());
+//        return ticketRepository.findByUserId(user.getId()).stream().map(TicketResponseDto::new).toList();
     }
 
     //티켓팅

@@ -34,7 +34,6 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     @Override
     public User findUser(String username) {
         return jpaQueryFactory.selectFrom(QUser.user).
-            where(QUser.user.username.eq(username)
-                .and(QUser.user.state.eq(true))).fetchOne();
+            where(QUser.user.username.eq(username)).fetchOne();
     }
 }

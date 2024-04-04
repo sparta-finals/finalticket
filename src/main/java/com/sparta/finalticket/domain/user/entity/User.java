@@ -12,12 +12,16 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Getter
 @Setter
 @Table(name = "users")
 @Entity
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE game SET state = false WHERE id = ?")
+@Where(clause = "state = true")
 public class User {
 
 	@Id

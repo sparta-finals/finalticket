@@ -1,5 +1,6 @@
 package com.sparta.finalticket.domain.review.service;
 
+import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.entity.Review;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final GameRepository gameRepository;
 
     @Transactional
     public void createReview(Long id, ReviewRequestDto reviewRequestDto, User user) {
@@ -24,6 +26,7 @@ public class ReviewService {
         review.setScore(reviewRequestDto.getScore());
         review.setState(reviewRequestDto.getState());
         review.setUser(user);
+        review.setGame(gameRepository.findById(id).orElseThrow());
         reviewRepository.save(review);
     }
 
