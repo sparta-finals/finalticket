@@ -47,6 +47,10 @@ public class Seat extends TimeStamped {
         this.price = price;
     }
 
+    public Seat(Game game, SeatSetting seatSetting, User user, boolean b) {
+        super();
+    }
+
     public void update(boolean b) {
         this.state = b;
     }
