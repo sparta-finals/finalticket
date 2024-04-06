@@ -1,6 +1,5 @@
 package com.sparta.finalticket.domain.ticket.service;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.seat.entity.Seat;
@@ -8,15 +7,13 @@ import com.sparta.finalticket.domain.seat.repository.SeatRepository;
 import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
 import com.sparta.finalticket.domain.seatsetting.repository.SeatSettingRepository;
 import com.sparta.finalticket.domain.ticket.dto.TicketResponseDto;
-import com.sparta.finalticket.domain.ticket.entity.QTicket;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
 import com.sparta.finalticket.domain.ticket.repository.TicketRepository;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,29 +27,22 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
 
-    private final JPAQueryFactory jpaQueryFactory;
-
 
     public List<TicketResponseDto> getUserTicketList(User user) {
-        QTicket qTicket = QTicket.ticket;
-        List<TicketResponseDto> ticketList = jpaQueryFactory.selectFrom(qTicket).where(qTicket.user.id.eq(user.getId())).fetch().stream().map(TicketResponseDto::new).toList();
-        return ticketList;
+        return ticketRepository.getUserTicketList(user.getId());
     }
 
     //티켓팅
     @Transactional
-//    @DistributedLock(key = "#seatId")
     public void createTicket(Long gameId, Long seatId, User user) {
-        if (seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, true)) {
-            throw new IllegalArgumentException("해당 좌석은 이미 예매 되었습니다.");
-        }
+
         boolean existingTicket = seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, false);
         if (!existingTicket) {
             Game game = getGame(gameId);
             SeatSetting seatSetting = getSeatsetting(seatId);
 
-            int price = seatSetting.getSeatType().getPrice();
-            Seat seat = new Seat(game, seatSetting, user, true, price);
+            validateSeatExist(user, game, seatId, true);
+            Seat seat = new Seat(game, seatSetting, user, true);
             seatRepository.save(seat);
 
             Ticket ticket = new Ticket(user, game, seat, true);
@@ -94,4 +84,9 @@ public class TicketService {
                 .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 티켓 입니다."));
     }
 
+    private void validateSeatExist(User user, Game game, Long seatId, Boolean b) {
+        if (seatRepository.existsByUserAndGameAndSeatsettingIdAndState(user, game, seatId, b)) {
+            throw new IllegalArgumentException("이미 예매된 좌석입니다.");
+        }
+    }
 }

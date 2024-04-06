@@ -1,14 +1,12 @@
 package com.sparta.finalticket.domain.user.controller;
 
 import com.sparta.finalticket.domain.user.dto.request.LoginRequestDto;
-import com.sparta.finalticket.domain.user.dto.request.SignupRequestDto;
 import com.sparta.finalticket.domain.user.dto.request.UserRequestDto;
 import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,61 +25,60 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/v1/users")
 public class UserController {
 
-	private final UserService userService;
+    private final UserService userService;
 
-	@GetMapping("/login-page")
-	public String loginPage() {
-		return "login";
-	}
+    @GetMapping("/login-page")
+    public String loginPage() {
+        return "login";
+    }
 
-	@GetMapping("/signup")
-	public String signupPage() {
-		return "signup";
-	}
+    @GetMapping("/signup")
+    public String signupPage() {
+        return "signup";
+    }
 
-	@PostMapping("/signup")
-	public String signup(@RequestBody @Valid UserRequestDto requestDto,
-		BindingResult bindingResult) {
-		// Validation 예외처리
-		log.info("컨트롤러 진입");
-		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-		if (fieldErrors.size() > 0) {
-			for (FieldError fieldError : bindingResult.getFieldErrors()) {
-				log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
-			}
-			return "redirect:/v1/users/signup";
-		}
+    @PostMapping("/signup")
+    public String signup(@RequestBody @Valid UserRequestDto requestDto,
+        BindingResult bindingResult) {
+        // Validation 예외처리
+        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+        if (fieldErrors.size() > 0) {
+            for (FieldError fieldError : bindingResult.getFieldErrors()) {
+                log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
+            }
+            return "redirect:/v1/users/signup";
+        }
 
-		userService.signup(requestDto);
+        userService.signup(requestDto);
 
-		return "redirect:/v1/users/login-page";
-	}
+        return "redirect:/v1/users/login-page";
+    }
 
-	@PostMapping("/login")
-	public String login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult,
-		HttpServletResponse response) throws IOException {
-		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-		if (fieldErrors.size() > 0) {
-			for (FieldError fieldError : bindingResult.getFieldErrors()) {
-				log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
-			}
-			return "redirect:/v1/users/login-page";
-		}
-		userService.login(requestDto, response);
+    @PostMapping("/login")
+    public String login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult,
+        HttpServletResponse response) {
+        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+        if (fieldErrors.size() > 0) {
+            for (FieldError fieldError : bindingResult.getFieldErrors()) {
+                log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
+            }
+            return "redirect:/v1/users/login-page";
+        }
+        userService.login(requestDto, response);
 
-		return "redirect:/";
-	}
+        return "redirect:/";
+    }
 
-	@DeleteMapping("/logout")
-	public String logout(HttpServletRequest request) {
-		userService.logout(request);
-		return "redirect:/v1/users/login-page";
-	}
+    @DeleteMapping("/logout")
+    public String logout(HttpServletRequest request) {
+        userService.logout(request);
+        return "redirect:/v1/users/login-page";
+    }
 
-	@DeleteMapping("/withdrawal")
-	public String withdrawal(HttpServletRequest request){
-		userService.withdrawal((User)request.getAttribute("user"),request);
-		return "redirect:/v1/users/login-page";
-	}
+    @DeleteMapping("/withdrawal")
+    public String withdrawal(HttpServletRequest request) {
+        userService.withdrawal((User) request.getAttribute("user"), request);
+        return "redirect:/v1/users/login-page";
+    }
 
 }
