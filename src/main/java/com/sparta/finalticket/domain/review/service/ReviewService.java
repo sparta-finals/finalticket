@@ -1,9 +1,8 @@
 package com.sparta.finalticket.domain.review.service;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
-import com.sparta.finalticket.domain.review.entity.QReview;
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
 import com.sparta.finalticket.domain.user.entity.User;
@@ -18,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final JPAQueryFactory jpaQueryFactory;
+    private final GameRepository gameRepository;
 
     @Transactional
     public void createReview(Long id, ReviewRequestDto reviewRequestDto, User user) {
@@ -27,6 +26,7 @@ public class ReviewService {
         review.setScore(reviewRequestDto.getScore());
         review.setState(reviewRequestDto.getState());
         review.setUser(user);
+        review.setGame(gameRepository.findById(id).orElseThrow());
         reviewRepository.save(review);
     }
 
@@ -58,7 +58,6 @@ public class ReviewService {
     }
 
     public List<ReviewResponseDto> getUserReviewList(User user) {
-        QReview qReview = QReview.review1;
-        return jpaQueryFactory.selectFrom(qReview).where(qReview.user.id.eq(user.getId())).fetch().stream().map(ReviewResponseDto::new).toList();
+        return reviewRepository.getUserReviewList(user);
     }
 }
