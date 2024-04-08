@@ -12,7 +12,7 @@ import com.sparta.finalticket.domain.ticket.entity.QTicket;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
 import com.sparta.finalticket.domain.ticket.repository.TicketRepository;
 import com.sparta.finalticket.domain.user.entity.User;
-import jakarta.transaction.Transactional;
+import com.sparta.finalticket.global.config.redis.DistributedLock;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +40,7 @@ public class TicketService {
     }
 
     //티켓팅
-    @Transactional
-//    @DistributedLock(key = "#seatId")
+    @DistributedLock(key = "#seatId")
     public void createTicket(Long gameId, Long seatId, User user) {
         if (seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, true)) {
             throw new IllegalArgumentException("해당 좌석은 이미 예매 되었습니다.");
@@ -67,7 +66,7 @@ public class TicketService {
     }
 
     //티켓팅 취소
-    @Transactional
+    @DistributedLock(key = "#seatId")
     public void deleteTicket(Long gameId, Long seatId, User user) {
         Seat seat = getSeat(gameId, seatId, user.getId(), true);
         seat.update(false);
