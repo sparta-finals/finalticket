@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "game", indexes = @Index(name = "idx_game",columnList = "id"))
 @SQLDelete(sql = "UPDATE game SET state = false WHERE id = ?")
 @Where(clause = "state = true")
 
