@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.stream.IntStream;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/games")
@@ -28,5 +30,13 @@ public class TicketController {
     }
     private static User getUser(HttpServletRequest request) {
         return (User) request.getAttribute("user");
+    }
+
+    // 티켓팅 동시성 테스트
+    @PostMapping("/{gameId}/seats/{seatId}/test")
+    public ResponseEntity<Void> create2Order100(@PathVariable Long gameId, @PathVariable Long seatId, HttpServletRequest request) {
+        System.out.println("\n\n\n\n[concurrencyTestUsingLockByParallel]");
+        IntStream.range(0, 1000).parallel().forEach(i -> ticketService.createTicket(gameId, seatId, getUser(request)));
+        return ResponseEntity.status(201).build();
     }
 }
