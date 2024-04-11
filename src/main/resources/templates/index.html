@@ -1,36 +1,60 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
+    <meta charset="UTF-8"/>
+    <title>FinalTicket</title>
 
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
-  <script src="/js/basic.js"></script>
-  <title>나만의 셀렉샵</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+    <script
+            src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous"
+    ></script>
 </head>
 <body>
-<div class="header" style="position:relative;">
-  <div id="login-true" style="display: none">
-    <div id="header-title-login-user">
-      <span th:text="${username}"></span> 님의
+<div class="container">
+    <div class="header">
+        <div class="logo">FinalTicket</div>
+        <div class="navigation">
+            <div th:if="${session.user != null}">
+                <span th:text="${session.user.username}"></span>
+                <span>님 환영합니다.</span>
+                <a href="/v1/users/logout">로그아웃</a>
+            </div>
+            <div th:if="${session.user == null}">
+                <a href="/v1/users/login-page">로그인</a>
+                <a href="v1/users/signup">회원가입</a>
+            </div>
+            <a href="/v1/games/register">경기등록</a>
+        </div>
+
     </div>
-    <div id="header-title-select-shop">
-      Select Shop
+    <div class="search">
+        <input type="text" placeholder="경기이름, 팀명등"/>
+        <button>검색</button>
     </div>
-    <a id="login-text" href="javascript:logout()">
-      로그아웃
-    </a>
-  </div>
-  <div id="login-false" >
-    <div id="header-title-select-shop">
-      My Select Shop
+    <div class="category">
+        <ul class="category-tabs">
+            <li class="tab-category active" data-tab="soccer"><a href="#">축구</a></li>
+            <li class="tab-category" data-tab="baseball"><a href="#">야구</a></li>
+            <li class="tab-category" data-tab="basketball"><a href="#">농구</a></li>
+            <li class="tab-category"><a href="/v1/games/list">전체 경기 목록</a></li>
+        </ul>
     </div>
-  </div>
+
+
+    <script>
+
+
+    </script>
+
+
+</div>
+<div class="footer">
+
+    <p>ⓒ 2024 FinalTicket All rights reserved.</p>
+</div>
 </div>
 </body>
 </html>

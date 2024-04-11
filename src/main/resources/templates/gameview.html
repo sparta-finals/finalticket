@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>상세페이지</title>
+  <style>
+    .container {
+      width: 80%;
+      margin: 0 auto;
+    }
+
+    .details, .booking-form {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>상세페이지</h1>
+  <div class="details">
+    <p><strong>Name:</strong> <span th:text="${game.name}">Game Name</span></p>
+    <p><strong>Date:</strong> <span th:text="${game.startDate}">Game Date</span></p>
+    <p><strong>Place:</strong> <span th:text="${game.place}">Game Place</span></p>
+    <p><strong>Category:</strong> <span th:text="${game.category}">Game Category</span></p>
+  </div>
+
+  <div class="booking-form">
+    <h2>티켓 예매</h2>
+    <form th:action="@{/v1/games/{gameId}/seats/{seatId}(gameId=${game.id}, seatId=${seatId})}" method="post">
+      <div>
+        <label for="seatId">예매할 좌석 ID:</label>
+        <input type="text" id="seatId" name="seatId" required />
+      </div>
+      <div>
+        <button type="submit">예매하기</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

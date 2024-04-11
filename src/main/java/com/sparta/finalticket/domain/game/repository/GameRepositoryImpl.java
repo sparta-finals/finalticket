@@ -8,8 +8,10 @@ import static com.sparta.finalticket.domain.ticket.entity.QTicket.ticket;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
+import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.user.entity.User;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -22,21 +24,30 @@ public class GameRepositoryImpl implements CustomGameRepository {
     @Override
     public void deleteGameAndRelateEntities(Long gameId) {
         queryFactory.delete(game)
-                .where(game.id.eq(gameId))
-                .execute();
+            .where(game.id.eq(gameId))
+            .execute();
 
         queryFactory.delete(review1)
-                .where(review1.game.id.eq(gameId))
-                .execute();
+            .where(review1.game.id.eq(gameId))
+            .execute();
 
         queryFactory.delete(seat)
-                .where(seat.game.id.eq(gameId))
-                .execute();
+            .where(seat.game.id.eq(gameId))
+            .execute();
 
         queryFactory.delete(ticket)
-                .where(ticket.game.id.eq(gameId))
-                .execute();
+            .where(ticket.game.id.eq(gameId))
+            .execute();
     }
+
+    @Override
+    public Optional<Game> findByIdAndStateTrue(Long gameId) {
+        return Optional.ofNullable(queryFactory.selectFrom(game)
+            .where(game.id.eq(gameId)
+                .and(game.state.isTrue()))
+            .fetchFirst());
+    }
+
 
     @Override
     public List<GameResponseDto> getUserGameList(User user) {
