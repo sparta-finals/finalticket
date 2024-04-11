@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>좌석 선택</title>
+  <style>
+    .seat-info, .price-info, .booking-button {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>좌석 선택</h2>
+
+<div class="seat-info">
+  <label for="seatSelection">좌석 선택:</label>
+  <select id="seatSelection" onchange="updatePrice()">
+  </select>
+</div>
+
+<div class="price-info">
+  선택한 좌석의 가격: <span id="selectedPrice"></span>
+</div>
+
+<div class="booking-button">
+  <button onclick="bookSeat()">예매하기</button>
+</div>
+
+<script>
+  function generateSeats() {
+    const seatSelection = document.getElementById('seatSelection');
+    const seats = {
+      'Regular': [
+        { start: 'A', count: 10, price: '10,000원' },
+        { start: 'B', count: 10, price: '10,000원' },
+        { start: 'C', count: 10, price: '10,000원' }
+      ],
+      'VIP': { start: 'D', count: 10, price: '15,000원' },
+      'Premium': { start: 'E', count: 10, price: '20,000원' }
+    };
+
+    Object.entries(seats).forEach(([type, info]) => {
+      const optgroup = document.createElement('optgroup');
+      if (Array.isArray(info)) {
+        info.forEach(section => {
+          addSeatsToOptgroup(section, optgroup, type);
+        });
+      } else {
+        addSeatsToOptgroup(info, optgroup, type);
+      }
+      seatSelection.appendChild(optgroup);
+    });
+  }
+
+  function addSeatsToOptgroup(info, optgroup, type) {
+    optgroup.label = `${type} (${info.price})`;
+    for (let i = 1; i <= info.count; i++) {
+      const row = info.start;
+      const seatNumber = i <= 10 ? i : i - 10;
+      const option = document.createElement('option');
+      option.value = `${row.toLowerCase()}${seatNumber}`;
+      option.textContent = `${row}${seatNumber}`;
+      optgroup.appendChild(option);
+    }
+  }
+
+  function updatePrice() {
+    const selection = document.getElementById('seatSelection');
+    const selectedOption = selection.options[selection.selectedIndex];
+    const priceDisplay = document.getElementById('selectedPrice');
+
+    if (selectedOption.parentElement.label.startsWith('Regular')) {
+      priceDisplay.innerText = '10,000원';
+    } else if (selectedOption.parentElement.label.startsWith('VIP')) {
+      priceDisplay.innerText = '15,000원';
+    } else if (selectedOption.parentElement.label.startsWith('Premium')) {
+      priceDisplay.innerText = '20,000원';
+    }
+  }
+
+  function bookSeat() {
+    const selection = document.getElementById('seatSelection');
+    const selectedOption = selection.options[selection.selectedIndex];
+    console.log(`예매된 좌석: ${selectedOption.text}, 가격: ${selectedOption.parentElement.label.split(' ')[1]}`);
+  }
+
+  window.onload = function() {
+    generateSeats();
+    updatePrice();
+  }
+</script>
+
+</body>
+</html>
