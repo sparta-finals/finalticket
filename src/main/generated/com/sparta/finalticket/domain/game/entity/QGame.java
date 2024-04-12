@@ -68,3 +68,4 @@ public class QGame extends EntityPathBase<Game> {
     }
 
 }
+

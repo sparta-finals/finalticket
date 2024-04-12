@@ -66,3 +66,4 @@ public class QSeat extends EntityPathBase<Seat> {
     }
 
 }
+

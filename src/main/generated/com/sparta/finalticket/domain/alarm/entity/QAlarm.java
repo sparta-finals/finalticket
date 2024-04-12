@@ -60,3 +60,4 @@ public class QAlarm extends EntityPathBase<Alarm> {
     }
 
 }
+

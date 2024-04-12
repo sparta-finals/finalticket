@@ -64,3 +64,4 @@ public class QTicket extends EntityPathBase<Ticket> {
     }
 
 }
+

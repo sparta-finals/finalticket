@@ -48,3 +48,4 @@ public class QUser extends EntityPathBase<User> {
     }
 
 }
+

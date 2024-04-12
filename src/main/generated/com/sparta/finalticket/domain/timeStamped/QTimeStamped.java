@@ -36,3 +36,4 @@ public class QTimeStamped extends EntityPathBase<TimeStamped> {
     }
 
 }
+
