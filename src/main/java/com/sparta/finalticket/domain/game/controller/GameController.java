@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequiredArgsConstructor
@@ -74,14 +75,19 @@ public class GameController {
 //    }
 
     @GetMapping("list")
-    public String listGames(Model model) {
-        model.addAttribute("games", gameService.getAllGameList());
-        return "games";
+    public ResponseEntity<List<GameResponseDto>> listGames() {
+        return  ResponseEntity.status(200).body(gameService.getAllGameList());
     }
 
     @GetMapping("/register")
     public String registerGame(){
         return "register-game";
+    }
+
+    @GetMapping("/{id}/detail")
+    public String detailGame(@PathVariable Long id, Model model){
+        model.addAttribute("id",id);
+        return "gameview";
     }
 
     @GetMapping("{id}")

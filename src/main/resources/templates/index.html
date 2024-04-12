@@ -42,19 +42,61 @@
             <li class="tab-category"><a href="/v1/games/list">전체 경기 목록</a></li>
         </ul>
     </div>
-
-
-    <script>
-
-
-    </script>
-
-
+    <div>
+        <table>
+            <thead>
+            <tr>
+                <th>경기</th>
+                <th>남은 좌석</th>
+                <th>예매시간</th>
+                <th>경기 장소</th>
+                <th>카테고리</th>
+            </tr>
+            </thead>
+            <tbody id = "gameTbody">
+            </tbody>
+        </table>
+    </div>
 </div>
 <div class="footer">
 
     <p>ⓒ 2024 FinalTicket All rights reserved.</p>
 </div>
-</div>
 </body>
+<script>
+    const gameTbody = document.getElementById('gameTbody');
+        $(document).ready(function () {
+        $.ajax({
+            url: 'v1/games/list',
+            method: 'GET',
+            success: function(data) {
+                // 데이터 처리
+                console.log(data);
+                data.forEach(game => {
+                    const row = document.createElement('tr');
+                    row.addEventListener('click',gameClickE);
+                    row.innerHTML = `<td>${game.name}</td>
+                    <td>${game.count}</td>
+                    <td>${game.startDate}</td>
+                    <td>${game.place}</td>
+                    <td>${game.category}</td>
+                    <input type="hidden" value=${game.id}>
+                    `;
+                    gameTbody.appendChild(row);
+                });
+
+            },
+            error: function(xhr, status, error) {
+                console.error('Failed to fetch data:', status, error);
+            }
+        });
+    });
+    function gameClickE(event){
+        const clickedRow = event.currentTarget;
+        const hiddenInput = clickedRow.querySelector('input[type="hidden"]');
+        const gameId = hiddenInput.value;
+        const host = 'http://' + window.location.host;
+        window.location.href = host+'/v1/games/'+gameId+"/detail";
+    }
+</script>
 </html>

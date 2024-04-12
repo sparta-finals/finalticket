@@ -90,7 +90,6 @@ public class GameService {
     @Transactional(readOnly = true)
     public List<GameResponseDto> getGameList(Long gameId) {
         Game game = validateExistGame(gameId);
-
         return gameRepository.findByIdAndStateTrue(gameId).stream()
             .map(GameResponseDto::new).toList();
     }
