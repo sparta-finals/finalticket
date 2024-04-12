@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+          integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <title>게임 등록</title>
+  <link rel="stylesheet">
+</head>
+<body>
+<div class="game-registration-container">
+  <h1>게임 등록</h1>
+    <div class="form-group">
+      <label for="gamename">게임 이름:</label>
+      <input type="text" id="gamename" name="gamename" required>
+    </div>
+    <div class="form-group">
+      <label for="startDate">티켓 발매 시간:</label>
+      <input type="datetime-local" id="startDate" name="startDate" required>
+    </div>
+    <div class="form-group">
+      <label for="category">카테고리:</label>
+      <select id="category" name="category">
+        <option value="SOCCER">SOCCER</option>
+        <option value="BASEBALL">BASEBALL</option>
+        <option value="BASKETBALL">BASKETBALL</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="place">장소:</label>
+      <select id="place" name="place">
+        <option value="SOCCER_STADIUM">SOCCER_STADIUM</option>
+        <option value="BASEBALL_STADIUM">BASEBALL_STADIUM</option>
+        <option value="BASKETBALL_STADIUM">BASKETBALL_STADIUM</option>
+      </select>
+    </div>
+    <div calss="form-group">
+      <label for="count">카운트:</label>
+      <input type="number" id="count" name="count" required>
+    </div>
+    <button type="button" onclick="requestCreateGame()">게임 등록</button>
+</div>
+</body>
+<script>
+  function requestCreateGame(){
+    let gamename = $('#gamename').val();
+    let startDate = $('#startDate').val();
+    let category =$('#category').val();
+    let place = $('#place').val();
+    let count = $('#count').val();
+
+    const host = 'http://' + window.location.host;
+
+    $.ajax({
+      type: "POST",
+      url: `/v1/games`,
+      contentType: "application/json",
+      data: JSON.stringify({name : gamename, startDate: startDate, category: category, place: place, count: count
+      }),
+      async : false
+    })
+    .done(function (res, status, xhr) {
+      window.location.href = host;
+      console.log('done')
+    })
+    .fail(function (xhr, textStatus, errorThrown) {
+      console.log(data);
+      console.log('statusCode: ' + xhr.status);
+    });
+  }
+</script>
+</html>

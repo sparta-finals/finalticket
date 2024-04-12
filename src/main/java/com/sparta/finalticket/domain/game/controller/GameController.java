@@ -2,6 +2,7 @@ package com.sparta.finalticket.domain.game.controller;
 
 import com.sparta.finalticket.domain.game.dto.request.GameRequestDto;
 import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
+import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.service.GameService;
 import com.sparta.finalticket.domain.user.dto.response.CommonResponse;
 import com.sparta.finalticket.domain.user.entity.User;
@@ -10,11 +11,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.web.servlet.ModelAndView;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("/v1/games")
 public class GameController {
@@ -59,15 +63,31 @@ public class GameController {
         );
     }
 
-    @GetMapping
-    public ResponseEntity<CommonResponse<List<GameResponseDto>>> getAllGameList() {
-        List<GameResponseDto> responseList = gameService.getAllGameList();
+//    @GetMapping
+//    public ResponseEntity<CommonResponse<List<GameResponseDto>>> getAllGameList() {
+//        List<GameResponseDto> responseList = gameService.getAllGameList();
+//
+//        return ResponseEntity.status(HttpStatus.OK.value()).body(
+//                CommonResponse.<List<GameResponseDto>>builder()
+//                        .data(responseList)
+//                        .build()
+//        );
+//    }
 
-        return ResponseEntity.status(HttpStatus.OK.value()).body(
-                CommonResponse.<List<GameResponseDto>>builder()
-                        .data(responseList)
-                        .build()
-        );
+    @GetMapping("list")
+    public ResponseEntity<List<GameResponseDto>> listGames() {
+        return  ResponseEntity.status(200).body(gameService.getAllGameList());
+    }
+
+    @GetMapping("/register")
+    public String registerGame(){
+        return "register-game";
+    }
+
+    @GetMapping("/{id}/detail")
+    public String detailGame(@PathVariable Long id, Model model){
+        model.addAttribute("id",id);
+        return "gameview";
     }
 
     @GetMapping("{id}")
@@ -80,6 +100,8 @@ public class GameController {
                         .build()
         );
     }
+
+
 
     //예매예정경기 전체 조회
     @GetMapping("/upcoming")
