@@ -99,8 +99,8 @@ public class GameService {
     private User validateCheckAdmin(Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자 입니다."));
-        if (user.getRole() != UserRoleEnum.ADMIN && user.getRole() != UserRoleEnum.USER) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+        if (user.getRole() != UserRoleEnum.ADMIN) {
+            throw new IllegalArgumentException("관리자만 경기를 등록,수정,삭제할 수 있습니다.");
         }
         return user;
     }
@@ -142,4 +142,3 @@ public class GameService {
             .toList();
     }
 }
-
