@@ -1,5 +1,6 @@
 package com.sparta.finalticket.domain.user.controller;
 
+import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
 import com.sparta.finalticket.domain.game.service.GameService;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.service.ReviewService;
@@ -40,7 +41,7 @@ public class InfoController {
   }
 
   @PutMapping("/info")
-  public ResponseEntity modifyInfo(HttpServletRequest request,
+  public ResponseEntity<Void> modifyInfo(HttpServletRequest request,
       @Valid @RequestBody UserRequestDto infoRequestDto) {
     userService.modifyInfo((User) request.getAttribute("user"), infoRequestDto);
     return new ResponseEntity<>(HttpStatus.OK);
@@ -48,17 +49,17 @@ public class InfoController {
 
   @GetMapping("/tickets")
   public ResponseEntity<List<TicketResponseDto>> userTicket(HttpServletRequest request){
-    return new ResponseEntity(ticketService.getUserTicketList((User)request.getAttribute("user")), HttpStatus.OK);
+    return new ResponseEntity<>(ticketService.getUserTicketList((User)request.getAttribute("user")), HttpStatus.OK);
   }
 
   @GetMapping("/reviews")
   public ResponseEntity<List<ReviewResponseDto>> userReview(HttpServletRequest request){
-    return new ResponseEntity(reviewService.getUserReviewList((User)request.getAttribute("user")),HttpStatus.OK);
+    return new ResponseEntity<>(reviewService.getUserReviewList((User)request.getAttribute("user")),HttpStatus.OK);
   }
 
   @GetMapping("/games")
-  public ResponseEntity userGame(HttpServletRequest request){
-    return new ResponseEntity(gameService.getUserGameList((User)request.getAttribute("user")),HttpStatus.OK);
+  public ResponseEntity<List<GameResponseDto>> userGame(HttpServletRequest request){
+    return new ResponseEntity<>(gameService.getUserGameList((User)request.getAttribute("user")),HttpStatus.OK);
   }
 
 }

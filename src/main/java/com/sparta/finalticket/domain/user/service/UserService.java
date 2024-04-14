@@ -48,8 +48,8 @@ public class UserService {
         }
     }
 
-    public void logout(HttpServletRequest request) {
-        sessionUtil.logout(request);
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        sessionUtil.logout(request,response);
     }
 
     @Transactional
@@ -62,9 +62,9 @@ public class UserService {
     }
 
     @Transactional
-    public void withdrawal(User user, HttpServletRequest request) {
+    public void withdrawal(User user, HttpServletRequest request, HttpServletResponse response) {
         userRepository.withdrawal(user);
-        logout(request);
+        logout(request, response);
     }
 
     public boolean validateUserInfo(UserRequestDto requestDto, DataConversionEnum conversionEnum,
