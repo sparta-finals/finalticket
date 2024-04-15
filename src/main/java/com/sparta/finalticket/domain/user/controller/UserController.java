@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -38,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public String signup(@RequestBody @Valid UserRequestDto requestDto,
+    public ResponseEntity<Void> signup(@RequestBody @Valid UserRequestDto requestDto,
         BindingResult bindingResult) {
         // Validation 예외처리
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -46,12 +48,15 @@ public class UserController {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
             }
-            return "redirect:/v1/users/signup";
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        userService.signup(requestDto);
-
-        return "redirect:/v1/users/login-page";
+        boolean ok = userService.signup(requestDto);
+        if(ok){
+            return new ResponseEntity<>(HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/login")
