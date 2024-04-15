@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewRequestDto {
+public class ReviewUpdateRequestDto {
 
     private String review;
 
@@ -15,3 +15,4 @@ public class ReviewRequestDto {
 
     private Boolean state;
 }
+
