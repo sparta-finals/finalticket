@@ -2,8 +2,8 @@ package com.sparta.finalticket.domain.game.controller;
 
 import com.sparta.finalticket.domain.game.dto.request.GameRequestDto;
 import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
-import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.service.GameService;
+import com.sparta.finalticket.domain.seat.dto.SeatSettingResponseDto;
 import com.sparta.finalticket.domain.user.dto.response.CommonResponse;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -74,14 +74,20 @@ public class GameController {
 //    }
 
     @GetMapping("list")
-    public String listGames(Model model) {
-        model.addAttribute("games", gameService.getAllGameList());
-        return "games";
+    public ResponseEntity<List<GameResponseDto>> listGames() {
+        return  ResponseEntity.status(200).body(gameService.getAllGameList());
     }
 
     @GetMapping("/register")
     public String registerGame(){
         return "register-game";
+    }
+
+    @GetMapping("/{id}/detail")
+    public String detailGame(@PathVariable Long id, Model model){
+        System.out.println(id);
+        model.addAttribute("id",id);
+        return "game-view";
     }
 
     @GetMapping("{id}")
@@ -95,6 +101,11 @@ public class GameController {
         );
     }
 
+    @GetMapping("{id}/seats")
+    public ResponseEntity<List<SeatSettingResponseDto>> getSeat(@PathVariable Long id){
+        System.out.println("들어옴");
+        return ResponseEntity.status(200).body(gameService.getSeat(id));
+    }
 
 
     //예매예정경기 전체 조회

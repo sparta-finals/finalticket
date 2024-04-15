@@ -23,6 +23,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 		if (sessionUtil.isLoggedIn(request)) {
 			return true;
 		}
+		log.info(request.getRequestURL().toString());
 		response.sendRedirect("/v1/users/login-page");
 		return false;
 	}
