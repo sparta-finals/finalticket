@@ -12,25 +12,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
+@RequestMapping("/v1/alarms")
 @RequiredArgsConstructor
 public class AlarmController {
 
     private final AlarmService alarmService;
-    public static final Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
+    public static Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
-    @GetMapping("/v1/alarms")
+    @GetMapping
     public ResponseEntity<SseEmitter> getAlarm(HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
-        SseEmitter sseEmitter = alarmService.getAlarm(user);
+        SseEmitter sseEmitter = alarmService.subscribeAlarm(user);
+        AlarmService.sseEmitters.put(user.getId(), sseEmitter);
         return ResponseEntity.ok().body(sseEmitter);
     }
 
-    @DeleteMapping("/v1/alarms/{id}")
-    public ResponseEntity<Void> deleteAlarm(
-        @PathVariable Long id,
-        HttpServletRequest httpServletRequest) {
-        User user = (User) httpServletRequest.getAttribute("user");
-        alarmService.deleteAlarm(id, user);
+    @DeleteMapping("/{alarmId}")
+    public ResponseEntity<Void> deleteAlarm(@PathVariable(name = "alarmId") Long alarmId) {
+        alarmService.deleteAlarm(alarmId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,11 +1,10 @@
 package com.sparta.finalticket.domain.review.repository;
 
-import static com.sparta.finalticket.domain.review.entity.QReview.review1;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.game.entity.QGame;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
+import com.sparta.finalticket.domain.review.entity.QReview;
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.user.entity.User;
 import java.util.List;
@@ -20,55 +19,31 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Optional<Review> findByGameId(Long id) {
-        Review review = jpaQueryFactory.selectFrom(review1)
-            .where(review1.id.eq(id))
-            .fetchOne();
-        return Optional.ofNullable(review);
+    public Optional<Review> findReviewByIdAndStateTrue(Long reviewId) {
+        return Optional.ofNullable(
+            jpaQueryFactory.selectFrom(QReview.review1)
+                .where(QReview.review1.id.eq(reviewId)
+                    .and(QReview.review1.state.isTrue()))
+                .fetchOne()
+        );
     }
 
     @Override
-    public List<ReviewResponseDto> findAllReviews() {
-        return jpaQueryFactory.select(Projections.constructor(ReviewResponseDto.class,
-                review1.id, review1.score, review1.id))
-            .from(review1)
-            .fetch();
-    }
-
-    @Override
-    public List<ReviewResponseDto> findReviewsByUserId(Long userId) {
-        return jpaQueryFactory.select(Projections.constructor(ReviewResponseDto.class,
-                review1.id, review1.score, review1.id))
-            .from(review1)
-            .where(review1.id.eq(userId))
-            .fetch();
-    }
-
-    @Override
-    public List<ReviewResponseDto> findReviewsByScoreGreaterThan(int score) {
-        return jpaQueryFactory.select(Projections.constructor(ReviewResponseDto.class,
-                review1.id, review1.score, review1.id))
-            .from(review1)
-            .where(review1.score.gt(score))
-            .fetch();
-    }
-
-    @Override
-    public List<ReviewResponseDto> findReviewsByScoreLessThan(int score) {
-        return jpaQueryFactory.select(Projections.constructor(ReviewResponseDto.class,
-                review1.id, review1.score, review1.id))
-            .from(review1)
-            .where(review1.score.lt(score))
-            .fetch();
+    public Optional<Review> findReviewByIdAndDeleteId(Long reviewId) {
+        return Optional.ofNullable(
+            jpaQueryFactory.selectFrom(QReview.review1)
+                .where(QReview.review1.id.eq(reviewId))
+                .fetchOne()
+        );
     }
 
     @Override
     public List<ReviewResponseDto> getUserReviewList(User user) {
         try{
-            return jpaQueryFactory.selectFrom(review1)
-                .leftJoin(review1.game, QGame.game)
+            return jpaQueryFactory.selectFrom(QReview.review1)
+                .leftJoin(QReview.review1.game, QGame.game)
                 .fetchJoin()
-                .where(review1.user.id.eq(user.getId()))
+                .where(QReview.review1.user.id.eq(user.getId()))
                 .fetch().stream().map(ReviewResponseDto::new).toList();
         }catch (Exception e){
             e.printStackTrace();
@@ -76,4 +51,3 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
         return null;
     }
 }
-
