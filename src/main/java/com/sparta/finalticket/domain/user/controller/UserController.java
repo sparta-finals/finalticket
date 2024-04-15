@@ -70,14 +70,14 @@ public class UserController {
     }
 
     @DeleteMapping("/logout")
-    public String logout(HttpServletRequest request) {
-        userService.logout(request);
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        userService.logout(request, response);
         return "redirect:/v1/users/login-page";
     }
 
     @DeleteMapping("/withdrawal")
-    public String withdrawal(HttpServletRequest request) {
-        userService.withdrawal((User) request.getAttribute("user"), request);
+    public String withdrawal(HttpServletRequest request, HttpServletResponse response) {
+        userService.withdrawal((User) request.getAttribute("user"), request, response);
         return "redirect:/v1/users/login-page";
     }
 

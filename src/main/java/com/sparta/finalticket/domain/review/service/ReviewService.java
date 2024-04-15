@@ -34,6 +34,7 @@ public class ReviewService {
         redisService.saveReviewScore(gameId, review.getId(), requestDto.getScore());
         redisCacheService.cacheReviewStatistics(gameId);
         return new ReviewResponseDto(createdReview);
+
     }
 
     @Transactional(readOnly = true)
