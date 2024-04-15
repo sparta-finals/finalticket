@@ -1,16 +1,21 @@
 package com.sparta.finalticket.domain.review.service;
 
+import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
+import com.sparta.finalticket.domain.review.dto.request.ReviewUpdateRequestDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
+import com.sparta.finalticket.domain.review.dto.response.ReviewUpdateResponseDto;
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
 import com.sparta.finalticket.domain.user.entity.User;
-import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
+import com.sparta.finalticket.global.exception.review.ReviewGameNotFoundException;
+import com.sparta.finalticket.global.exception.review.ReviewNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,44 +23,87 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final GameRepository gameRepository;
+    private final RedisService redisService;
+    private final RedisCacheService redisCacheService;
 
     @Transactional
-    public void createReview(Long id, ReviewRequestDto reviewRequestDto, User user) {
-        Review review = new Review();
-        review.setReview(reviewRequestDto.getReview());
-        review.setScore(reviewRequestDto.getScore());
-        review.setState(reviewRequestDto.getState());
+    public ReviewResponseDto createReview(Long gameId, ReviewRequestDto requestDto, User user) {
+        Review review = createReviewFromRequest(gameId, requestDto);
         review.setUser(user);
-        review.setState(true);
-        review.setGame(gameRepository.findById(id).orElseThrow());
-        reviewRepository.save(review);
+        Review createdReview = reviewRepository.save(review);
+        redisService.saveReviewScore(gameId, review.getId(), requestDto.getScore());
+        redisCacheService.cacheReviewStatistics(gameId);
+        return new ReviewResponseDto(createdReview);
+
     }
 
     @Transactional(readOnly = true)
-    public ReviewResponseDto getReviewByGameId(Long id) {
-        Review review = reviewRepository.findByGameId(id)
-            .orElseThrow(() -> new EntityNotFoundException("해당 ID에 대한 경기 리뷰를 찾을 수 없습니다."));
+    public ReviewResponseDto getReviewByGameId(Long gameId, Long reviewId) {
+        Review review = getReviewById(reviewId);
+        Game game = getGameById(gameId);
+        review.setGame(game);
+        redisService.getReviewScore(gameId, reviewId);
+        redisCacheService.cacheReviewStatistics(gameId);
         return new ReviewResponseDto(review);
     }
 
-    public ReviewResponseDto updateReview(Long id, ReviewRequestDto reviewRequestDto, User user) {
-        Review review = reviewRepository.findByGameId(id)
-            .orElseThrow(() -> new EntityNotFoundException("해당 ID에 대한 경기 리뷰를 찾을 수 없습니다."));
-        review.setReview(reviewRequestDto.getReview());
-        review.setScore(reviewRequestDto.getScore());
-        review.setState(reviewRequestDto.getState());
+    @Transactional
+    public ReviewUpdateResponseDto updateReview(Long gameId, Long reviewId, ReviewUpdateRequestDto requestDto, User user) {
+        Review review = updateReviewFromRequest(gameId, reviewId, requestDto);
         review.setUser(user);
         Review updatedReview = reviewRepository.save(review);
-        return new ReviewResponseDto(updatedReview);
+        redisService.updateReviewScore(gameId, reviewId, requestDto.getScore());
+        redisCacheService.cacheReviewStatistics(gameId);
+        return new ReviewUpdateResponseDto(updatedReview);
     }
 
-    public void deleteReview(Long id, User user) {
-        Review review = reviewRepository.findByGameId(id)
-            .orElseThrow(() -> new EntityNotFoundException("해당 ID에 대한 경기 리뷰를 찾을 수 없습니다."));
-        if (!review.getUser().equals(user)) {
-            throw new SecurityException("사용자는 이 리뷰를 삭제할 권한이 없습니다.");
-        }
+    @Transactional
+    public void deleteReview(Long gameId, Long reviewId, User user) {
+        Review review = deleteReviewById(reviewId);
+        Game game = new Game();
+        review.setGame(game);
         reviewRepository.delete(review);
+        redisService.deleteReviewScore(gameId, reviewId);
+        redisCacheService.cacheReviewStatistics(gameId);
+    }
+
+    private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
+        if (gameId == null) {
+            throw new IllegalArgumentException("게임 ID가 필요합니다.");
+        }
+
+        Review review = new Review();
+        review.setReview(requestDto.getReview());
+        review.setScore(requestDto.getScore());
+        review.setState(true);
+        Game game = getGameById(gameId);
+        review.setGame(game);
+        return review;
+    }
+
+    private Review updateReviewFromRequest(Long gameId, Long reviewId, ReviewUpdateRequestDto requestDto) {
+        Review review = getReviewById(reviewId);
+        Game game = getGameById(gameId);
+        review.setGame(game);
+        review.setReview(requestDto.getReview());
+        review.setScore(requestDto.getScore());
+        review.setState(true);
+        return review;
+    }
+
+    private Game getGameById(Long gameId) {
+        return gameRepository.findById(gameId)
+            .orElseThrow(() -> new ReviewGameNotFoundException("경기를 찾을 수 없습니다."));
+    }
+
+    private Review getReviewById(Long reviewId) {
+        return reviewRepository.findReviewByIdAndStateTrue(reviewId)
+            .orElseThrow(() -> new ReviewNotFoundException("리뷰를 찾을 수 없습니다."));
+    }
+
+    private Review deleteReviewById(Long reviewId) {
+        return reviewRepository.findReviewByIdAndDeleteId(reviewId)
+            .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰가 존재하지 않습니다."));
     }
 
     public List<ReviewResponseDto> getUserReviewList(User user) {
