@@ -29,40 +29,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/users")
 public class InfoController {
 
-    private final UserService userService;
-    private final TicketService ticketService;
-    private final GameService gameService;
-    private final ReviewService reviewService;
+  private final UserService userService;
+  private final TicketService ticketService;
+  private final GameService gameService;
+  private final ReviewService reviewService;
 
-    @GetMapping("/info")
-    public ResponseEntity<InfoResponseDto> getInfo(HttpServletRequest request) {
-        User user = (User) request.getAttribute("user");
-        return new ResponseEntity<>(new InfoResponseDto(user), HttpStatus.OK);
-    }
+  @GetMapping("/info")
+  public ResponseEntity<InfoResponseDto> getInfo(HttpServletRequest request) {
+    User user = (User) request.getAttribute("user");
+    return new ResponseEntity<>(new InfoResponseDto(user), HttpStatus.OK);
+  }
 
-    @PutMapping("/info")
-    public ResponseEntity<Void> modifyInfo(HttpServletRequest request,
-        @Valid @RequestBody UserRequestDto infoRequestDto) {
-        userService.modifyInfo((User) request.getAttribute("user"), infoRequestDto);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+  @PutMapping("/info")
+  public ResponseEntity<Void> modifyInfo(HttpServletRequest request,
+      @Valid @RequestBody UserRequestDto infoRequestDto) {
+    userService.modifyInfo((User) request.getAttribute("user"), infoRequestDto);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
 
-    @GetMapping("/tickets")
-    public ResponseEntity<List<TicketResponseDto>> userTicket(HttpServletRequest request) {
-        return new ResponseEntity<>(
-            ticketService.getUserTicketList((User) request.getAttribute("user")), HttpStatus.OK);
-    }
+  @GetMapping("/tickets")
+  public ResponseEntity<List<TicketResponseDto>> userTicket(HttpServletRequest request){
+    return new ResponseEntity<>(ticketService.getUserTicketList((User)request.getAttribute("user")), HttpStatus.OK);
+  }
 
-    @GetMapping("/reviews")
-    public ResponseEntity<List<ReviewResponseDto>> userReview(HttpServletRequest request) {
-        return new ResponseEntity<>(
-            reviewService.getUserReviewList((User) request.getAttribute("user")), HttpStatus.OK);
-    }
+  @GetMapping("/reviews")
+  public ResponseEntity<List<ReviewResponseDto>> userReview(HttpServletRequest request){
+    return new ResponseEntity<>(reviewService.getUserReviewList((User)request.getAttribute("user")),HttpStatus.OK);
+  }
 
-    @GetMapping("/games")
-    public ResponseEntity<List<GameResponseDto>> userGame(HttpServletRequest request) {
-        return new ResponseEntity<>(
-            gameService.getUserGameList((User) request.getAttribute("user")), HttpStatus.OK);
-    }
+  @GetMapping("/games")
+  public ResponseEntity<List<GameResponseDto>> userGame(HttpServletRequest request){
+    return new ResponseEntity<>(gameService.getUserGameList((User)request.getAttribute("user")),HttpStatus.OK);
+  }
 
 }

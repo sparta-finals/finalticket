@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 정보 수정</title>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+          integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+          crossorigin="anonymous"></script>
+  <style>
+    /* 스타일 추가 */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      font-weight: bold;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-top: 5px;
+    }
+
+    button {
+      display: block;
+      width: 100px;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <h1>내 정보 수정</h1>
+  <form id="edit-form">
+    <div class="form-group">
+      <label for="username">유저 이름:</label>
+      <input type="text" id="username" name="username" required>
+    </div>
+    <div class="form-group">
+      <label for="email">이메일:</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+      <label for="address">주소:</label>
+      <input type="text" id="address" name="address" required>
+    </div>
+    <div class="form-group">
+      <label for="nickname">닉네임:</label>
+      <input type="text" id="nickname" name="nickname" required>
+    </div>
+    <div class="form-group">
+      <label for="password">패스워드:</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <button type="submit">수정 완료</button>
+  </form>
+</div>
+
+<script>
+  $(document).ready(function() {
+    // 기존 유저 정보를 가져옵니다.
+    $.ajax({
+      url: '/v1/users/info',
+      method: 'GET',
+      success: function(data) {
+        // 기존 유저 정보를 입력 필드에 채워 넣습니다.
+        $('#username').val(data.username);
+        $('#email').val(data.email);
+        $('#address').val(data.address);
+        $('#nickname').val(data.nickname);
+      },
+      error: function(xhr, status, error) {
+        console.error('유저 정보를 가져오는데 실패했습니다:', status, error);
+      }
+    });
+
+    // 폼 제출 이벤트를 처리합니다.
+    $('#edit-form').on('submit', function(event) {
+      event.preventDefault(); // 폼 기본 제출 동작을 막습니다.
+
+      // 수정된 유저 정보를 서버로 보냅니다.
+      const formData = {
+        username: $('#username').val(),
+        email: $('#email').val(),
+        address: $('#address').val(),
+        nickname: $('#nickname').val(),
+        password: $('#password').val()
+      };
+
+      $.ajax({
+        url: '/v1/users/info',
+        method: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify(formData),
+        success: function() {
+          alert('수정 완료!');
+          const host = 'http://' + window.location.host;
+          window.location.href = `${host}/v1/users/info/view`;
+        },
+        error: function(xhr, status, error) {
+          console.error('유저 정보 수정에 실패했습니다:', status, error);
+          alert('수정 실패: ' + error);
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>

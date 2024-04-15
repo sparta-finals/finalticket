@@ -26,6 +26,7 @@ public class ReviewService {
         review.setScore(reviewRequestDto.getScore());
         review.setState(reviewRequestDto.getState());
         review.setUser(user);
+        review.setState(true);
         review.setGame(gameRepository.findById(id).orElseThrow());
         reviewRepository.save(review);
     }
