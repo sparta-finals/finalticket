@@ -57,13 +57,16 @@ public class SessionUtil {
 		return false;
 	}
 
-	public boolean logout(HttpServletRequest request) {
+	public boolean logout(HttpServletRequest request, HttpServletResponse response) {
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
 					String sessionKey = cookie.getValue();
+					log.info(sessionKey);
 					cookie.setMaxAge(0);
+					cookie.setPath("/");
+					response.addCookie(cookie);
 					redisTemplate.delete(sessionKey);
 					log.info("Logout success");
 					return true;

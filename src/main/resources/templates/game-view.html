@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <title>Seat Selection</title>
+  <style>
+    /* CSS로 좌석 디자인 */
+    .seat {
+      width: 30px;
+      height: 30px;
+      margin: 5px;
+      display: inline-block;
+      text-align: center;
+      line-height: 30px;
+      border: 1px solid #000;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    /* 좌석의 선택 상태를 나타내는 스타일 */
+    .seat.selected {
+      background-color: #999999;
+      border-color: #000000;
+    }
+
+    .seat.ok {
+      background-color: #00AAFF;
+    }
+
+
+    /* 좌석에 호버 효과 추가 */
+    .seat:hover {
+      background-color: #6df6ea;
+    }
+
+    .select-seats {
+      padding: 15px; /* 전체 내부 여백을 조정합니다 */
+      background-color: #f0f0f0; /* 배경 색상을 연회색으로 지정합니다 */
+      border: 1px solid #ccc; /* 연회색 경계를 추가합니다 */
+      border-radius: 5px; /* 모서리를 둥글게 만듭니다 */
+      font-family: Arial, sans-serif; /* 글꼴을 지정합니다 */
+      color: #333; /* 텍스트 색상을 어두운 회색으로 지정합니다 */
+      text-align: center;
+      margin: 5px;
+    }
+
+    #select-seats {
+      width: 20%; /* 원하는 너비를 설정하세요. 예를 들어 전체 너비의 50% */
+      margin: 0 auto; /* 좌우 마진을 auto로 설정하여 수평 중앙에 배치합니다 */
+    }
+
+    #seat-selection {
+      padding: 20px; /* 컨테이너의 내부 여백을 지정합니다 */
+      background-color: #f9f9f9; /* 컨테이너의 배경 색상을 연회색으로 지정합니다 */
+      border: 1px solid #ccc; /* 연회색 테두리를 추가합니다 */
+      border-radius: 10px; /* 모서리를 둥글게 만듭니다 */
+      max-width: 500px; /* 컨테이너의 최대 너비를 지정합니다 */
+      margin: 0 auto; /* 중앙에 배치합니다 */
+      text-align: center;
+    }
+
+    #seat-selection .seats .seat {
+      border-radius: 3px; /* 좌석 요소의 모서리를 둥글게 만듭니다 */
+    }
+
+    #seat-selection {
+      margin-top: 20px;
+      margin-bottom: 20px; /* `id="seat-selection"` 요소의 하단에 20px의 공백을 추가합니다 */
+    }
+
+    h1 {
+      font-size: 24px; /* 폰트 크기를 지정합니다 */
+      color: #333; /* 텍스트 색상을 지정합니다 */
+      font-family: Arial, sans-serif; /* 글꼴을 지정합니다 */
+      text-align: center; /* 텍스트를 중앙에 정렬합니다 */
+      margin-bottom: 20px; /* 하단 여백을 추가합니다 */
+    }
+
+    /* CSS 스타일 */
+    .button-style {
+      padding: 10px 20px; /* 패딩을 지정합니다 */
+      background-color: #4CAF50; /* 배경 색상을 초록색으로 지정합니다 */
+      color: #FFFFFF; /* 텍스트 색상을 흰색으로 지정합니다 */
+      border: none; /* 경계를 제거합니다 */
+      border-radius: 5px; /* 모서리를 둥글게 만듭니다 */
+      font-size: 16px; /* 글꼴 크기를 지정합니다 */
+      cursor: pointer; /* 마우스 커서를 손 모양으로 변경합니다 */
+      margin: 0 auto;
+    }
+
+    .button-style:hover {
+      background-color: #45a049; /* 호버 시 색상 변경 */
+    }
+
+    /* #button-div 요소의 스타일 */
+    #button-div {
+      display: flex; /* flexbox를 사용하여 요소들을 중앙에 정렬합니다 */
+      justify-content: center; /* 요소를 수평 중앙에 배치합니다 */
+      align-items: center; /* 요소를 수직 중앙에 배치합니다 */
+      height: 100px; /* 높이를 지정하여 중앙 정렬을 위해 사용합니다 */
+    }
+
+
+  </style>
+</head>
+
+<body>
+<div id="seat-selection">
+  <!-- 좌석 선택을 위한 컨테이너 -->
+  <h1>좌석 선택</h1>
+  <div class="row">
+    <div class="seats">
+      <!-- a열의 좌석 -->
+      <div class="seat" id="a1">a1</div>
+      <div class="seat" id="a2">a2</div>
+      <div class="seat" id="a3">a3</div>
+      <div class="seat" id="a4">a4</div>
+      <div class="seat" id="a5">a5</div>
+      <div class="seat" id="a6">a6</div>
+      <div class="seat" id="a7">a7</div>
+      <div class="seat" id="a8">a8</div>
+      <div class="seat" id="a9">a9</div>
+      <div class="seat" id="a10">a10</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="seats">
+      <!-- b열의 좌석 -->
+      <div class="seat" id="b1">b1</div>
+      <div class="seat" id="b2">b2</div>
+      <div class="seat" id="b3">b3</div>
+      <div class="seat" id="b4">b4</div>
+      <div class="seat" id="b5">b5</div>
+      <div class="seat" id="b6">b6</div>
+      <div class="seat" id="b7">b7</div>
+      <div class="seat" id="b8">b8</div>
+      <div class="seat" id="b9">b9</div>
+      <div class="seat" id="b10">b10</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="seats">
+      <!-- c열의 좌석 -->
+      <div class="seat" id="c1">c1</div>
+      <div class="seat" id="c2">c2</div>
+      <div class="seat" id="c3">c3</div>
+      <div class="seat" id="c4">c4</div>
+      <div class="seat" id="c5">c5</div>
+      <div class="seat" id="c6">c6</div>
+      <div class="seat" id="c7">c7</div>
+      <div class="seat" id="c8">c8</div>
+      <div class="seat" id="c9">c9</div>
+      <div class="seat" id="c10">c10</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="seats">
+      <!-- d열의 좌석 -->
+      <div class="seat" id="d1">d1</div>
+      <div class="seat" id="d2">d2</div>
+      <div class="seat" id="d3">d3</div>
+      <div class="seat" id="d4">d4</div>
+      <div class="seat" id="d5">d5</div>
+      <div class="seat" id="d6">d6</div>
+      <div class="seat" id="d7">d7</div>
+      <div class="seat" id="d8">d8</div>
+      <div class="seat" id="d9">d9</div>
+      <div class="seat" id="d10">d10</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="seats">
+      <!-- e열의 좌석 -->
+      <div class="seat" id="e1">e1</div>
+      <div class="seat" id="e2">e2</div>
+      <div class="seat" id="e3">e3</div>
+      <div class="seat" id="e4">e4</div>
+      <div class="seat" id="e5">e5</div>
+      <div class="seat" id="e6">e6</div>
+      <div class="seat" id="e7">e7</div>
+      <div class="seat" id="e8">e8</div>
+      <div class="seat" id="e9">e9</div>
+      <div class="seat" id="e10">e10</div>
+    </div>
+  </div>
+</div>
+<div id="select-seats">
+  <div id="select-seats-value"></div>
+</div>
+<div id="button-div">
+  <button class="button-style" onclick="ticketing()">예매하기</button>
+</div>
+</body>
+<script>
+  $(document).ready(function () {
+    // 게임 ID를 변수로 선언
+    var gameId = '[[${id}]]';
+    // 요청할 URL
+    var url = 'http://localhost:8080/v1/games/' + gameId + '/seats';
+
+    // jQuery를 사용하여 GET 요청 보내기
+    $.ajax({
+      url: url,
+      method: 'GET',
+      success: function (data) {
+        console.log('Data received:', data);
+
+        // 데이터가 있는 경우 각 데이터에 대해 반복
+        data.forEach(function (seat) {
+          // seatNumber 값과 일치하는 id의 div 요소 찾기
+          var seatDiv = $('#' + seat.seatNumber);
+          // JSON 데이터를 JSON.stringify를 사용하여 문자열로 변환
+          var jsonString = JSON.stringify(seat).replace(/"/g, '&quot;');
+          seatDiv.append('<input type="hidden" name="seat_data" value="' + jsonString + '">');
+
+          // div 요소의 배경색을 파란색으로 칠하기
+          seatDiv.addClass('ok');
+          seatDiv.click(load);
+        });
+      },
+      error: function (xhr, status, error) {
+        console.error('Request failed:', status, error);
+      }
+    });
+
+  });
+
+  function load(event) {
+    // 클릭된 요소를 가져옴
+    var clickedElement = event.target;
+
+    // 이전에 선택된 좌석이 있다면 처리
+    var previousSelectedSeat = document.querySelector('.seat.selected');
+    if (previousSelectedSeat) {
+      // 이전에 선택된 좌석에서 selected 클래스를 제거하고 ok 클래스를 추가
+      previousSelectedSeat.classList.remove('selected');
+      previousSelectedSeat.classList.add('ok');
+    }
+
+    // 선택된 좌석에서 ok 클래스를 제거하고 selected 클래스를 추가
+    clickedElement.classList.remove('ok');
+    clickedElement.classList.add('selected');
+
+    // 클릭된 요소에서 input type="hidden" 요소를 찾음
+    var hiddenInput = clickedElement.querySelector('input[type="hidden"]');
+
+    // hiddenInput의 값을 JSON 파싱하여 객체로 변환
+    var hiddenValue = JSON.parse(hiddenInput.value);
+
+    // <div id="select-seats"> 요소 가져오기
+    var selectSeatsDiv = document.getElementById('select-seats');
+
+    // 클릭 시 기존의 값을 지움
+    selectSeatsDiv.innerHTML = '';
+
+    // seatNumber는 "좌석번호"로 표시
+    var seatInfoElement = document.createElement('div');
+    seatInfoElement.textContent = '좌석번호: ' + hiddenValue.seatNumber;
+    seatInfoElement.className = 'select-seats';
+    selectSeatsDiv.appendChild(seatInfoElement);
+
+    // seatType은 "좌석등급"으로 표시
+    seatInfoElement = document.createElement('div');
+    seatInfoElement.textContent = '좌석등급: ' + hiddenValue.seatType;
+    seatInfoElement.className = 'select-seats';
+    selectSeatsDiv.appendChild(seatInfoElement);
+
+    // price는 "가격"으로 표시
+    seatInfoElement = document.createElement('div');
+    seatInfoElement.textContent = '가격: ' + hiddenValue.price + '원';
+    seatInfoElement.className = 'select-seats';
+    selectSeatsDiv.appendChild(seatInfoElement);
+
+    // 추가: `select-seats-value` 요소를 새로 생성합니다.
+    var selectSeatsValueDiv = document.createElement('div');
+    selectSeatsValueDiv.id = 'select-seats-value';
+
+    // hiddenValue를 JSON 문자열로 변환하여 `<input type="hidden">` 요소를 생성합니다.
+    var hiddenInputElement = document.createElement('input');
+    hiddenInputElement.type = 'hidden';
+    hiddenInputElement.value = JSON.stringify(hiddenValue);
+
+    // 생성한 `<input type="hidden">` 요소를 `selectSeatsValueDiv` 요소에 추가합니다.
+    selectSeatsValueDiv.appendChild(hiddenInputElement);
+    // 새로 생성된 `select-seats-value` 요소를 `selectSeatsDiv` 요소에 추가합니다.
+    selectSeatsDiv.appendChild(selectSeatsValueDiv);
+  }
+
+  function ticketing() {
+    const inputE = getHiddenInputValue();
+    if (inputE != null) {
+      var gameId = '[[${id}]]';
+      const inputE = getHiddenInputValue();
+
+// JSON 문자열을 파싱하여 객체로 변환합니다.
+      const parsedData = JSON.parse(inputE);
+
+// 파싱된 객체에서 'id' 속성을 가져옵니다.
+      const seatId = parsedData.id;
+      sendPostRequest(gameId,seatId);
+    }
+  }
+
+  // id가 "select-seats-value"인 요소에서 자식 요소로 <input type="hidden"> 요소를 찾아 값 가져오기
+  function getHiddenInputValue() {
+    // "select-seats-value" 요소를 가져옵니다
+    var selectSeatsValueDiv = document.getElementById('select-seats-value');
+
+    // "select-seats-value" 요소 안에 있는 모든 <input type="hidden"> 요소를 찾습니다
+    var hiddenInputs = selectSeatsValueDiv.getElementsByTagName('input');
+
+    // 입력 요소들을 반복하며, 타입이 "hidden"인 요소의 값을 반환합니다
+    for (var i = 0; i < hiddenInputs.length; i++) {
+      var inputElement = hiddenInputs[i];
+
+      // 입력 요소의 타입이 "hidden"인 경우 값을 반환합니다
+      if (inputElement.type === 'hidden') {
+        return inputElement.value;
+      }
+    }
+
+    // <input type="hidden"> 요소를 찾지 못한 경우, null을 반환합니다
+    return null;
+  }
+
+  function sendPostRequest(gameId, seatId) {
+    // 요청할 URL 구성
+    var url = `http://localhost:8080/v1/games/${gameId}/seats/${seatId}`;
+
+    // jQuery의 AJAX 기능을 사용하여 POST 요청을 보냅니다
+    $.ajax({
+      url: url,
+      method: 'POST',
+      contentType: 'application/json', // JSON 형식의 데이터를 전송합니다
+      success: function(response) {
+        console.log('요청 성공:', response);
+        const host = 'http://' + window.location.host;
+        window.location.href = host;
+      },
+      error: function(xhr, status, error) {
+        console.error('요청 실패:', status, error);
+        // 요청 실패 시 수행할 작업을 추가할 수 있습니다
+      }
+    });
+  }
+
+
+</script>
+
+</html>
