@@ -17,15 +17,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AlarmController {
 
     private final AlarmService alarmService;
-    public static Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
-    @GetMapping
-    public ResponseEntity<SseEmitter> getAlarm(HttpServletRequest httpServletRequest) {
+    @GetMapping("/{gameId}")
+    public ResponseEntity<SseEmitter> getAlarm(@PathVariable(name = "gameId") Long gameId,
+                                               HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
-        SseEmitter sseEmitter = alarmService.subscribeAlarm(user);
+        SseEmitter sseEmitter = alarmService.subscribeAlarm(user, gameId);
         AlarmService.sseEmitters.put(user.getId(), sseEmitter);
         return ResponseEntity.ok().body(sseEmitter);
     }
+
 
     @DeleteMapping("/{alarmId}")
     public ResponseEntity<Void> deleteAlarm(@PathVariable(name = "alarmId") Long alarmId) {
