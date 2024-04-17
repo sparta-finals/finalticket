@@ -84,17 +84,15 @@
           const gameElement = `
             <div class="game-card">
               <div class="game-header">
-                <h2>게임 ID: ${game.id}</h2>
-                <span>카테고리: ${game.category}</span>
+                <h1>${game.name}</h1>
               </div>
               <div class="game-info">
-                <label>게임 이름:</label>
-                <span>${game.name}</span>
+                <span>카테고리: ${game.category}</span>
                 <label>시작 날짜:</label>
                 <span>${game.startDate}</span>
                 <label>장소:</label>
                 <span>${game.place}</span>
-                <label>참가자 수:</label>
+                <label>좌석 수:</label>
                 <span>${game.count}</span>
               </div>
             </div>
