@@ -1,10 +1,9 @@
 package com.sparta.finalticket.global.config;
 
-import com.sparta.finalticket.domain.review.service.ReviewCacheAspect;
+import com.sparta.finalticket.domain.review.aspect.ReviewCacheAspect;
 import com.sparta.finalticket.domain.review.service.ReviewCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @EnableAspectJAutoProxy
