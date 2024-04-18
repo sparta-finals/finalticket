@@ -12,7 +12,6 @@ public class RedisUtils {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-
     public void setData(String key, String value, Long expiredTime) {
         redisTemplate.opsForValue().set(key, value, expiredTime, TimeUnit.MILLISECONDS);
     }
