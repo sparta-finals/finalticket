@@ -24,26 +24,28 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final GameRepository gameRepository;
     private final RedisService redisService;
-    private final RedisCacheService redisCacheService;
 
     @Transactional
     public ReviewResponseDto createReview(Long gameId, ReviewRequestDto requestDto, User user) {
         Review review = createReviewFromRequest(gameId, requestDto);
         review.setUser(user);
         Review createdReview = reviewRepository.save(review);
-        redisService.saveReviewScore(gameId, review.getId(), requestDto.getScore());
-        redisCacheService.cacheReviewStatistics(gameId);
         return new ReviewResponseDto(createdReview);
     }
 
     @Transactional(readOnly = true)
     public ReviewResponseDto getReviewByGameId(Long gameId, Long reviewId) {
-        Review review = getReviewById(reviewId);
-        Game game = getGameById(gameId);
-        review.setGame(game);
-        redisService.getReviewScore(gameId, reviewId);
-        redisCacheService.cacheReviewStatistics(gameId);
-        return new ReviewResponseDto(review);
+        String cachedReview = redisService.getValues("review_" + reviewId);
+        if (cachedReview != null) {
+            // 캐시된 리뷰 데이터가 있을 경우 캐시된 데이터 반환
+            return new ReviewResponseDto(cachedReview);
+        } else {
+            // 캐시된 리뷰 데이터가 없을 경우 DB에서 조회
+            Review review = getReviewById(reviewId);
+            Game game = getGameById(gameId);
+            review.setGame(game);
+            return new ReviewResponseDto(review);
+        }
     }
 
     @Transactional
@@ -51,8 +53,6 @@ public class ReviewService {
         Review review = updateReviewFromRequest(gameId, reviewId, requestDto);
         review.setUser(user);
         Review updatedReview = reviewRepository.save(review);
-        redisService.updateReviewScore(gameId, reviewId, requestDto.getScore());
-        redisCacheService.cacheReviewStatistics(gameId);
         return new ReviewUpdateResponseDto(updatedReview);
     }
 
@@ -62,8 +62,6 @@ public class ReviewService {
         Game game = new Game();
         review.setGame(game);
         reviewRepository.delete(review);
-        redisService.deleteReviewScore(gameId, reviewId);
-        redisCacheService.cacheReviewStatistics(gameId);
     }
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
