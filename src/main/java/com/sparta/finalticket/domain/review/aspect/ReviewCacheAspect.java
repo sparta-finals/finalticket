@@ -13,11 +13,17 @@ public class ReviewCacheAspect {
 
     private final ReviewCacheService reviewCacheService;
 
-    @Pointcut("execution(* com.sparta.finalticket.domain.review.service.ReviewService.getReviewByGameId(..)) && args(gameId, reviewId)")
-    public void getReviewPointcut(Long gameId, Long reviewId) {}
+    // Pointcut 수정: 리뷰 조회 메서드에 대한 포인트컷 설정
+    @Pointcut("execution(* com.sparta.finalticket.domain.review.service.ReviewService.getReviewByGameId(..))")
+    public void getReviewPointcut() {}
 
-    @Around("getReviewPointcut(gameId, reviewId)")
-    public Object cacheReviewData(ProceedingJoinPoint joinPoint, Long gameId, Long reviewId) throws Throwable {
+    // Around 어드바이스 수정: 리뷰 조회 메서드 실행 전후로 캐싱 로직을 적용
+    @Around("getReviewPointcut()")
+    public Object cacheReviewData(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object[] args = joinPoint.getArgs();
+        Long gameId = (Long) args[0];
+        Long reviewId = (Long) args[1];
+
         // 캐시에서 리뷰 데이터 가져오기
         String cachedReviewData = reviewCacheService.getCachedReviewData(reviewId);
 
