@@ -35,6 +35,5 @@ public class ReviewResponseDto {
         this.userId = reviewResponseDto.getUserId();
         this.gameId = reviewResponseDto.getGameId();
     }
-
 }
 
