@@ -17,17 +17,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class Payments extends TimeStamped {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
-	private User user;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "ticket_id")
-	private Ticket ticket;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ticket_id")
+    private Ticket ticket;
 
 }

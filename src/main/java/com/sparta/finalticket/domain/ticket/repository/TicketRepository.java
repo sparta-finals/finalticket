@@ -4,12 +4,16 @@ import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.seat.entity.Seat;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
 import com.sparta.finalticket.domain.user.entity.User;
+
 import java.util.List;
+
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-public interface TicketRepository extends JpaRepository<Ticket, Long>, TicketRepositoryCustom{
+public interface TicketRepository extends JpaRepository<Ticket, Long>, TicketRepositoryCustom {
 
     boolean existsByUserAndGameAndSeatAndState(User user, Game game, Seat seat, Boolean b);
 
@@ -18,4 +22,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, TicketRep
     boolean existsByUserAndGameIdAndSeatIdAndState(User user, Long gameId, Long seatId, Boolean b);
 
     List<Ticket> findByUserId(Long userId);
+
+
+    Ticket findByGameIdAndSeatId(Long gameId, Long seatId);
+
+
 }
