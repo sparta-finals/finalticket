@@ -26,5 +26,15 @@ public class ReviewResponseDto {
         this.userId = review.getUser() != null ? review.getUser().getId() : null;
         this.gameId = review.getGame() != null ? review.getGame().getId() : null;
     }
+
+    public ReviewResponseDto(ReviewResponseDto reviewResponseDto) {
+        this.id = reviewResponseDto.getId();
+        this.review = reviewResponseDto.getReview();
+        this.score = reviewResponseDto.getScore();
+        this.state = reviewResponseDto.getState();
+        this.userId = reviewResponseDto.getUserId();
+        this.gameId = reviewResponseDto.getGameId();
+    }
+
 }
 
