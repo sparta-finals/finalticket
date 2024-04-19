@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -55,5 +56,9 @@ public class RedisService {
 
     public boolean checkExistsValue(String value) {
         return value != null;
+    }
+
+    public Set<String> getAllKeys(String pattern) {
+        return redisTemplate.keys(pattern);
     }
 }

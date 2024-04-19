@@ -9,6 +9,7 @@ import com.sparta.finalticket.domain.review.dto.response.ReviewUpdateResponseDto
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
 import com.sparta.finalticket.domain.user.entity.User;
+import com.sparta.finalticket.global.exception.review.GameIdRequiredException;
 import com.sparta.finalticket.global.exception.review.ReviewGameNotFoundException;
 import com.sparta.finalticket.global.exception.review.ReviewNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,28 +24,30 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final GameRepository gameRepository;
-    private final RedisService redisService;
+    private final RedisCacheService redisCacheService;
+    private final RedisReviewService redisReviewService;
 
     @Transactional
     public ReviewResponseDto createReview(Long gameId, ReviewRequestDto requestDto, User user) {
         Review review = createReviewFromRequest(gameId, requestDto);
         review.setUser(user);
         Review createdReview = reviewRepository.save(review);
+        createCacheAndRedis(gameId, createdReview);
         return new ReviewResponseDto(createdReview);
     }
 
     @Transactional(readOnly = true)
     public ReviewResponseDto getReviewByGameId(Long gameId, Long reviewId) {
-        String cachedReview = redisService.getValues("review_" + reviewId);
-        if (cachedReview != null) {
-            // 캐시된 리뷰 데이터가 있을 경우 캐시된 데이터 반환
-            return new ReviewResponseDto(cachedReview);
+        String cachedReviewData = redisCacheService.getCachedReviewData(reviewId);
+        if (cachedReviewData != null) {
+            return new ReviewResponseDto(cachedReviewData);
         } else {
-            // 캐시된 리뷰 데이터가 없을 경우 DB에서 조회
             Review review = getReviewById(reviewId);
             Game game = getGameById(gameId);
             review.setGame(game);
-            return new ReviewResponseDto(review);
+            ReviewResponseDto responseDto = new ReviewResponseDto(review);
+            redisCacheService.cacheReviewData(review.getId(), responseDto.toString());
+            return responseDto;
         }
     }
 
@@ -53,6 +56,7 @@ public class ReviewService {
         Review review = updateReviewFromRequest(gameId, reviewId, requestDto);
         review.setUser(user);
         Review updatedReview = reviewRepository.save(review);
+        updateCacheAndRedis(gameId, updatedReview);
         return new ReviewUpdateResponseDto(updatedReview);
     }
 
@@ -62,11 +66,12 @@ public class ReviewService {
         Game game = new Game();
         review.setGame(game);
         reviewRepository.delete(review);
+        deleteCacheAndRedis(gameId, review);
     }
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {
-            throw new IllegalArgumentException("게임 ID가 필요합니다.");
+            throw new GameIdRequiredException("게임 ID가 필요합니다.");
         }
 
         Review review = new Review();
@@ -86,6 +91,32 @@ public class ReviewService {
         review.setScore(requestDto.getScore());
         review.setState(true);
         return review;
+    }
+
+    private void createCacheAndRedis(Long gameId, Review review) {
+        redisCacheService.clearGameCache(gameId);
+        redisCacheService.createReview(review.getId(), review.getReview());
+        updateRedisStats(gameId);
+    }
+
+    private void updateCacheAndRedis(Long gameId, Review review) {
+        redisCacheService.clearGameCache(gameId);
+        redisCacheService.updateReview(review.getId(), review.getReview());
+        updateRedisStats(gameId);
+    }
+
+    private void deleteCacheAndRedis(Long gameId, Review review) {
+        redisCacheService.clearGameCache(gameId);
+        redisCacheService.clearReviewCache(review.getId());
+        updateRedisStats(gameId);
+    }
+
+    private void updateRedisStats(Long gameId) {
+        Long totalReviewCount = reviewRepository.countByGameId(gameId);
+        redisReviewService.setTotalReviewCount(gameId, totalReviewCount);
+
+        Double averageReviewScore = reviewRepository.calculateAverageScoreByGameId(gameId);
+        redisReviewService.setAverageReviewScore(gameId, averageReviewScore);
     }
 
     private Game getGameById(Long gameId) {

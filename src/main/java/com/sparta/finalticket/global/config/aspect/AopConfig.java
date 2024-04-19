@@ -1,4 +1,4 @@
-package com.sparta.finalticket.global.config;
+package com.sparta.finalticket.global.config.aspect;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;

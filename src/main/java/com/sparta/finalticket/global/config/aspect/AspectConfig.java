@@ -1,7 +1,6 @@
-package com.sparta.finalticket.global.config;
+package com.sparta.finalticket.global.config.aspect;
 
-import com.sparta.finalticket.domain.review.aspect.ReviewCacheAspect;
-import com.sparta.finalticket.domain.review.service.ReviewCacheService;
+import com.sparta.finalticket.domain.review.aspect.RedisCacheAspect;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -13,7 +12,7 @@ public class AspectConfig {
     private final ReviewCacheService reviewCacheService;
 
     @Bean
-    public ReviewCacheAspect reviewCacheAspect() {
-        return new ReviewCacheAspect(reviewCacheService);
+    public RedisCacheAspect reviewCacheAspect() {
+        return new RedisCacheAspect(reviewCacheService);
     }
 }
