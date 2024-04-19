@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ReviewCacheAspect {
+public class RedisCacheAspect {
 
     private final RedisCacheService redisCacheService;
     private final RedisReviewService redisReviewService;
