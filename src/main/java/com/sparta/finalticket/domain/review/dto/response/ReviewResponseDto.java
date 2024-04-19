@@ -27,14 +27,14 @@ public class ReviewResponseDto {
         this.gameId = review.getGame() != null ? review.getGame().getId() : null;
     }
 
-    public ReviewResponseDto(String cachedReviewData) {
-        JSONObject jsonObject = new JSONObject(cachedReviewData);
-        this.id = jsonObject.getLong("id");
-        this.review = jsonObject.getString("review");
-        this.score = jsonObject.getLong("score");
-        this.state = jsonObject.getBoolean("state");
-        this.userId = jsonObject.getLong("userId");
-        this.gameId = jsonObject.getLong("gameId");
+    public ReviewResponseDto(ReviewResponseDto reviewResponseDto) {
+        this.id = reviewResponseDto.getId();
+        this.review = reviewResponseDto.getReview();
+        this.score = reviewResponseDto.getScore();
+        this.state = reviewResponseDto.getState();
+        this.userId = reviewResponseDto.getUserId();
+        this.gameId = reviewResponseDto.getGameId();
     }
+
 }
 

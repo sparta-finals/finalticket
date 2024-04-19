@@ -1,5 +1,9 @@
 package com.sparta.finalticket.domain.review.service;
 
+import com.sparta.finalticket.domain.game.entity.Game;
+import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
+import com.sparta.finalticket.domain.review.entity.Review;
+import com.sparta.finalticket.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,16 +15,39 @@ public class RedisCacheService {
 
     private final RedisService redisService;
 
-    public void createReview(Long reviewId, String reviewData) {
-        cacheReviewData(reviewId, reviewData);
+    public void createReview(Long reviewId, Review reviewData) {
+        ReviewResponseDto reviewResponseDto = new ReviewResponseDto(reviewData);
+        cacheReviewData(reviewId, reviewResponseDto);
     }
 
-    public void updateReview(Long reviewId, String updatedReviewData) {
-        cacheReviewData(reviewId, updatedReviewData);
+    public void updateReview(Long reviewId, Review updatedReviewData) {
+        ReviewResponseDto reviewResponseDto = new ReviewResponseDto(updatedReviewData);
+        cacheReviewData(reviewId, reviewResponseDto);
     }
 
-    public void cacheReviewData(Long reviewId, String reviewData) {
-        redisService.setValues("review_" + reviewId, reviewData);
+    public void getReview(Long reviewId, Review getReviewData) {
+        ReviewResponseDto reviewResponseDto = new ReviewResponseDto(getReviewData);
+        cacheReviewData(reviewId, reviewResponseDto);
+    }
+
+    public void cacheReviewData(Long reviewId, ReviewResponseDto reviewData) {
+        // ReviewResponseDto를 Review 객체로 변환하여 저장
+        Review review = new Review();
+        review.setId(reviewData.getId());
+        review.setReview(reviewData.getReview());
+        review.setScore(reviewData.getScore());
+        review.setState(reviewData.getState());
+
+        // userId와 gameId를 직접 설정하는 것이 아니라 User 객체와 Game 객체를 설정해야 함
+        User user = new User();
+        user.setId(reviewData.getUserId());
+        review.setUser(user);
+
+        Game game = new Game();
+        game.setId(reviewData.getGameId());
+        review.setGame(game);
+
+        redisService.cacheReviewData("review_" + reviewId, review);
     }
 
     public String getCachedReviewData(Long reviewId) {
@@ -40,6 +67,7 @@ public class RedisCacheService {
 
     public void clearGameCache(Long gameId) {
         // 해당 게임에 대한 리뷰 캐시를 모두 삭제합니다.
+        // Assuming getAllKeys is an existing method in RedisService
         Set<String> keys = redisService.getAllKeys("review_" + gameId + "_*");
         keys.forEach(redisService::deleteValues);
     }
@@ -65,4 +93,3 @@ public class RedisCacheService {
         });
     }
 }
-

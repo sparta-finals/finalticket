@@ -36,17 +36,16 @@ public class ReviewService {
         return new ReviewResponseDto(createdReview);
     }
 
-    @Transactional(readOnly = true)
     public ReviewResponseDto getReviewByGameId(Long gameId, Long reviewId) {
         String cachedReviewData = redisCacheService.getCachedReviewData(reviewId);
         if (cachedReviewData != null) {
-            return new ReviewResponseDto(cachedReviewData);
+            return parseCachedReviewData(cachedReviewData);
         } else {
             Review review = getReviewById(reviewId);
             Game game = getGameById(gameId);
             review.setGame(game);
             ReviewResponseDto responseDto = new ReviewResponseDto(review);
-            redisCacheService.cacheReviewData(review.getId(), responseDto.toString());
+            getCacheAndRedis(gameId, review);
             return responseDto;
         }
     }
@@ -93,22 +92,39 @@ public class ReviewService {
         return review;
     }
 
-    private void createCacheAndRedis(Long gameId, Review review) {
+    public void createCacheAndRedis(Long gameId, Review review) {
         redisCacheService.clearGameCache(gameId);
-        redisCacheService.createReview(review.getId(), review.getReview());
+        redisCacheService.createReview(review.getId(), review);
         updateRedisStats(gameId);
     }
 
-    private void updateCacheAndRedis(Long gameId, Review review) {
+    public void getCacheAndRedis(Long gameId, Review review) {
+        redisCacheService.getReview(review.getId(), review);
+    }
+
+    public void updateCacheAndRedis(Long gameId, Review review) {
         redisCacheService.clearGameCache(gameId);
-        redisCacheService.updateReview(review.getId(), review.getReview());
+        redisCacheService.updateReview(review.getId(), review);
         updateRedisStats(gameId);
     }
 
-    private void deleteCacheAndRedis(Long gameId, Review review) {
+    public void deleteCacheAndRedis(Long gameId, Review review) {
         redisCacheService.clearGameCache(gameId);
         redisCacheService.clearReviewCache(review.getId());
         updateRedisStats(gameId);
+    }
+
+    private ReviewResponseDto parseCachedReviewData(String cachedReviewData) {
+        String[] parts = cachedReviewData.split(",");
+
+        Long id = Long.parseLong(parts[0]);
+        String review = parts[1];
+        Long score = Long.parseLong(parts[2]);
+        Boolean state = Boolean.parseBoolean(parts[3]);
+        Long userId = Long.parseLong(parts[4]);
+        Long gameId = Long.parseLong(parts[5]);
+
+        return new ReviewResponseDto(id, review, score, state, userId, gameId);
     }
 
     private void updateRedisStats(Long gameId) {

@@ -1,5 +1,7 @@
 package com.sparta.finalticket.domain.review.service;
 
+import com.sparta.finalticket.domain.review.converter.ReviewConverter;
+import com.sparta.finalticket.domain.review.entity.Review;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,6 +19,15 @@ import java.util.concurrent.TimeUnit;
 public class RedisService {
 
     private final RedisTemplate<String, Object> redisTemplate;
+
+    public void cacheReviewData(String key, Review reviewData) {
+        // Review 객체를 Redis Hash 자료구조에 저장
+        redisTemplate.opsForHash().putAll(key, ReviewConverter.convertReviewToMap(reviewData));
+    }
+
+    public Set<String> getAllKeys(String pattern) {
+        return redisTemplate.keys(pattern);
+    }
 
     public void setValues(String key, String data) {
         redisTemplate.opsForValue().set(key, data);
@@ -56,9 +67,5 @@ public class RedisService {
 
     public boolean checkExistsValue(String value) {
         return value != null;
-    }
-
-    public Set<String> getAllKeys(String pattern) {
-        return redisTemplate.keys(pattern);
     }
 }

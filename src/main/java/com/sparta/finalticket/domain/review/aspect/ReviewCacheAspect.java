@@ -1,8 +1,11 @@
 package com.sparta.finalticket.domain.review.aspect;
 
+import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
+import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.service.RedisCacheService;
 import com.sparta.finalticket.domain.review.service.RedisReviewService;
+import com.sparta.finalticket.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -11,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class RedisCacheAspect {
+public class ReviewCacheAspect {
 
     private final RedisCacheService redisCacheService;
     private final RedisReviewService redisReviewService;
@@ -39,16 +42,16 @@ public class RedisCacheAspect {
             String cachedReviewData = redisCacheService.getCachedReviewData(reviewId);
 
             if (cachedReviewData != null) {
-                // 캐시에 데이터가 존재하면 반환
-                return cachedReviewData;
+                // 캐시에 데이터가 존재하면 ReviewResponseDto를 생성하여 반환
+                return new ReviewResponseDto(parseCachedReviewData(cachedReviewData));
             } else {
                 // 캐시에 데이터가 없으면 메서드 실행
-                String reviewData = (String) joinPoint.proceed();
+                result = joinPoint.proceed();
 
                 // 실행 결과를 캐시에 저장
-                redisCacheService.cacheReviewData(reviewId, reviewData);
+                redisCacheService.cacheReviewData(reviewId, (ReviewResponseDto) result);
 
-                return reviewData;
+                return result;
             }
         } else {
             // 리뷰 생성, 수정, 삭제 메서드의 경우 gameId가 첫 번째 매개변수로 전달됨
@@ -79,13 +82,45 @@ public class RedisCacheAspect {
 
         // 캐시된 데이터가 없으면 메서드 실행
         if (totalReviewCount == 0 || averageReviewScore == 0.0) {
-            String reviewData = (String) joinPoint.proceed();
-            return reviewData;
+            return joinPoint.proceed();
         } else {
-            // 캐시된 데이터가 있으면 해당 정보를 이용하여 DTO 생성
-            ReviewResponseDto responseDto = new ReviewResponseDto();
-            // 아래에서 정보를 설정하는 대신, 생성자를 이용하여 데이터를 전달합니다.
-            return responseDto;
+            String cachedReviewData = redisCacheService.getCachedReviewData(reviewId);
+            if (cachedReviewData != null) {
+                return new ReviewResponseDto(parseCachedReviewData(cachedReviewData));
+            } else {
+                return createDefaultReviewResponse();
+            }
         }
     }
+
+    private ReviewResponseDto parseCachedReviewData(String cachedReviewData) {
+        String[] parts = cachedReviewData.split(",");
+        Long id = Long.parseLong(parts[0]);
+        String review = parts[1];
+        Long score = Long.parseLong(parts[2]);
+        Boolean state = Boolean.parseBoolean(parts[3]);
+        Long userId = Long.parseLong(parts[4]);
+        Long gameId = Long.parseLong(parts[5]);
+        return new ReviewResponseDto(id, review, score, state, userId, gameId);
+    }
+
+    private ReviewResponseDto createDefaultReviewResponse() {
+        Review defaultReview = new Review();
+        defaultReview.setId(-1L);
+        defaultReview.setReview("No review available");
+        defaultReview.setScore(0L);
+        defaultReview.setState(false);
+
+        User defaultUser = new User();
+        defaultUser.setId(-1L);
+
+        Game defaultGame = new Game();
+        defaultGame.setId(-1L);
+
+        defaultReview.setUser(defaultUser);
+        defaultReview.setGame(defaultGame);
+
+        return new ReviewResponseDto(defaultReview);
+    }
+
 }

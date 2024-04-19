@@ -45,6 +45,10 @@ public class Review extends TimeStamped {
 	@JoinColumn(name = "game_id")
 	private Game game;
 
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public void setReview(String review) {
 		this.review = review;
 	}
