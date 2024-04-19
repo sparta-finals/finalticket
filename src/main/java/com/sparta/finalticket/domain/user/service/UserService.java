@@ -124,4 +124,17 @@ public class UserService {
         return true;
     }
 
+    public void test(){
+        User user = new User();
+        user.setUsername("admin");
+        user.setNickname("admin");
+        user.setPassword(passwordEncoder.encode("asd123"));
+        user.setEmail("lee@lee.lee");
+        user.setState(true);
+        user.setRole(UserRoleEnum.ADMIN);
+        user.setAddress("주소");
+
+        userRepository.save(user);
+    }
+
 }

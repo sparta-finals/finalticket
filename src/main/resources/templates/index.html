@@ -56,10 +56,12 @@
     </div>
     <div class="category">
         <ul class="category-tabs">
-            <li class="tab-category active" data-tab="soccer"><a>축구</a></li>
-            <li class="tab-category" data-tab="baseball"><a>야구</a></li>
-            <li class="tab-category" data-tab="basketball"><a>농구</a></li>
-            <li class="tab-category"><a>전체 경기 목록</a></li>
+            <li class="tab-category active" data-tab="soccer" onclick="getData('v1/games/category/SOCCER')"><a>축구</a></li>
+            <li class="tab-category" data-tab="baseball" onclick="getData('v1/games/category/BASEBALL')"><a>야구</a></li>
+            <li class="tab-category" data-tab="basketball" onclick="getData('v1/games/category/BASKETBALL')"><a>농구</a></li>
+            <li class="tab-category" onclick="getData('v1/games/upcoming')"><a>예매 예정 경기</a></li>
+            <li class="tab-category" onclick="getData('v1/games/available')"><a>예매 가능 경기</a></li>
+            <li class="tab-category" onclick="getData('v1/games/list')"><a>전체 경기 목록</a></li>
         </ul>
     </div>
     <div>
@@ -67,10 +69,10 @@
             <thead>
             <tr>
                 <th>경기</th>
-                <th>남은 좌석</th>
-                <th>예매시간</th>
-                <th>경기 장소</th>
                 <th>카테고리</th>
+                <th>예매 가능 시간</th>
+                <th>경기 장소</th>
+                <th>남은 좌석</th>
             </tr>
             </thead>
             <tbody id="gameTbody">
@@ -87,30 +89,7 @@
     var userObject = [[${user}]];
     $(document).ready(function() {
         checkAuthorization(); // 초기 인증 상태 확인
-        $.ajax({
-            url: 'v1/games/list',
-            method: 'GET',
-            xhrFields: {
-                withCredentials: true // 쿠키 및 자격 증명을 함께 보내기 위해 true로 설정
-            },
-            success: function(data) {
-                // 데이터 처리
-                data.forEach(game => {
-                    const row = document.createElement('tr');
-                    row.addEventListener('click', gameClickE);
-                    row.innerHTML = `<td>${game.name}</td>
-                    <td>${game.count}</td>
-                    <td>${game.startDate}</td>
-                    <td>${game.place}</td>
-                    <td>${game.category}</td>
-                    <input type="hidden" value=${game.id}>`;
-                    gameTbody.appendChild(row);
-                });
-            },
-            error: function(xhr, status, error) {
-                console.error('Failed to fetch data:', status, error);
-            }
-        });
+        getData('v1/games/list');
     });
 
     function logout() {
@@ -180,5 +159,32 @@
         window.location.href = `${host}/v1/admins/admin-page`;
     }
 
+    function getData(url){
+        $('#gameTbody').empty();
+        $.ajax({
+            url: url,
+            method: 'GET',
+            xhrFields: {
+                withCredentials: true // 쿠키 및 자격 증명을 함께 보내기 위해 true로 설정
+            },
+            success: function(data) {
+                // 데이터 처리
+                data.forEach(game => {
+                    const row = document.createElement('tr');
+                    row.addEventListener('click', gameClickE);
+                    row.innerHTML = `<td>${game.name}</td>
+                    <td>${game.category}</td>
+                    <td>${game.startDate}</td>
+                    <td>${game.place}</td>
+                    <td>${game.count}</td>
+                    <input type="hidden" value=${game.id}>`;
+                    gameTbody.appendChild(row);
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error('Failed to fetch data:', status, error);
+            }
+        });
+    }
 </script>
 </html>

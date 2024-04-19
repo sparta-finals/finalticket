@@ -1,17 +1,17 @@
 //package com.sparta.finalticket.domain.seatsetting.entity;
 //
 //import com.sparta.finalticket.domain.seatsetting.repository.SeatSettingRepository;
+//import com.sparta.finalticket.domain.user.service.UserService;
+//import lombok.RequiredArgsConstructor;
 //import org.springframework.boot.CommandLineRunner;
 //import org.springframework.stereotype.Component;
 //
 //@Component
+//@RequiredArgsConstructor
 //public class SeatSettingInitializer implements CommandLineRunner {
 //
 //    private final SeatSettingRepository seatSettingRepository;
-//
-//    public SeatSettingInitializer(SeatSettingRepository seatSettingRepository) {
-//        this.seatSettingRepository = seatSettingRepository;
-//    }
+//    private final UserService userService;
 //
 //    @Override
 //    public void run(String... args) throws Exception {
@@ -21,6 +21,7 @@
 //        initSeatSettings("c", 10, SeatTypeEnum.REGULAR);
 //        initSeatSettings("d", 10, SeatTypeEnum.VIP);
 //        initSeatSettings("e", 10, SeatTypeEnum.PREMIUM);
+//        userService.test();
 //    }
 //
 //    private void initSeatSettings(String row, int maxSeatNumber, SeatTypeEnum seatType) {

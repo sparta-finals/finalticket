@@ -2,6 +2,8 @@ package com.sparta.finalticket.domain.game.controller;
 
 import com.sparta.finalticket.domain.game.dto.request.GameRequestDto;
 import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
+import com.sparta.finalticket.domain.game.entity.CategoryEnum;
+import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.service.GameService;
 import com.sparta.finalticket.domain.seat.dto.SeatSettingResponseDto;
 import com.sparta.finalticket.domain.user.dto.response.CommonResponse;
@@ -91,12 +93,11 @@ public class GameController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<CommonResponse<List<GameResponseDto>>> getGameList(@PathVariable Long id) {
-        List<GameResponseDto> responseList = gameService.getGameList(id);
-
+    public ResponseEntity<CommonResponse<GameResponseDto>> getGameList(@PathVariable Long id) {
+        GameResponseDto gameResponseDto = gameService.getGame(id);
         return ResponseEntity.status(HttpStatus.OK.value()).body(
-                CommonResponse.<List<GameResponseDto>>builder()
-                        .data(responseList)
+                CommonResponse.<GameResponseDto>builder()
+                        .data(gameResponseDto)
                         .build()
         );
     }
@@ -120,5 +121,10 @@ public class GameController {
     public ResponseEntity<List<GameResponseDto>> getAvailableGame () {
         List<GameResponseDto> GameResponseDtos = gameService.getAvailableGame();
         return ResponseEntity.status(200).body(GameResponseDtos);
+    }
+
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<GameResponseDto>> getGameOfCategory(@PathVariable CategoryEnum category){
+        return ResponseEntity.status(200).body(gameService.getGameOfCategory(category));
     }
 }

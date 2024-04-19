@@ -109,6 +109,9 @@
 </head>
 
 <body>
+<div id="game-date">
+
+</div>
 <div id="seat-selection">
   <!-- 좌석 선택을 위한 컨테이너 -->
   <h1>좌석 선택</h1>
@@ -200,7 +203,30 @@
     // 게임 ID를 변수로 선언
     var gameId = '[[${id}]]';
     // 요청할 URL
-    var url = 'http://localhost:8080/v1/games/' + gameId + '/seats';
+    var host = 'http://'+window.location.host;
+    var url = host+'/v1/games/' + gameId + '/seats';
+
+    $.ajax({
+      url: host+'/v1/games/'+gameId,
+      method: 'GET',
+      success: function (data) {
+        console.log(data);
+        console.log(data.count);
+        var gameData = data;
+        dataString = `
+          <p>Category: ${gameData.category}</p>
+          <p>Count: ${gameData.count}</p>
+          <p>ID: ${gameData.id}</p>
+          <p>Name: ${gameData.name}</p>
+          <p>Place: ${gameData.place}</p>
+          <p>Start Date: ${new Date(gameData.startDate).toLocaleString()}</p>
+          `;
+        const gameDateElement = document.getElementById('game-date');
+
+// 구성된 문자열을 요소에 추가합니다.
+        gameDateElement.innerHTML = dataString;
+      }
+    })
 
     // jQuery를 사용하여 GET 요청 보내기
     $.ajax({
