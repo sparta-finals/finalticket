@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewController {
 
     private final ReviewService reviewService;
-    private final RedisTemplate<String, String> redisTemplate;
 
     @PostMapping
     public ResponseEntity<ReviewResponseDto> postReview(@PathVariable(name = "gameId") Long gameId,
