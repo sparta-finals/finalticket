@@ -9,9 +9,12 @@ import com.sparta.finalticket.domain.review.dto.response.ReviewUpdateResponseDto
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
 import com.sparta.finalticket.domain.user.entity.User;
+import com.sparta.finalticket.global.exception.review.GameIdRequiredException;
 import com.sparta.finalticket.global.exception.review.ReviewGameNotFoundException;
 import com.sparta.finalticket.global.exception.review.ReviewNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,59 +26,77 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final GameRepository gameRepository;
+    private final RedissonClient redissonClient;
     private final RedisCacheService redisCacheService;
     private final ReviewStatisticService reviewStatisticService;
 
     @Transactional
     public ReviewResponseDto createReview(Long gameId, ReviewRequestDto requestDto, User user) {
-        Review review = createReviewFromRequest(gameId, requestDto);
-        review.setUser(user);
-        Review createdReview = reviewRepository.save(review);
-        createCacheAndRedis(gameId, review);
-
-        // 리뷰 생성 후 리뷰 통계 정보 업데이트
-        reviewStatisticService.updateReviewStatistics(gameId);
-
-        return new ReviewResponseDto(createdReview);
+        RLock lock = redissonClient.getLock("reviewLock:" + gameId);
+        try {
+            lock.lock();
+            Review review = createReviewFromRequest(gameId, requestDto);
+            review.setUser(user);
+            Review createdReview = reviewRepository.save(review);
+            createCacheAndRedis(gameId, review);
+            reviewStatisticService.updateReviewStatistics(gameId);
+            return new ReviewResponseDto(createdReview);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Transactional(readOnly = true)
     public ReviewResponseDto getReviewByGameId(Long gameId, Long reviewId) {
+        RLock lock = redissonClient.getLock("reviewLock:" + gameId);
+        try {
+            lock.lock();
             Review review = getReviewById(reviewId);
             Game game = getGameById(gameId);
             review.setGame(game);
             getCacheAndRedis(gameId, review);
             return new ReviewResponseDto(review);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Transactional
     public ReviewUpdateResponseDto updateReview(Long gameId, Long reviewId, ReviewUpdateRequestDto requestDto, User user) {
-        Review review = updateReviewFromRequest(gameId, reviewId, requestDto);
-        review.setUser(user);
-        Review updatedReview = reviewRepository.save(review);
-        updateCacheAndRedis(gameId, review);
-
-        // 리뷰 수정 후 리뷰 통계 정보 업데이트
-        reviewStatisticService.updateReviewStatistics(gameId);
-
-        return new ReviewUpdateResponseDto(updatedReview);
+        RLock lock = redissonClient.getLock("reviewLock:" + gameId);
+        try {
+            lock.lock();
+            Review review = updateReviewFromRequest(gameId, reviewId, requestDto);
+            review.setUser(user);
+            Review updatedReview = reviewRepository.save(review);
+            updateCacheAndRedis(gameId, review);
+            reviewStatisticService.updateReviewStatistics(gameId);
+            return new ReviewUpdateResponseDto(updatedReview);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Transactional
     public void deleteReview(Long gameId, Long reviewId, User user) {
-        Review review = deleteReviewById(reviewId);
-        Game game = new Game();
-        review.setGame(game);
-        reviewRepository.delete(review);
-        deleteCacheAndRedis(gameId, review);
-
-        // 리뷰 삭제 후 리뷰 통계 정보 업데이트
-        reviewStatisticService.updateReviewStatistics(gameId);
+        RLock lock = redissonClient.getLock("reviewLock:" + gameId);
+        try {
+            lock.lock();
+            Review review = deleteReviewById(reviewId);
+            Game game = new Game();
+            review.setGame(game);
+            reviewRepository.delete(review);
+            deleteCacheAndRedis(gameId, review);
+            reviewStatisticService.updateReviewStatistics(gameId);
+        } finally {
+            lock.unlock();
+        }
     }
+
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {
-            throw new IllegalArgumentException("게임 ID가 필요합니다.");
+            throw new GameIdRequiredException("게임 ID가 필요합니다.");
         }
 
         Review review = new Review();
