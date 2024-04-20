@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
-@RequestMapping("/v1/alarms")
+@RequestMapping("/v1/games/{gameId}/alarms")
 @RequiredArgsConstructor
 public class AlarmController {
 
     private final AlarmService alarmService;
 
-    @GetMapping("/{gameId}")
+    @GetMapping
     public ResponseEntity<SseEmitter> getAlarm(@PathVariable(name = "gameId") Long gameId,
                                                HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
