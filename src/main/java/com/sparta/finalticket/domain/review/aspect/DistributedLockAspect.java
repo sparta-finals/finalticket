@@ -20,7 +20,10 @@ public class DistributedLockAspect {
     private final RedisReviewService redisReviewService;
     private final RedissonClient redissonClient;
 
-    @Pointcut("execution(* com.sparta.finalticket.domain.review.service.ReviewService.*(..))")
+    @Pointcut("execution(* com.sparta.finalticket.domain.review.service.ReviewService.createReview(..)) " +
+        "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.getReviewByGameId(..)) " +
+        "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.updateReview(..)) " +
+        "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.deleteReview(..))")
     public void reviewServiceMethods() {
     }
 

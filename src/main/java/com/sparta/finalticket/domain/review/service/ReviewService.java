@@ -13,6 +13,7 @@ import com.sparta.finalticket.global.exception.review.GameIdRequiredException;
 import com.sparta.finalticket.global.exception.review.ReviewGameNotFoundException;
 import com.sparta.finalticket.global.exception.review.ReviewNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,44 +27,93 @@ public class ReviewService {
     private final GameRepository gameRepository;
     private final RedisCacheService redisCacheService;
     private final ReviewStatisticService reviewStatisticService;
+    private final DistributedReviewService distributedReviewService;
 
     @Transactional
     public ReviewResponseDto createReview(Long gameId, ReviewRequestDto requestDto, User user) {
-        Review review = createReviewFromRequest(gameId, requestDto);
-        review.setUser(user);
-        Review createdReview = reviewRepository.save(review);
-        createCacheAndRedis(gameId, review);
-        reviewStatisticService.updateReviewStatistics(gameId);
-        return new ReviewResponseDto(createdReview);
+        RLock lock = distributedReviewService.getLock(gameId);
+        try {
+            if (distributedReviewService.tryLock(lock, 1000, 5000)) {
+                Review review = createReviewFromRequest(gameId, requestDto);
+                review.setUser(user);
+                Review createdReview = reviewRepository.save(review);
+                createCacheAndRedis(gameId, createdReview);
+                reviewStatisticService.updateReviewStatistics(gameId);
+                return new ReviewResponseDto(createdReview);
+            } else {
+                throw new RuntimeException("리뷰 생성을 위한 락 획득에 실패했습니다.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ReviewNotFoundException("리뷰 생성을 위해 락을 획득하는 도중에 중단되었습니다.");
+        } finally {
+            distributedReviewService.unlock(lock);
+        }
     }
 
     @Transactional(readOnly = true)
     public ReviewResponseDto getReviewByGameId(Long gameId, Long reviewId) {
-        Review review = getReviewById(reviewId);
-        Game game = getGameById(gameId);
-        review.setGame(game);
-        getCacheAndRedis(gameId, review);
-        return new ReviewResponseDto(review);
+        RLock lock = distributedReviewService.getLock(gameId);
+        try {
+            if (distributedReviewService.tryLock(lock, 1000, 5000)) {
+                Review review = getReviewById(reviewId);
+                Game game = getGameById(gameId);
+                review.setGame(game);
+                getCacheAndRedis(reviewId, review);
+                return new ReviewResponseDto(review);
+            } else {
+                throw new ReviewNotFoundException("경기 ID에 대한 리뷰 조회를 위한 락 획득에 실패했습니다.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ReviewNotFoundException("경기 ID에 대한 리뷰 조회를 위해 락을 획득하는 도중에 중단되었습니다.");
+        } finally {
+            distributedReviewService.unlock(lock);
+        }
     }
 
     @Transactional
     public ReviewUpdateResponseDto updateReview(Long gameId, Long reviewId, ReviewUpdateRequestDto requestDto, User user) {
-        Review review = updateReviewFromRequest(gameId, reviewId, requestDto);
-        review.setUser(user);
-        Review updatedReview = reviewRepository.save(review);
-        updateCacheAndRedis(gameId, review);
-        reviewStatisticService.updateReviewStatistics(gameId);
-        return new ReviewUpdateResponseDto(updatedReview);
+        RLock lock = distributedReviewService.getLock(gameId);
+        try {
+            if (distributedReviewService.tryLock(lock, 1000, 5000)) {
+                Review review = updateReviewFromRequest(gameId, reviewId, requestDto);
+                review.setUser(user);
+                Review updatedReview = reviewRepository.save(review);
+                updateCacheAndRedis(reviewId, updatedReview);
+                reviewStatisticService.updateReviewStatistics(gameId);
+                return new ReviewUpdateResponseDto(updatedReview);
+            } else {
+                throw new ReviewNotFoundException("리뷰 업데이트를 위한 락 획득에 실패했습니다.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ReviewNotFoundException("리뷰 업데이트를 위해 락을 획득하는 도중에 중단되었습니다.");
+        } finally {
+            distributedReviewService.unlock(lock);
+        }
     }
 
     @Transactional
     public void deleteReview(Long gameId, Long reviewId, User user) {
-        Review review = deleteReviewById(reviewId);
-        Game game = new Game();
-        review.setGame(game);
-        reviewRepository.delete(review);
-        deleteCacheAndRedis(gameId, review);
-        reviewStatisticService.updateReviewStatistics(gameId);
+        RLock lock = distributedReviewService.getLock(gameId);
+        try {
+            if (distributedReviewService.tryLock(lock, 1000, 5000)) {
+                Review review = deleteReviewById(reviewId);
+                Game game = new Game();
+                review.setGame(game);
+                reviewRepository.delete(review);
+                deleteCacheAndRedis(reviewId);
+                reviewStatisticService.updateReviewStatistics(gameId);
+            } else {
+                throw new ReviewNotFoundException("리뷰 삭제를 위한 락 획득에 실패했습니다.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("리뷰 삭제를 위해 락을 획득하는 도중에 중단되었습니다.");
+        } finally {
+            distributedReviewService.unlock(lock);
+        }
     }
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
@@ -91,22 +141,19 @@ public class ReviewService {
     }
 
     public void createCacheAndRedis(Long gameId, Review review) {
-        redisCacheService.clearGameCache(gameId);
         redisCacheService.createReview(review.getId(), review);
     }
 
-    public void getCacheAndRedis(Long gameId, Review review) {
-        redisCacheService.getReview(review.getId(), review);
+    public void getCacheAndRedis(Long reviewId, Review review) {
+        redisCacheService.getReview(reviewId, review);
     }
 
-    public void updateCacheAndRedis(Long gameId, Review review) {
-        redisCacheService.clearGameCache(gameId);
-        redisCacheService.updateReview(review.getId(), review);
+    public void updateCacheAndRedis(Long reviewId, Review review) {
+        redisCacheService.updateReview(reviewId, review);
     }
 
-    public void deleteCacheAndRedis(Long gameId, Review review) {
-        redisCacheService.clearGameCache(gameId);
-        redisCacheService.clearReviewCache(review.getId());
+    public void deleteCacheAndRedis(Long reviewId) {
+        redisCacheService.clearReviewCache(reviewId);
     }
 
     private Game getGameById(Long gameId) {
