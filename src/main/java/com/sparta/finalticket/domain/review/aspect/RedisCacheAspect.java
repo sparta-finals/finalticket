@@ -1,5 +1,6 @@
 package com.sparta.finalticket.domain.review.aspect;
 
+import com.sparta.finalticket.domain.review.dto.response.ReviewAspectResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.service.RedisCacheService;
@@ -42,7 +43,7 @@ public class RedisCacheAspect {
 
             if (cachedReviewData != null) {
                 // 캐시에 데이터가 존재하면 반환
-                return new ReviewResponseDto(cachedReviewData);
+                return new ReviewAspectResponseDto(cachedReviewData);
             } else {
                 // 캐시에 데이터가 없으면 메서드 실행
                 Review reviewData = (Review) joinPoint.proceed();
@@ -50,7 +51,7 @@ public class RedisCacheAspect {
                 // 실행 결과를 캐시에 저장
                 redisCacheService.cacheReviewData(reviewId, reviewData);
 
-                return new ReviewResponseDto(reviewData);
+                return new ReviewAspectResponseDto(reviewData);
             }
         } else {
             // 리뷰 생성, 수정, 삭제 메서드의 경우 gameId가 첫 번째 매개변수로 전달됨
