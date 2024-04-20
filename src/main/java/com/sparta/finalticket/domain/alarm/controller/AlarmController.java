@@ -19,7 +19,7 @@ public class AlarmController {
     public ResponseEntity<SseEmitter> getAlarm(@PathVariable(name = "gameId") Long gameId,
                                                HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
-        SseEmitter sseEmitter = alarmService.alarmInquiry(user, gameId);
+        SseEmitter sseEmitter = alarmService.subscribeAlarm(user, gameId);
         AlarmService.sseEmitters.put(user.getId(), sseEmitter);
         return ResponseEntity.ok().body(sseEmitter);
     }

@@ -12,8 +12,6 @@ import com.sparta.finalticket.global.exception.alarm.AlarmUserNotFoundException;
 import com.sparta.finalticket.global.exception.alarm.SseEmitterSendEventException;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -22,7 +20,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -31,57 +28,82 @@ public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
-    private final RedissonClient redissonClient;
-
-    @Value("${alarm.lock.timeout}")
-    private long lockTimeout;
+    private final DistributedAlarmService distributedAlarmService;
 
     public static Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
     @Transactional
-    public SseEmitter alarmInquiry(User user, Long gameId) {
+    public SseEmitter subscribeAlarm(User user, Long gameId) {
         Long userId = user.getId();
         String alarmContent = "알람: " + user.getNickname() + "님, 티켓이 발매되었습니다!";
         Game game = getGameAlarmById(gameId);
 
-        SseEmitter emitter = subscribeAlarmUser(userId, alarmContent, game);
-
-        emitter.onCompletion(() -> sseEmitters.remove(userId));
-        emitter.onTimeout(() -> sseEmitters.remove(userId));
-        emitter.onError((e) -> sseEmitters.remove(userId));
-
-        return emitter;
-    }
-
-    @Transactional
-    public SseEmitter subscribeAlarmUser(Long userId, String alarmContent, Game game) {
-        User user = getUserAlarmById(userId);
-
-        Alarm alarm = new Alarm();
-        alarm.setContent(alarmContent);
-        alarm.setState(true);
-        alarm.setUser(user);
-        alarm.setGame(game);
-
-        String lockKey = "alarmLock:" + userId;
-        RLock lock = redissonClient.getLock(lockKey);
+        RLock lock = distributedAlarmService.getLock(userId);
         try {
-            if (lock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
-                alarmRepository.save(alarm);
+            boolean isLocked = distributedAlarmService.tryLock(lock, 10, 60);
+            if (isLocked) {
+                try {
+                    SseEmitter emitter = createAlarmUser(userId, alarmContent, game);
+                    emitter.onCompletion(() -> {
+                        sseEmitters.remove(userId);
+                        distributedAlarmService.unlock(lock);
+                    });
+                    emitter.onTimeout(() -> {
+                        sseEmitters.remove(userId);
+                        distributedAlarmService.unlock(lock);
+                    });
+                    emitter.onError((e) -> {
+                        sseEmitters.remove(userId);
+                        distributedAlarmService.unlock(lock);
+                    });
+                    return emitter;
+                } catch (Exception e) {
+                    distributedAlarmService.unlock(lock);
+                    throw e;
+                }
             } else {
-                throw new AlarmNotFoundException("알람 구독을 위한 락을 획득하는 데 실패했습니다.");
+                throw new AlarmNotFoundException("락을 획득하지 못했습니다");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AlarmNotFoundException("알람 구독을 위한 락을 획득하는 도중에 인터럽트가 발생했습니다.");
-        } finally {
-            lock.unlock();
+            throw new AlarmNotFoundException("락을 획득하는 동안 중단되었습니다");
         }
+    }
 
-        SseEmitter emitter = new SseEmitter();
-        sendEvent(emitter, "content", alarmContent);
+    @Transactional
+    public SseEmitter createAlarmUser(Long userId, String alarmContent, Game game) {
+        User user = getUserAlarmById(userId);
 
-        return emitter;
+        // 분산 락 획득
+        RLock lock = distributedAlarmService.getLock(userId);
+        try {
+            boolean isLocked = distributedAlarmService.tryLock(lock, 10, 60);
+            if (isLocked) {
+                try {
+                    // 알람 생성
+                    Alarm alarm = new Alarm();
+                    alarm.setContent(alarmContent);
+                    alarm.setState(true);
+                    alarm.setUser(user);
+                    alarm.setGame(game);
+
+                    alarmRepository.save(alarm);
+
+                    // SSE emitter 생성 및 이벤트 전송
+                    SseEmitter emitter = new SseEmitter();
+                    sendEvent(emitter, "content", alarmContent);
+                    return emitter;
+                } finally {
+                    // 분산 락 해제
+                    distributedAlarmService.unlock(lock);
+                }
+            } else {
+                throw new AlarmNotFoundException("락을 획득하지 못했습니다");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new AlarmNotFoundException("락을 획득하는 동안 중단되었습니다");
+        }
     }
 
     public void deleteAlarm(Long alarmId) {
@@ -90,12 +112,31 @@ public class AlarmService {
             Alarm alarm = optionalAlarm.get();
             User user = alarm.getUser();
 
-            alarmRepository.delete(alarm);
+            // 분산 락 획득
+            RLock lock = distributedAlarmService.getLock(user.getId());
+            try {
+                boolean isLocked = distributedAlarmService.tryLock(lock, 10, 60);
+                if (isLocked) {
+                    try {
+                        // 알람 삭제
+                        alarmRepository.delete(alarm);
 
-            Long userId = user.getId();
-            SseEmitter emitter = sseEmitters.remove(userId);
-            if (emitter != null) {
-                sendEvent(emitter, "alarm", alarm.getContent());
+                        // SSE emitter 제거
+                        Long userId = user.getId();
+                        SseEmitter emitter = sseEmitters.remove(userId);
+                        if (emitter != null) {
+                            sendEvent(emitter, "alarm", alarm.getContent());
+                        }
+                    } finally {
+                        // 분산 락 해제
+                        distributedAlarmService.unlock(lock);
+                    }
+                } else {
+                    throw new AlarmNotFoundException("락을 획득하지 못했습니다");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new AlarmNotFoundException("락을 획득하는 동안 중단되었습니다");
             }
         } else {
             throw new AlarmNotFoundException("알림을 찾을 수 없습니다.");
@@ -120,4 +161,5 @@ public class AlarmService {
             .orElseThrow(() -> new AlarmGameNotFoundException("경기를 찾을 수 없습니다."));
     }
 }
+
 
