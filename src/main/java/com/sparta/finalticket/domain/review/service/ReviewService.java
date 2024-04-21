@@ -52,12 +52,24 @@ public class ReviewService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ReviewGameListResponseDto> getReviewsByGameId(Long gameId) {
-        List<Review> reviews = reviewRepository.findByGameId(gameId);
-        return reviews.stream()
-            .map(ReviewGameListResponseDto::new)
-            .toList();
+        RLock lock = distributedReviewService.getLock(gameId);
+        try {
+            if (distributedReviewService.tryLock(lock, 1000, 5000)) {
+                List<Review> reviews = reviewRepository.findByGameId(gameId);
+                return reviews.stream()
+                    .map(ReviewGameListResponseDto::new)
+                    .toList();
+            } else {
+                throw new ReviewNotFoundException("게임 ID에 대한 리뷰 조회를 위한 락 획득에 실패했습니다.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ReviewNotFoundException("게임 ID에 대한 리뷰 조회를 위해 락을 획득하는 도중에 중단되었습니다.");
+        } finally {
+            distributedReviewService.unlock(lock);
+        }
     }
 
     @Transactional(readOnly = true)
