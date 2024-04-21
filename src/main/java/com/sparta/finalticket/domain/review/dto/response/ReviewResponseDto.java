@@ -25,5 +25,29 @@ public class ReviewResponseDto {
         this.userId = review.getUser() != null ? review.getUser().getId() : null;
         this.gameId = review.getGame() != null ? review.getGame().getId() : null;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setReview(String review) {
+        this.review = review;
+    }
+
+    public void setScore(Long score) {
+        this.score = score;
+    }
+
+    public void setState(Boolean state) {
+        this.state = state;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public void setGameId(Long gameId) {
+        this.gameId = gameId;
+    }
 }
 
