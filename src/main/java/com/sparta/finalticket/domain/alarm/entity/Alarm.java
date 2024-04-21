@@ -15,7 +15,8 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Table(name = "alarm", indexes = {
 	@Index(name = "idx_game_id", columnList = "game_id"),
-	@Index(name = "idx_user_id", columnList = "user_id")
+	@Index(name = "idx_user_id", columnList = "user_id"),
+	@Index(name = "idx_state", columnList = "state")
 })
 @SQLDelete(sql = "UPDATE alarm SET state = true WHERE id = ?")
 @Where(clause = "state = true")

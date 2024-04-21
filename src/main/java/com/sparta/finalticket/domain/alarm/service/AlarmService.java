@@ -36,7 +36,10 @@ public class AlarmService {
     public SseEmitter subscribeAlarm(User user, Long gameId) {
         Long userId = user.getId();
         String alarmContent = "알람: " + user.getNickname() + "님, 티켓이 발매되었습니다!";
-        Game game = getGameAlarmById(gameId);
+
+        // 쿼리 최적화: 게임 조회를 게임 ID로 바로 수행
+        Game game = gameRepository.findById(gameId)
+            .orElseThrow(() -> new AlarmGameNotFoundException("경기를 찾을 수 없습니다."));
 
         RLock lock = distributedAlarmService.getLock(userId);
         try {
