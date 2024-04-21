@@ -15,5 +15,7 @@ public interface ReviewRepositoryCustom {
 
     Optional<Object> findReviewByGameIdAndReviewId(Long gameId, Long reviewId);
 
+    List<Review> findByGameId(Long gameId);
+
     List<ReviewResponseDto> getUserReviewList(User user);
 }

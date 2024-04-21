@@ -49,6 +49,13 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     }
 
     @Override
+    public List<Review> findByGameId(Long gameId) {
+        return jpaQueryFactory.selectFrom(QReview.review1)
+            .where(QReview.review1.game.id.eq(gameId))
+            .fetch();
+    }
+
+    @Override
     public List<ReviewResponseDto> getUserReviewList(User user) {
         try{
             return jpaQueryFactory.selectFrom(QReview.review1)

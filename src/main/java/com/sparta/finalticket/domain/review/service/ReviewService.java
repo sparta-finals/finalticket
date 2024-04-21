@@ -4,6 +4,7 @@ import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.request.ReviewUpdateRequestDto;
+import com.sparta.finalticket.domain.review.dto.response.ReviewGameListResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewUpdateResponseDto;
 import com.sparta.finalticket.domain.review.entity.Review;
@@ -49,6 +50,14 @@ public class ReviewService {
         } finally {
             distributedReviewService.unlock(lock);
         }
+    }
+
+    @Transactional
+    public List<ReviewGameListResponseDto> getReviewsByGameId(Long gameId) {
+        List<Review> reviews = reviewRepository.findByGameId(gameId);
+        return reviews.stream()
+            .map(ReviewGameListResponseDto::new)
+            .toList();
     }
 
     @Transactional(readOnly = true)
