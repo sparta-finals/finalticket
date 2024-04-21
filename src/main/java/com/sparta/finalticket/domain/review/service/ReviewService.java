@@ -56,7 +56,7 @@ public class ReviewService {
         RLock lock = distributedReviewService.getLock(gameId);
         try {
             if (distributedReviewService.tryLock(lock, 1000, 5000)) {
-                Review review = getReviewById(reviewId);
+                Review review = getReviewByIdAndGameId(gameId, reviewId);
                 Game game = getGameById(gameId);
                 review.setGame(game);
                 getCacheAndRedis(reviewId, review);
@@ -159,6 +159,11 @@ public class ReviewService {
     private Game getGameById(Long gameId) {
         return gameRepository.findById(gameId)
             .orElseThrow(() -> new ReviewGameNotFoundException("경기를 찾을 수 없습니다."));
+    }
+
+    private Review getReviewByIdAndGameId(Long gameId, Long reviewId) {
+        return (Review) reviewRepository.findReviewByGameIdAndReviewId(gameId, reviewId)
+            .orElseThrow(() -> new ReviewNotFoundException("리뷰를 찾을 수 없습니다."));
     }
 
     private Review getReviewById(Long reviewId) {

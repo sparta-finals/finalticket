@@ -1,14 +1,15 @@
 package com.sparta.finalticket.domain.review.repository;
 
-
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.game.entity.QGame;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.entity.QReview;
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.user.entity.User;
+
 import java.util.List;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -33,6 +34,16 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
         return Optional.ofNullable(
             jpaQueryFactory.selectFrom(QReview.review1)
                 .where(QReview.review1.id.eq(reviewId))
+                .fetchOne()
+        );
+    }
+
+    @Override
+    public Optional<Object> findReviewByGameIdAndReviewId(Long gameId, Long reviewId) {
+        return Optional.ofNullable(
+            jpaQueryFactory.selectFrom(QReview.review1)
+                .where(QReview.review1.game.id.eq(gameId)
+                    .and(QReview.review1.id.eq(reviewId)))
                 .fetchOne()
         );
     }
