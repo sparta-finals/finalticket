@@ -34,6 +34,8 @@ public class QTicket extends EntityPathBase<Ticket> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 
+    public final com.sparta.finalticket.domain.payment.entity.QPayments payments;
+
     public final com.sparta.finalticket.domain.seat.entity.QSeat seat;
 
     public final BooleanPath state = createBoolean("state");
@@ -63,6 +65,7 @@ public class QTicket extends EntityPathBase<Ticket> {
     public QTicket(Class<? extends Ticket> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.game = inits.isInitialized("game") ? new com.sparta.finalticket.domain.game.entity.QGame(forProperty("game"), inits.get("game")) : null;
+        this.payments = inits.isInitialized("payments") ? new com.sparta.finalticket.domain.payment.entity.QPayments(forProperty("payments"), inits.get("payments")) : null;
         this.seat = inits.isInitialized("seat") ? new com.sparta.finalticket.domain.seat.entity.QSeat(forProperty("seat"), inits.get("seat")) : null;
         this.user = inits.isInitialized("user") ? new com.sparta.finalticket.domain.user.entity.QUser(forProperty("user")) : null;
     }
