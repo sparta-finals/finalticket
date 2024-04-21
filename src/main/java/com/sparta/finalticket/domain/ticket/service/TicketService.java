@@ -3,6 +3,8 @@ package com.sparta.finalticket.domain.ticket.service;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.payment.entity.PaymentStatus;
+import com.sparta.finalticket.domain.payment.entity.Payments;
+import com.sparta.finalticket.domain.payment.respository.PaymentRepository;
 import com.sparta.finalticket.domain.seat.entity.Seat;
 import com.sparta.finalticket.domain.seat.repository.SeatRepository;
 import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
@@ -30,6 +32,8 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
 
+    private final PaymentRepository paymentRepository;
+
 
     public List<TicketResponseDto> getUserTicketList(User user) {
         return ticketRepository.getUserTicketList(user.getId());
@@ -54,7 +58,16 @@ public class TicketService {
             ticket.setStatus(PaymentStatus.READY);
             ticketRepository.save(ticket);
 
-            return seatRepository.findByGameIdAndSeatsettingId(gameId,seatId).orElseThrow(()->new IllegalArgumentException()).getId();
+            Payments payments = Payments.builder()
+                .price(Long.valueOf(seat.getPrice()))
+                .ticket(ticket)
+                .status(PaymentStatus.READY)
+                .user(user)
+                .build();
+
+            paymentRepository.save(payments);
+
+            return seatRepository.findByGameIdAndSeatsettingId(gameId,seatId).orElseThrow().getId();
 
         } else {
             Seat seat = getSeat(gameId, seatId, user.getId(), false);
@@ -73,7 +86,10 @@ public class TicketService {
         seat.update(false);
 
         Ticket ticket = getTicket(seat.getId());
+        ticket.setStatus(PaymentStatus.CANCEL);
+
         ticket.update(false);
+
     }
 
     private Game getGame(Long gameId) {
@@ -94,4 +110,35 @@ public class TicketService {
             .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 티켓 입니다."));
     }
 
+
+    public void cancelPayment(Long gameId, Long seatId) {
+        Ticket ticket = ticketRepository.findByGameIdAndSeatId(gameId, seatId);
+
+        if(ticket == null) {
+            throw new IllegalArgumentException("티켓 없음");
+        }
+
+        ticket.setStatus(PaymentStatus.CANCEL);
+
+        Payments payments = paymentRepository.findByTicket(ticket);
+        payments.setStatus(PaymentStatus.CANCEL);
+
+        ticketRepository.save(ticket);
+        paymentRepository.save(payments);
+    }
+
+
+    public void successPayment(Long gameId, Long seatId) {
+        Ticket ticket = ticketRepository.findByGameIdAndSeatId(gameId, seatId);
+        if(ticket == null) {
+            throw new IllegalArgumentException("티켓 없음");
+        }
+        ticket.setStatus(PaymentStatus.OK);
+
+        Payments payments = paymentRepository.findByTicket(ticket);
+        payments.setStatus(PaymentStatus.OK);
+
+        ticketRepository.save(ticket);
+        paymentRepository.save(payments);
+    }
 }

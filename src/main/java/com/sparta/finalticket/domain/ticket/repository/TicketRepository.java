@@ -7,7 +7,6 @@ import com.sparta.finalticket.domain.user.entity.User;
 
 import java.util.List;
 
-import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -26,5 +25,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, TicketRep
 
     Ticket findByGameIdAndSeatId(Long gameId, Long seatId);
 
-
+    @Query("select t from Ticket t" +
+        " left join fetch t.payments p" +
+        " where t.ticketUid = :ticketUid")
+    Optional<Ticket> findTicketAndPayments(String ticketUid);
 }
