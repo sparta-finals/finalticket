@@ -33,7 +33,7 @@ public class ReviewController {
     }
 
     @GetMapping("/reviews")
-    public ResponseEntity<List<ReviewGameListResponseDto>>getReviews(@PathVariable(name = "gameId") Long gameId) {
+    public ResponseEntity<List<ReviewGameListResponseDto>>getReviewsByGameId(@PathVariable(name = "gameId") Long gameId) {
         List<ReviewGameListResponseDto> reviews = reviewService.getReviewsByGameId(gameId);
         return ResponseEntity.ok().body(reviews);
     }
