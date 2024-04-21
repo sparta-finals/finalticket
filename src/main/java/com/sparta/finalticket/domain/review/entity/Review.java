@@ -18,7 +18,8 @@ import org.hibernate.annotations.Where;
 @AllArgsConstructor
 @Table(name = "review", indexes = {
 	@Index(name = "idx_game_id", columnList = "game_id"),
-	@Index(name = "idx_user_id", columnList = "user_id")
+	@Index(name = "idx_user_id", columnList = "user_id"),
+	@Index(name = "idx_state", columnList = "state")
 })
 @SQLDelete(sql = "UPDATE review SET state = true WHERE id = ?")
 @Where(clause = "state = true")

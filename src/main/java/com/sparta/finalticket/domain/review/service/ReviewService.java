@@ -110,7 +110,7 @@ public class ReviewService {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("리뷰 삭제를 위해 락을 획득하는 도중에 중단되었습니다.");
+            throw new ReviewNotFoundException("리뷰 삭제를 위해 락을 획득하는 도중에 중단되었습니다.");
         } finally {
             distributedReviewService.unlock(lock);
         }
