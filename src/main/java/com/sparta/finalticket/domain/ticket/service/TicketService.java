@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +52,7 @@ public class TicketService {
             int price = seatSetting.getSeatType().getPrice();
             Seat seat = new Seat(game, seatSetting, user, true, price);
             seatRepository.save(seat);
+            game.setcount(game.getCount()-1);
 
             Ticket ticket = new Ticket(user, game, seat, true,"");
             ticket.setStatus(PaymentStatus.READY);
@@ -70,11 +70,14 @@ public class TicketService {
             return seatRepository.findByGameIdAndSeatsettingId(gameId,seatId).orElseThrow().getId();
 
         } else {
+            Game game = getGame(gameId);
             Seat seat = getSeat(gameId, seatId, user.getId(), false);
             seat.update(true);
 
             Ticket ticket = getTicket(seat.getId());
             ticket.update(true);
+
+            game.setcount(game.getCount()-1);
         }
         return null;
     }
@@ -82,6 +85,7 @@ public class TicketService {
     //티켓팅 취소
     @DistributedLock(key = "#seatId")
     public void deleteTicket(Long gameId, Long seatId, User user) {
+        Game game = getGame(gameId);
         Seat seat = getSeat(gameId, seatId, user.getId(), true);
         seat.update(false);
 
@@ -89,7 +93,7 @@ public class TicketService {
         ticket.setStatus(PaymentStatus.CANCEL);
 
         ticket.update(false);
-
+        game.setcount(game.getCount()+1);
     }
 
     private Game getGame(Long gameId) {
