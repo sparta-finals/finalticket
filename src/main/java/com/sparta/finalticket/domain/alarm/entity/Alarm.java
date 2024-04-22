@@ -1,5 +1,6 @@
 package com.sparta.finalticket.domain.alarm.entity;
 
+import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.timeStamped.TimeStamped;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -13,7 +14,9 @@ import org.hibernate.annotations.Where;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Table(name = "alarm", indexes = {
-	@Index(name = "idx_user_id", columnList = "user_id")
+	@Index(name = "idx_game_id", columnList = "game_id"),
+	@Index(name = "idx_user_id", columnList = "user_id"),
+	@Index(name = "idx_state", columnList = "state")
 })
 @SQLDelete(sql = "UPDATE alarm SET state = true WHERE id = ?")
 @Where(clause = "state = true")
@@ -33,10 +36,12 @@ public class Alarm extends TimeStamped {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	public Alarm(String content, Boolean state, User user) {
-		this.content = content;
-		this.state = state;
-		this.user = user;
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@JoinColumn(name = "game_id")
+	private Game game;
+
+	public void setGame(Game game) {
+		this.game = game;
 	}
 
 	public void setUser(User user) {
