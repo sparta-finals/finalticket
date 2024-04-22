@@ -38,6 +38,12 @@ public class Review extends TimeStamped {
 	@Column
 	private Boolean state;
 
+	@Column(name = "total_review_count")
+	private Long totalReviewCount;
+
+	@Column(name = "average_review_score")
+	private Double averageReviewScore;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
