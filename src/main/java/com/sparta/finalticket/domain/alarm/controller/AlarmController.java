@@ -8,21 +8,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 @RestController
-@RequestMapping("/v1/alarms")
+@RequestMapping("/v1/games/{gameId}/alarms")
 @RequiredArgsConstructor
 public class AlarmController {
 
     private final AlarmService alarmService;
-    public static Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
     @GetMapping
-    public ResponseEntity<SseEmitter> getAlarm(HttpServletRequest httpServletRequest) {
+    public ResponseEntity<SseEmitter> getAlarm(@PathVariable(name = "gameId") Long gameId,
+                                               HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
-        SseEmitter sseEmitter = alarmService.subscribeAlarm(user);
+        SseEmitter sseEmitter = alarmService.subscribeAlarm(user, gameId);
         AlarmService.sseEmitters.put(user.getId(), sseEmitter);
         return ResponseEntity.ok().body(sseEmitter);
     }
@@ -33,3 +30,4 @@ public class AlarmController {
         return ResponseEntity.noContent().build();
     }
 }
+

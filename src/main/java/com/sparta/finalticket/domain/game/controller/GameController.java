@@ -127,4 +127,17 @@ public class GameController {
     public ResponseEntity<List<GameResponseDto>> getGameOfCategory(@PathVariable CategoryEnum category){
         return ResponseEntity.status(200).body(gameService.getGameOfCategory(category));
     }
+
+    @GetMapping("/keyword/{keyword}")
+    public ResponseEntity<List<GameResponseDto>> getGameOfKeyword(@PathVariable String keyword){
+        System.out.println("keyword = " + keyword);
+        List<GameResponseDto> list = gameService.getGameOfKeyword("s");
+        if (list == null) {
+            System.out.println("list == null");
+        }
+        for(GameResponseDto s :list){
+            System.out.println("GameResponse = " + s);
+        }
+        return ResponseEntity.status(200).body(gameService.getGameOfKeyword(keyword));
+    }
 }

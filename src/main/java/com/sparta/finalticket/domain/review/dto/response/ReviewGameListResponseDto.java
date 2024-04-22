@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewResponseDto {
+public class ReviewGameListResponseDto {
 
     private Long id;
     private String review;
@@ -17,7 +17,7 @@ public class ReviewResponseDto {
     private Long userId;
     private Long gameId;
 
-    public ReviewResponseDto(Review review) {
+    public ReviewGameListResponseDto(Review review) {
         this.id = review.getId();
         this.review = review.getReview();
         this.score = review.getScore();
@@ -25,29 +25,4 @@ public class ReviewResponseDto {
         this.userId = review.getUser() != null ? review.getUser().getId() : null;
         this.gameId = review.getGame() != null ? review.getGame().getId() : null;
     }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setReview(String review) {
-        this.review = review;
-    }
-
-    public void setScore(Long score) {
-        this.score = score;
-    }
-
-    public void setState(Boolean state) {
-        this.state = state;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public void setGameId(Long gameId) {
-        this.gameId = gameId;
-    }
 }
-

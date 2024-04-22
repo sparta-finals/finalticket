@@ -16,4 +16,6 @@ public interface CustomGameRepository {
     Optional<Game> findByIdAndStateTrue(Long gameId);
 
     List<GameResponseDto> getGameOfCategory(CategoryEnum categoryEnum);
+
+    List<GameResponseDto> getGameOfKeyword(String keyword);
 }
