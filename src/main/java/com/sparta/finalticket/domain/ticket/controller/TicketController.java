@@ -19,8 +19,8 @@ public class TicketController {
     //티켓팅
     @PostMapping("/{gameId}/seats/{seatId}")
     public ResponseEntity createTicket(@PathVariable Long gameId, @PathVariable Long seatId, HttpServletRequest request) {
-        ticketService.createTicket(gameId, seatId, getUser(request));
-        return ResponseEntity.status(201).build();
+
+        return ResponseEntity.status(201).body( ticketService.createTicket(gameId, seatId, getUser(request)));
     }
     //티켓팅 취소
     @DeleteMapping("/{gameId}/seats/{seatId}")
