@@ -54,20 +54,20 @@ public class TicketService {
             Seat seat = new Seat(game, seatSetting, user, true, price);
             seatRepository.save(seat);
 
-            Ticket ticket = new Ticket(user, game, seat, true,"");
-            ticket.setStatus(PaymentStatus.READY);
-            ticketRepository.save(ticket);
 
             Payments payments = Payments.builder()
-                .price(Long.valueOf(seat.getPrice()))
-                .ticket(ticket)
-                .status(PaymentStatus.READY)
-                .user(user)
-                .build();
+                    .price(Long.valueOf(seat.getPrice()))
+                    .status(PaymentStatus.READY)
+                    .user(user)
+                    .build();
+
+            Ticket ticket = new Ticket(user, game, seat, true, "", payments);
+            ticketRepository.save(ticket);
+
 
             paymentRepository.save(payments);
 
-            return seatRepository.findByGameIdAndSeatsettingId(gameId,seatId).orElseThrow().getId();
+            return seatRepository.findByGameIdAndSeatsettingId(gameId, seatId).orElseThrow().getId();
 
         } else {
             Seat seat = getSeat(gameId, seatId, user.getId(), false);
@@ -86,7 +86,6 @@ public class TicketService {
         seat.update(false);
 
         Ticket ticket = getTicket(seat.getId());
-        ticket.setStatus(PaymentStatus.CANCEL);
 
         ticket.update(false);
 
@@ -98,7 +97,7 @@ public class TicketService {
 
     private Seat getSeat(Long gameId, Long seatId, Long userId, boolean b) {
         return seatRepository.findSeatByGameIdAndSeatsettingIdAndUserIdAndState(gameId, seatId, userId, b)
-            .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 좌석 입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 좌석 입니다."));
     }
 
     private SeatSetting getSeatsetting(Long seatId) {
@@ -107,38 +106,7 @@ public class TicketService {
 
     private Ticket getTicket(Long gameId) {
         return ticketRepository.findBySeatId(gameId)
-            .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 티켓 입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 티켓 입니다."));
     }
 
-
-    public void cancelPayment(Long gameId, Long seatId) {
-        Ticket ticket = ticketRepository.findByGameIdAndSeatId(gameId, seatId);
-
-        if(ticket == null) {
-            throw new IllegalArgumentException("티켓 없음");
-        }
-
-        ticket.setStatus(PaymentStatus.CANCEL);
-
-        Payments payments = paymentRepository.findByTicket(ticket);
-        payments.setStatus(PaymentStatus.CANCEL);
-
-        ticketRepository.save(ticket);
-        paymentRepository.save(payments);
-    }
-
-
-    public void successPayment(Long gameId, Long seatId) {
-        Ticket ticket = ticketRepository.findByGameIdAndSeatId(gameId, seatId);
-        if(ticket == null) {
-            throw new IllegalArgumentException("티켓 없음");
-        }
-        ticket.setStatus(PaymentStatus.OK);
-
-        Payments payments = paymentRepository.findByTicket(ticket);
-        payments.setStatus(PaymentStatus.OK);
-
-        ticketRepository.save(ticket);
-        paymentRepository.save(payments);
-    }
 }
