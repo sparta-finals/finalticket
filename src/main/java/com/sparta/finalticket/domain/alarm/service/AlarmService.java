@@ -173,5 +173,3 @@ public class AlarmService {
             .orElseThrow(() -> new AlarmGameNotFoundException("경기를 찾을 수 없습니다."));
     }
 }
-
-
