@@ -1,6 +1,7 @@
 package com.sparta.finalticket.domain.game.repository;
 
 import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
+import com.sparta.finalticket.domain.game.entity.CategoryEnum;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.user.entity.User;
 import java.util.List;
@@ -13,4 +14,6 @@ public interface CustomGameRepository {
     List<GameResponseDto> getUserGameList(User user);
 
     Optional<Game> findByIdAndStateTrue(Long gameId);
+
+    List<GameResponseDto> getGameOfCategory(CategoryEnum categoryEnum);
 }

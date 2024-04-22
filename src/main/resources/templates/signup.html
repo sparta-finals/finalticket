@@ -7,6 +7,11 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+  ></script>
   <meta charset="UTF-8">
   <title>회원가입 페이지</title>
   <script>
@@ -24,12 +29,13 @@
       }
     }
   </script>
+
 </head>
 <body>
 <div id="login-form">
   <div id="login-title">Sign up Select Shop</div>
 
-  <form action="/v1/users/signup" method="post">
+  <div>
     <div class="login-id-label">Username</div>
     <input type="text" name="username" placeholder="Username" class="login-input-box">
 
@@ -42,12 +48,63 @@
     <div class="login-id-label">Nickname</div>
     <input type="text" name="nickname" placeholder="Nickname" class="login-input-box">
 
+    <div class="login-id-label">Address</div>
+    <input type="text" name="address" placeholder="Address" class="login-input-box">
+
+
     <div>
       <input id="admin-check" type="checkbox" name="admin" onclick="onclickAdmin()" style="margin-top: 40px;">관리자
       <input id="admin-token" type="password" name="adminToken" placeholder="관리자 암호" class="login-input-box" style="display:none">
     </div>
     <button id="login-id-submit">회원 가입</button>
-  </form>
+  </div>
 </div>
 </body>
+<script>
+  $(document).ready(function() {
+    // 회원 가입 버튼 클릭 시 처리
+    $('#login-id-submit').on('click', function() {
+      // 입력 필드의 값을 가져옵니다.
+      const username = $('input[name="username"]').val();
+      const password = $('input[name="password"]').val();
+      const email = $('input[name="email"]').val();
+      const nickname = $('input[name="nickname"]').val();
+      const address = $('input[name="address"]').val();
+      const isAdmin = $('#admin-check').is(':checked');
+      const adminToken = $('input[name="adminToken"]').val();
+
+      // 요청 데이터를 객체로 만듭니다.
+      const requestData = {
+        username: username,
+        password: password,
+        email: email,
+        nickname: nickname,
+        address: address,
+        admin: isAdmin,
+        adminToken: adminToken
+      };
+
+      // AJAX POST 요청을 보냅니다.
+      $.ajax({
+        url: '/v1/users/signup',
+        method: 'POST',
+        contentType: 'application/json', // JSON 형식의 데이터를 보내기 위해 설정
+        data: JSON.stringify(requestData), // 요청 데이터 객체를 JSON 문자열로 변환
+        success: function(response) {
+          // 요청이 성공했을 때의 처리
+          alert('회원 가입이 완료되었습니다!');
+          console.log('응답 데이터:', response);
+          // 성공 후 원하는 동작을 수행합니다. 예를 들어, 페이지를 리디렉션할 수 있습니다.
+          window.location.href = response.url;
+        },
+        error: function(xhr, status, error) {
+          // 요청이 실패했을 때의 처리
+          alert('회원 가입에 실패했습니다. 오류 메시지: ' + error);
+          console.error('요청 실패:', status, error);
+        }
+      });
+    });
+  });
+
+</script>
 </html>

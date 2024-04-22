@@ -29,6 +29,8 @@ public class QAlarm extends EntityPathBase<Alarm> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
+    public final com.sparta.finalticket.domain.game.entity.QGame game;
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     //inherited
@@ -56,6 +58,7 @@ public class QAlarm extends EntityPathBase<Alarm> {
 
     public QAlarm(Class<? extends Alarm> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
+        this.game = inits.isInitialized("game") ? new com.sparta.finalticket.domain.game.entity.QGame(forProperty("game"), inits.get("game")) : null;
         this.user = inits.isInitialized("user") ? new com.sparta.finalticket.domain.user.entity.QUser(forProperty("user")) : null;
     }
 
