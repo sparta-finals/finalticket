@@ -45,14 +45,14 @@ public class TicketService {
             throw new IllegalArgumentException("해당 좌석은 이미 예매 되었습니다.");
         }
         boolean existingTicket = seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, false);
+        Game game = getGame(gameId);
+
         if (!existingTicket) {
-            Game game = getGame(gameId);
             SeatSetting seatSetting = getSeatsetting(seatId);
 
             int price = seatSetting.getSeatType().getPrice();
             Seat seat = new Seat(game, seatSetting, user, true, price);
             seatRepository.save(seat);
-            game.setcount(game.getCount()-1);
 
             Ticket ticket = new Ticket(user, game, seat, true,"");
             ticket.setStatus(PaymentStatus.READY);
@@ -70,15 +70,13 @@ public class TicketService {
             return seatRepository.findByGameIdAndSeatsettingId(gameId,seatId).orElseThrow().getId();
 
         } else {
-            Game game = getGame(gameId);
             Seat seat = getSeat(gameId, seatId, user.getId(), false);
             seat.update(true);
 
             Ticket ticket = getTicket(seat.getId());
             ticket.update(true);
-
-            game.setcount(game.getCount()-1);
         }
+        game.setcount(game.getCount()-1);
         return null;
     }
 
