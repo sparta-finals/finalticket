@@ -338,8 +338,8 @@
       contentType: 'application/json', // JSON 형식의 데이터를 전송합니다
       success: function(response) {
         console.log('요청 성공:', response);
-        const host = 'http://' + window.location.host;
-        window.location.href = host;
+        console.log(gameId,seatId)
+        window.location.href = 'http://'+ window.location.host +  `/v1/games/${gameId}/seats/`+response+`/payment`;
       },
       error: function(xhr, status, error) {
         console.error('요청 실패:', status, error);

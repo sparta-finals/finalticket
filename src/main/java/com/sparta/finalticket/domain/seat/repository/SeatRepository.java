@@ -19,4 +19,6 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 
     Optional<Seat> findByGameId(Long id);
     List<Seat> findALlByGameId(Long id);
+
+    Optional<Seat> findByGameIdAndSeatsettingId(Long gameId,Long seatSettingId);
 }
