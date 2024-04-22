@@ -2,6 +2,7 @@ package com.sparta.finalticket.domain.review.controller;
 
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.request.ReviewUpdateRequestDto;
+import com.sparta.finalticket.domain.review.dto.response.ReviewGameListResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewUpdateResponseDto;
 import com.sparta.finalticket.domain.review.service.ReviewService;
@@ -9,22 +10,20 @@ import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/games/{gameId}/review")
+@RequestMapping("/v1/games/{gameId}")
 public class ReviewController {
 
     private final ReviewService reviewService;
-    private final RedisTemplate<String, String> redisTemplate;
 
-    @PostMapping
+    @PostMapping("/review")
     public ResponseEntity<ReviewResponseDto> postReview(@PathVariable(name = "gameId") Long gameId,
                                                         @RequestBody @Valid ReviewRequestDto requestDto,
                                                         HttpServletRequest httpServletRequest) {
@@ -33,14 +32,20 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewResponseDto);
     }
 
-    @GetMapping("/{reviewId}")
+    @GetMapping("/reviews")
+    public ResponseEntity<List<ReviewGameListResponseDto>>getReviewsByGameId(@PathVariable(name = "gameId") Long gameId) {
+        List<ReviewGameListResponseDto> reviews = reviewService.getReviewsByGameId(gameId);
+        return ResponseEntity.ok().body(reviews);
+    }
+
+    @GetMapping("/review/{reviewId}")
     public ResponseEntity<ReviewResponseDto> getReview(@PathVariable(name = "gameId") Long gameId,
                                                        @PathVariable(name = "reviewId") Long reviewId) {
         ReviewResponseDto responseDto = reviewService.getReviewByGameId(gameId, reviewId);
         return ResponseEntity.ok().body(responseDto);
     }
 
-    @PutMapping("/{reviewId}")
+    @PutMapping("/review/{reviewId}")
     public ResponseEntity<ReviewUpdateResponseDto> updateReview(@PathVariable(name = "gameId") Long gameId,
                                                                 @PathVariable(name = "reviewId") Long reviewId,
                                                                 @RequestBody @Valid ReviewUpdateRequestDto requestDto,
@@ -50,7 +55,7 @@ public class ReviewController {
         return ResponseEntity.ok().body(responseDto);
     }
 
-    @DeleteMapping("/{reviewId}")
+    @DeleteMapping("/review/{reviewId}")
     public ResponseEntity<Void> deleteReview(@PathVariable(name = "gameId") Long gameId,
                                              @PathVariable(name = "reviewId") Long reviewId,
                                              HttpServletRequest httpServletRequest) {
