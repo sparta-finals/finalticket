@@ -171,4 +171,8 @@ public class GameService {
   public List<GameResponseDto> getGameOfCategory(CategoryEnum category){
     return gameRepository.getGameOfCategory(category);
   }
+
+  public List<GameResponseDto> getGameOfKeyword(String keyword) {
+    return gameRepository.getGameOfKeyword(keyword);
+  }
 }
