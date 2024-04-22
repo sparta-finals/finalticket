@@ -1,12 +1,10 @@
 package com.sparta.finalticket.domain.game.service;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.game.dto.request.GameRequestDto;
 import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
 import com.sparta.finalticket.domain.game.entity.CategoryEnum;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.entity.PlaceEnum;
-import com.sparta.finalticket.domain.game.entity.QGame;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.seat.dto.SeatSettingResponseDto;
 import com.sparta.finalticket.domain.seat.entity.Seat;
