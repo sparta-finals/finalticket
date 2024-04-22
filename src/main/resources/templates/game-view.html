@@ -104,11 +104,27 @@
       height: 100px; /* 높이를 지정하여 중앙 정렬을 위해 사용합니다 */
     }
 
+       /* #game-data 요소의 스타일 */
+     #game-data {
+       padding: 15px; /* 내부 여백을 조정합니다 */
+       background-color: #f0f0f0; /* 배경 색상을 연회색으로 지정합니다 */
+       border: 1px solid #ccc; /* 연회색 경계를 추가합니다 */
+       border-radius: 5px; /* 모서리를 둥글게 만듭니다 */
+       font-family: Arial, sans-serif; /* 글꼴을 지정합니다 */
+       color: #333; /* 텍스트 색상을 어두운 회색으로 지정합니다 */
+       text-align: center; /* 텍스트를 중앙에 정렬합니다 */
+       margin: 5px; /* 마진을 추가합니다 */
+     }
+  </style>
+
 
   </style>
 </head>
 
 <body>
+<div id="game-data">
+
+</div>
 <div id="seat-selection">
   <!-- 좌석 선택을 위한 컨테이너 -->
   <h1>좌석 선택</h1>
@@ -200,7 +216,27 @@
     // 게임 ID를 변수로 선언
     var gameId = '[[${id}]]';
     // 요청할 URL
-    var url = 'http://localhost:8080/v1/games/' + gameId + '/seats';
+    var host = 'http://'+window.location.host;
+    var url = host+'/v1/games/' + gameId + '/seats';
+
+    $.ajax({
+      url: host+'/v1/games/'+gameId,
+      method: 'GET',
+      success: function (data) {
+        var gameData = data.data;
+        dataString = `
+          <p>경기명: ${gameData.name}</p>
+          <p>카테고리: ${gameData.category}</p>
+          <p>잔여 좌석 수: ${gameData.count}</p>
+          <p>장소: ${gameData.place}</p>
+          <p>경기 날짜: ${new Date(gameData.startDate).toLocaleString()}</p>
+          `;
+        const gameDateElement = document.getElementById('game-data');
+
+// 구성된 문자열을 요소에 추가합니다.
+        gameDateElement.innerHTML = dataString;
+      }
+    })
 
     // jQuery를 사용하여 GET 요청 보내기
     $.ajax({
@@ -346,6 +382,18 @@
         // 요청 실패 시 수행할 작업을 추가할 수 있습니다
       }
     });
+  }
+
+  function callReview(){
+    var host = 'http://'+window.location.host;
+    $.ajax({
+      url: host+"d",
+      method: 'GET',
+      success: function(response) {
+        console.log(response);
+      }
+
+    })
   }
 
 

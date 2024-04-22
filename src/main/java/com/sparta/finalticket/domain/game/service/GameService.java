@@ -95,10 +95,9 @@ public class GameService {
   }
 
   @Transactional(readOnly = true)
-  public List<GameResponseDto> getGameList(Long gameId) {
+  public GameResponseDto getGame(Long gameId) {
     Game game = validateExistGame(gameId);
-    return gameRepository.findByIdAndStateTrue(gameId).stream()
-        .map(GameResponseDto::new).toList();
+    return new GameResponseDto(game);
   }
 
 
@@ -144,7 +143,7 @@ public class GameService {
   private List<GameResponseDto> filterGames(Predicate<Game> condition) {
     return getGames().stream()
         .filter(condition)
-        .map(game -> new GameResponseDto(game.getName(), game.getCategory()))
+        .map(GameResponseDto::new)
         .toList();
   }
 
@@ -167,5 +166,9 @@ public class GameService {
       }
     }
     return remainingSeatSettings;
+  }
+
+  public List<GameResponseDto> getGameOfCategory(CategoryEnum category){
+    return gameRepository.getGameOfCategory(category);
   }
 }
