@@ -16,16 +16,4 @@ public class SearchService {
     private final GameRepository gameRepository;
     private final SearchRepository searchRepository;
 
-    public void performSearchAndSave(Long gameId, String keyword) {
-        // Retrieve the game associated with the provided gameId
-        Game game = gameRepository.findById(gameId)
-            .orElseThrow(() -> new IllegalArgumentException("Game not found with id: " + gameId));
-
-        // Save search result
-        Search search = Search.builder()
-            .keyword(keyword)
-            .game(game)
-            .build();
-        searchRepository.save(search);
-    }
 }

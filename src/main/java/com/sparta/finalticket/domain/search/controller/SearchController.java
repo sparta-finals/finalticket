@@ -7,15 +7,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/games/{gameId}")
+@RequestMapping("/v1/games")
 public class SearchController {
 
     private final SearchService searchService;
 
-    @PostMapping("/search")
-    public ResponseEntity<String> performSearch(@PathVariable(name = "gameId") Long gameId,
-                                                @RequestParam(name = "keyword") String keyword) {
-        searchService.performSearchAndSave(gameId, keyword);
-        return ResponseEntity.ok("Search performed successfully.");
-    }
 }
