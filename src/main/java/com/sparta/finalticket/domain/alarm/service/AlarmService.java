@@ -51,12 +51,15 @@ public class AlarmService {
         // 쿼리 최적화: 게임 조회를 게임 ID로 바로 수행
         Game game = getGameAlarmById(gameId);
 
+        // 캐시에 저장할 때 사용할 timeout 값 설정
+        int timeout = 60000; // 예시 값 (60초)
+
         RLock lock = distributedAlarmService.getLock(userId);
         try {
             boolean isLocked = distributedAlarmService.tryLock(lock, 10, 60);
             if (isLocked) {
                 try {
-                    SseEmitter emitter = createAlarmUser(userId, alarmContent, game);
+                    SseEmitter emitter = createAlarmUser(userId, alarmContent, game, timeout);
                     emitter.onCompletion(() -> {
                         sseEmitters.remove(userId);
                         distributedAlarmService.unlock(lock);
@@ -83,8 +86,9 @@ public class AlarmService {
         }
     }
 
+
     @Transactional
-    public SseEmitter createAlarmUser(Long userId, String alarmContent, Game game) {
+    public SseEmitter createAlarmUser(Long userId, String alarmContent, Game game, int timeout) {
         User user = getUserAlarmById(userId);
         String cacheKey = "alarm:user:" + userId + ":game:" + game.getId();
 
@@ -108,7 +112,7 @@ public class AlarmService {
                     sendEvent(emitter, "content", alarmContent);
 
                     // 캐시에 알림 데이터 저장
-                    redisCacheService.setAlarm(cacheKey, alarmContent);
+                    redisCacheService.setAlarm(cacheKey, alarmContent, timeout);
 
                     return emitter;
                 } finally {
