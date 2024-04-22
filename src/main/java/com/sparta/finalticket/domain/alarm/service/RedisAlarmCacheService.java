@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RedisCacheService {
+public class RedisAlarmCacheService {
 
-    private final RedisService redisService;
+    private final RedisAlarmService redisService;
 
     public void setAlarm(String key, String value, int timeout) {
         redisService.setValues(key, value);

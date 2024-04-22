@@ -28,7 +28,7 @@ public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
-    private final RedisCacheService redisCacheService;
+    private final RedisAlarmCacheService redisCacheService;
     private final DistributedAlarmService distributedAlarmService;
 
     public static Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
