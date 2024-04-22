@@ -60,4 +60,9 @@ public class GameRepositoryImpl implements CustomGameRepository {
     public List<GameResponseDto> getGameOfCategory(CategoryEnum categoryEnum){
         return queryFactory.selectFrom(game).where(game.category.eq(categoryEnum)).stream().map(GameResponseDto::new).toList();
     }
+
+    @Override
+    public List<GameResponseDto> getGameOfKeyword(String keyword){
+        return queryFactory.selectFrom(game).where(game.name.contains(keyword)).stream().map(GameResponseDto::new).toList();
+    }
 }
