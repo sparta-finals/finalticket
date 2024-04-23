@@ -46,7 +46,7 @@ public class TicketService {
         }
         boolean existingTicket = seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, false);
         Game game = getGame(gameId);
-        
+
         if (!existingTicket) {
             SeatSetting seatSetting = getSeatsetting(seatId);
 
@@ -76,7 +76,7 @@ public class TicketService {
             Ticket ticket = getTicket(seat.getId());
             ticket.update(true);
         }
-        game.setCount(game.getCount()-1);
+        game.setCount(game.getCount() - 1);
         return null;
     }
 
@@ -90,7 +90,7 @@ public class TicketService {
         Ticket ticket = getTicket(seat.getId());
 
         ticket.update(false);
-        game.setCount(game.getCount()+1);
+        game.setCount(game.getCount() + 1);
     }
 
     private Game getGame(Long gameId) {
@@ -109,37 +109,5 @@ public class TicketService {
     private Ticket getTicket(Long gameId) {
         return ticketRepository.findBySeatId(gameId)
                 .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 티켓 입니다."));
-    }
-
-
-    public void cancelPayment(Long gameId, Long seatId) {
-        Ticket ticket = ticketRepository.findByGameIdAndSeatId(gameId, seatId);
-
-        if(ticket == null) {
-            throw new IllegalArgumentException("티켓 없음");
-        }
-
-        ticket.setStatus(PaymentStatus.CANCEL);
-
-        Payments payments = paymentRepository.findByTicket(ticket);
-        payments.setStatus(PaymentStatus.CANCEL);
-
-        ticketRepository.save(ticket);
-        paymentRepository.save(payments);
-    }
-
-
-    public void successPayment(Long gameId, Long seatId) {
-        Ticket ticket = ticketRepository.findByGameIdAndSeatId(gameId, seatId);
-        if(ticket == null) {
-            throw new IllegalArgumentException("티켓 없음");
-        }
-        ticket.setStatus(PaymentStatus.OK);
-
-        Payments payments = paymentRepository.findByTicket(ticket);
-        payments.setStatus(PaymentStatus.OK);
-
-        ticketRepository.save(ticket);
-        paymentRepository.save(payments);
     }
 }
