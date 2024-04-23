@@ -76,7 +76,7 @@ public class TicketService {
             Ticket ticket = getTicket(seat.getId());
             ticket.update(true);
         }
-        game.setcount(game.getCount()-1);
+        game.setCount(game.getCount()-1);
         return null;
     }
 
@@ -90,7 +90,7 @@ public class TicketService {
         Ticket ticket = getTicket(seat.getId());
 
         ticket.update(false);
-        game.setcount(game.getCount()+1);
+        game.setCount(game.getCount()+1);
     }
 
     private Game getGame(Long gameId) {

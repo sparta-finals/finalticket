@@ -54,7 +54,4 @@ public class Game extends TimeStamped {
         this.state = false;
     }
 
-    public void setcount(int i) {
-        this.count = i;
-    }
 }
