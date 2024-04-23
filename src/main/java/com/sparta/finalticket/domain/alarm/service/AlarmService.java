@@ -28,6 +28,7 @@ public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+    private final RedisAlarmCacheService redisCacheService;
     private final DistributedAlarmService distributedAlarmService;
 
     public static Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
@@ -36,17 +37,29 @@ public class AlarmService {
     public SseEmitter subscribeAlarm(User user, Long gameId) {
         Long userId = user.getId();
         String alarmContent = "알람: " + user.getNickname() + "님, 티켓이 발매되었습니다!";
+        String cacheKey = "alarm:user:" + userId + ":game:" + gameId;
+
+        // Redis에서 알림 데이터 조회
+        String cachedAlarmContent = redisCacheService.getAlarm(cacheKey);
+        if (cachedAlarmContent != null) {
+            // 캐시된 데이터가 있다면 바로 사용
+            SseEmitter emitter = new SseEmitter();
+            sendEvent(emitter, "content", cachedAlarmContent);
+            return emitter;
+        }
 
         // 쿼리 최적화: 게임 조회를 게임 ID로 바로 수행
-        Game game = gameRepository.findById(gameId)
-            .orElseThrow(() -> new AlarmGameNotFoundException("경기를 찾을 수 없습니다."));
+        Game game = getGameAlarmById(gameId);
+
+        // 캐시에 저장할 때 사용할 timeout 값 설정
+        int timeout = 60000; // 예시 값 (60초)
 
         RLock lock = distributedAlarmService.getLock(userId);
         try {
             boolean isLocked = distributedAlarmService.tryLock(lock, 10, 60);
             if (isLocked) {
                 try {
-                    SseEmitter emitter = createAlarmUser(userId, alarmContent, game);
+                    SseEmitter emitter = createAlarmUser(userId, alarmContent, game, timeout);
                     emitter.onCompletion(() -> {
                         sseEmitters.remove(userId);
                         distributedAlarmService.unlock(lock);
@@ -73,9 +86,11 @@ public class AlarmService {
         }
     }
 
+
     @Transactional
-    public SseEmitter createAlarmUser(Long userId, String alarmContent, Game game) {
+    public SseEmitter createAlarmUser(Long userId, String alarmContent, Game game, int timeout) {
         User user = getUserAlarmById(userId);
+        String cacheKey = "alarm:user:" + userId + ":game:" + game.getId();
 
         // 분산 락 획득
         RLock lock = distributedAlarmService.getLock(userId);
@@ -95,6 +110,10 @@ public class AlarmService {
                     // SSE emitter 생성 및 이벤트 전송
                     SseEmitter emitter = new SseEmitter();
                     sendEvent(emitter, "content", alarmContent);
+
+                    // 캐시에 알림 데이터 저장
+                    redisCacheService.setAlarm(cacheKey, alarmContent, timeout);
+
                     return emitter;
                 } finally {
                     // 분산 락 해제
@@ -109,37 +128,27 @@ public class AlarmService {
         }
     }
 
+    @Transactional
     public void deleteAlarm(Long alarmId) {
         Optional<Alarm> optionalAlarm = alarmRepository.findById(alarmId);
         if (optionalAlarm.isPresent()) {
             Alarm alarm = optionalAlarm.get();
             User user = alarm.getUser();
+            Long userId = user.getId();
+            Game game = alarm.getGame();
+            Long gameId = game.getId();
 
-            // 분산 락 획득
-            RLock lock = distributedAlarmService.getLock(user.getId());
-            try {
-                boolean isLocked = distributedAlarmService.tryLock(lock, 10, 60);
-                if (isLocked) {
-                    try {
-                        // 알람 삭제
-                        alarmRepository.delete(alarm);
+            // 알림 삭제
+            alarmRepository.delete(alarm);
 
-                        // SSE emitter 제거
-                        Long userId = user.getId();
-                        SseEmitter emitter = sseEmitters.remove(userId);
-                        if (emitter != null) {
-                            sendEvent(emitter, "alarm", alarm.getContent());
-                        }
-                    } finally {
-                        // 분산 락 해제
-                        distributedAlarmService.unlock(lock);
-                    }
-                } else {
-                    throw new AlarmNotFoundException("락을 획득하지 못했습니다");
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new AlarmNotFoundException("락을 획득하는 동안 중단되었습니다");
+            // 캐시에서 알림 데이터 삭제
+            String cacheKey = "alarm:user:" + userId + ":game:" + gameId;
+            redisCacheService.deleteAlarm(cacheKey);
+
+            // SSE emitter 제거
+            SseEmitter emitter = sseEmitters.remove(userId);
+            if (emitter != null) {
+                sendEvent(emitter, "alarm", alarm.getContent());
             }
         } else {
             throw new AlarmNotFoundException("알림을 찾을 수 없습니다.");
@@ -164,5 +173,3 @@ public class AlarmService {
             .orElseThrow(() -> new AlarmGameNotFoundException("경기를 찾을 수 없습니다."));
     }
 }
-
-
