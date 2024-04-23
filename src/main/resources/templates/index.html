@@ -35,6 +35,11 @@
         tr:hover {
             background-color: #e0f7fa; /* 마우스 오버 시 행의 배경색 설정 */
         }
+        div.navigation > * {
+            margin-left: 10px; /* 좌측 여백 추가 */
+            margin-right: 10px; /* 우측 여백 추가 */
+        }
+
     </style>
 </head>
 <body>
@@ -46,15 +51,17 @@
         </div>
     </div>
     <div class="search">
-        <input type="text" placeholder="경기이름, 팀명등"/>
-        <button>검색</button>
+        <input id="keyword-input" type="text" placeholder="경기이름, 팀명등"/>
+        <button onclick="serchKeyword()">검색</button>
     </div>
     <div class="category">
         <ul class="category-tabs">
-            <li class="tab-category active" data-tab="soccer"><a href="#">축구</a></li>
-            <li class="tab-category" data-tab="baseball"><a href="#">야구</a></li>
-            <li class="tab-category" data-tab="basketball"><a href="#">농구</a></li>
-            <li class="tab-category"><a href="/v1/games/list">전체 경기 목록</a></li>
+            <li class="tab-category active" data-tab="soccer" onclick="getData('v1/games/category/SOCCER')"><a>축구</a></li>
+            <li class="tab-category" data-tab="baseball" onclick="getData('v1/games/category/BASEBALL')"><a>야구</a></li>
+            <li class="tab-category" data-tab="basketball" onclick="getData('v1/games/category/BASKETBALL')"><a>농구</a></li>
+            <li class="tab-category" onclick="getData('v1/games/upcoming')"><a>예매 예정 경기</a></li>
+            <li class="tab-category" onclick="getData('v1/games/available')"><a>예매 가능 경기</a></li>
+            <li class="tab-category" onclick="getData('v1/games/list')"><a>전체 경기 목록</a></li>
         </ul>
     </div>
     <div>
@@ -62,10 +69,10 @@
             <thead>
             <tr>
                 <th>경기</th>
-                <th>남은 좌석</th>
-                <th>예매시간</th>
-                <th>경기 장소</th>
                 <th>카테고리</th>
+                <th>예매 가능 시간</th>
+                <th>경기 장소</th>
+                <th>남은 좌석</th>
             </tr>
             </thead>
             <tbody id="gameTbody">
@@ -77,34 +84,12 @@
     <p>ⓒ 2024 FinalTicket All rights reserved.</p>
 </div>
 </body>
-<script>
+<script th:inline="javascript">
     const gameTbody = document.getElementById('gameTbody');
+    var userObject = [[${user}]];
     $(document).ready(function() {
         checkAuthorization(); // 초기 인증 상태 확인
-        $.ajax({
-            url: 'v1/games/list',
-            method: 'GET',
-            xhrFields: {
-                withCredentials: true // 쿠키 및 자격 증명을 함께 보내기 위해 true로 설정
-            },
-            success: function(data) {
-                // 데이터 처리
-                data.forEach(game => {
-                    const row = document.createElement('tr');
-                    row.addEventListener('click', gameClickE);
-                    row.innerHTML = `<td>${game.name}</td>
-                    <td>${game.count}</td>
-                    <td>${game.startDate}</td>
-                    <td>${game.place}</td>
-                    <td>${game.category}</td>
-                    <input type="hidden" value=${game.id}>`;
-                    gameTbody.appendChild(row);
-                });
-            },
-            error: function(xhr, status, error) {
-                console.error('Failed to fetch data:', status, error);
-            }
-        });
+        getData('v1/games/list');
     });
 
     function logout() {
@@ -130,11 +115,13 @@
         const authCookie = document.cookie.split('; ').find(row => row.startsWith('Authorization='));
         const authContainer = document.getElementById('auth-container');
 
+
         if (authCookie) {
             // 'Authorization' 쿠키가 존재하면 사용자 로그인 상태
-            const username = authCookie.split('=')[1];
             authContainer.innerHTML = `
-            <span onclick="callInfo()">내 정보</span>
+            <p>`+userObject.nickname+`님</p>
+            `+adminTegChecker()+`
+            <p onclick="callInfo()">내 정보</p>
             <p onclick="logout()">로그아웃</p>
         `;
         } else {
@@ -159,5 +146,52 @@
         window.location.href = `${host}/v1/users/info/view`;
     }
 
+    function adminTegChecker(){
+        if(userObject.role==="ADMIN"){
+            console.log("관리자임");
+            return "<p onclick='adminP()'>관리자 페이지</p>";
+        }
+        return " ";
+    }
+
+    function adminP(){
+        host = 'http://' + window.location.host;
+        window.location.href = `${host}/v1/admins/admin-page`;
+    }
+
+    function getData(url){
+        $('#gameTbody').empty();
+        $.ajax({
+            url: url,
+            method: 'GET',
+            xhrFields: {
+                withCredentials: true // 쿠키 및 자격 증명을 함께 보내기 위해 true로 설정
+            },
+            success: function(data) {
+                // 데이터 처리
+                data.forEach(game => {
+                    const row = document.createElement('tr');
+                    row.addEventListener('click', gameClickE);
+                    row.innerHTML = `<td>${game.name}</td>
+                    <td>${game.category}</td>
+                    <td>${game.startDate}</td>
+                    <td>${game.place}</td>
+                    <td>${game.count}</td>
+                    <input type="hidden" value=${game.id}>`;
+                    gameTbody.appendChild(row);
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error('Failed to fetch data:', status, error);
+            }
+        });
+    }
+
+    function serchKeyword(){
+        var keyword =  $('#keyword-input').val();
+        var input = document.getElementById('keyword-input');
+        input.value = null;
+        getData('v1/games/keyword/'+keyword);
+    }
 </script>
 </html>

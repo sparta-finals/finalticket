@@ -5,6 +5,7 @@ import com.sparta.finalticket.domain.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Locale;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,34 +23,38 @@ public class SessionUtil {
 	private final PasswordEncoder encoder;
 
 	public static final String AUTHORIZATION_HEADER = "Authorization";
+	public static final String LOGIN_PREFIX = "LOGIN: ";
 
 	public void addSessionKey(HttpServletResponse response, User user) {
 		log.info("addSessionKey");
 		ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
 		String username = user.getUsername();
 		String sessionKey = encoder.encode(user.getId().toString());
-		Set<String> keySet = redisTemplate.keys("*");
-		for (String key : keySet) {
+		Set<String> keySet = redisTemplate.keys(LOGIN_PREFIX+"*");;
+		for (String key : keySet){
+			log.info("key : "+key);
+		}
+    for (String key : keySet) {
 			if (valueOperations.get(key).equals(username)) {
 				redisTemplate.delete(key);
 			}
 		}
-		valueOperations.set(sessionKey, username);
+		valueOperations.set(LOGIN_PREFIX+sessionKey, username);
 		Cookie cookie = new Cookie(AUTHORIZATION_HEADER, sessionKey);
 		cookie.setPath("/");
 		response.addCookie(cookie);
 	}
 
 	public boolean isLoggedIn(HttpServletRequest request) {
-		log.info("LoggedIn");
+		log.info("LoggedIn 인가 확인 진행");
 		ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
-					String userId = valueOperations.get(cookie.getValue());
-					User user = userRepository.findByUsername(userId).orElseThrow(() -> new IllegalArgumentException("일치하는 유저가 없습니다."));
-					request.setAttribute("user", user);
+					String sessionKey = cookie.getValue();
+					User user = userRepository.findByUsername(valueOperations.get(LOGIN_PREFIX+sessionKey)).orElseThrow(() -> new IllegalArgumentException("일치하는 유저가 없습니다."));
+					request.setAttribute("user",user);
 					return true;
 				}
 			}
@@ -67,7 +72,7 @@ public class SessionUtil {
 					cookie.setMaxAge(0);
 					cookie.setPath("/");
 					response.addCookie(cookie);
-					redisTemplate.delete(sessionKey);
+					redisTemplate.delete(LOGIN_PREFIX+sessionKey);
 					log.info("Logout success");
 					return true;
 				}

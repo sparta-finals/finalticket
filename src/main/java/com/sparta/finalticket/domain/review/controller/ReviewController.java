@@ -2,6 +2,7 @@ package com.sparta.finalticket.domain.review.controller;
 
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.request.ReviewUpdateRequestDto;
+import com.sparta.finalticket.domain.review.dto.response.ReviewCountAndAvgResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewGameListResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewUpdateResponseDto;
@@ -9,6 +10,7 @@ import com.sparta.finalticket.domain.review.service.ReviewService;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +35,9 @@ public class ReviewController {
     }
 
     @GetMapping("/reviews")
-    public ResponseEntity<List<ReviewGameListResponseDto>>getReviewsByGameId(@PathVariable(name = "gameId") Long gameId) {
-        List<ReviewGameListResponseDto> reviews = reviewService.getReviewsByGameId(gameId);
-        return ResponseEntity.ok().body(reviews);
+    public ResponseEntity<ReviewCountAndAvgResponseDto>getReviewsByGameId(@PathVariable(name = "gameId") Long gameId) {
+        ReviewCountAndAvgResponseDto responseDto = reviewService.getReviewsByGameId(gameId);
+        return ResponseEntity.ok().body(responseDto);
     }
 
     @GetMapping("/review/{reviewId}")

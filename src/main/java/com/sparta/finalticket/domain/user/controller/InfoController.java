@@ -43,8 +43,12 @@ public class InfoController {
   @PutMapping("/info")
   public ResponseEntity<Void> modifyInfo(HttpServletRequest request,
       @Valid @RequestBody UserRequestDto infoRequestDto) {
-    userService.modifyInfo((User) request.getAttribute("user"), infoRequestDto);
-    return new ResponseEntity<>(HttpStatus.OK);
+    boolean ok = userService.modifyInfo((User) request.getAttribute("user"), infoRequestDto);
+    if(ok){
+      return new ResponseEntity<>(HttpStatus.OK);
+    }else{
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
   }
 
   @GetMapping("/tickets")

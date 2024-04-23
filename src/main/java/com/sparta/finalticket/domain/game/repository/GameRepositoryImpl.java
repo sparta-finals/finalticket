@@ -8,6 +8,7 @@ import static com.sparta.finalticket.domain.ticket.entity.QTicket.ticket;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
+import com.sparta.finalticket.domain.game.entity.CategoryEnum;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.user.entity.User;
 import java.util.List;
@@ -53,5 +54,15 @@ public class GameRepositoryImpl implements CustomGameRepository {
     public List<GameResponseDto> getUserGameList(User user) {
         return queryFactory.selectFrom(game)
             .where(game.user.id.eq(user.getId())).stream().map(GameResponseDto::new).toList();
+    }
+
+    @Override
+    public List<GameResponseDto> getGameOfCategory(CategoryEnum categoryEnum){
+        return queryFactory.selectFrom(game).where(game.category.eq(categoryEnum)).stream().map(GameResponseDto::new).toList();
+    }
+
+    @Override
+    public List<GameResponseDto> getGameOfKeyword(String keyword){
+        return queryFactory.selectFrom(game).where(game.name.contains(keyword)).stream().map(GameResponseDto::new).toList();
     }
 }

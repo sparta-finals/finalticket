@@ -4,6 +4,7 @@ import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.request.ReviewUpdateRequestDto;
+import com.sparta.finalticket.domain.review.dto.response.ReviewCountAndAvgResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewGameListResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewUpdateResponseDto;
@@ -29,6 +30,7 @@ public class ReviewService {
     private final RedisCacheService redisCacheService;
     private final ReviewStatisticService reviewStatisticService;
     private final DistributedReviewService distributedReviewService;
+    private final RedisReviewService redisReviewService;
 
     @Transactional
     public ReviewResponseDto createReview(Long gameId, ReviewRequestDto requestDto, User user) {
@@ -53,14 +55,13 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReviewGameListResponseDto> getReviewsByGameId(Long gameId) {
+    public ReviewCountAndAvgResponseDto getReviewsByGameId(Long gameId) {
         RLock lock = distributedReviewService.getLock(gameId);
         try {
             if (distributedReviewService.tryLock(lock, 1000, 5000)) {
-                List<Review> reviews = reviewRepository.findByGameId(gameId);
-                return reviews.stream()
-                    .map(ReviewGameListResponseDto::new)
-                    .toList();
+                Double avg = Math.round(redisReviewService.getAverageReviewScore(gameId)*10)/10.0;
+                Long count = redisReviewService.getTotalReviewCount(gameId);
+                return new ReviewCountAndAvgResponseDto(avg, count);
             } else {
                 throw new ReviewNotFoundException("게임 ID에 대한 리뷰 조회를 위한 락 획득에 실패했습니다.");
             }
