@@ -24,19 +24,18 @@ public class Payments extends TimeStamped {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne
-    @JoinColumn(name="ticket_id")
+    @OneToOne(mappedBy = "payments")
     private Ticket ticket;
 
 
-
     @Builder
-    public Payments(Long price,Ticket ticket,User user,PaymentStatus status) {
+    public Payments(Long price, User user, PaymentStatus status, Ticket ticket) {
         this.price = price;
-        this.ticket=ticket;
-        this.user=user;
-        this.status=status;
+        this.user = user;
+        this.status = status;
+        this.ticket = ticket;
     }
+
     public void changePaymentBySuccess(PaymentStatus status, String paymentUid) {
         this.status = status;
         this.paymentUid = paymentUid;
@@ -44,6 +43,10 @@ public class Payments extends TimeStamped {
 
     public void setStatus(PaymentStatus status) {
         this.status = status;
+    }
+
+    public void setPaymentUid(String paymentUid) {
+        this.paymentUid = paymentUid;
     }
 
 }

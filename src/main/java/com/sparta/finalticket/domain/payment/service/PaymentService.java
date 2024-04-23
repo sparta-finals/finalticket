@@ -8,6 +8,7 @@ import com.siot.IamportRestClient.response.Payment;
 import com.sparta.finalticket.domain.payment.dto.request.PaymentCallbackRequest;
 import com.sparta.finalticket.domain.payment.dto.request.RequestPayDto;
 import com.sparta.finalticket.domain.payment.entity.PaymentStatus;
+import com.sparta.finalticket.domain.payment.entity.Payments;
 import com.sparta.finalticket.domain.payment.respository.PaymentRepository;
 import com.sparta.finalticket.domain.ticket.entity.Ticket;
 import com.sparta.finalticket.domain.ticket.repository.TicketRepository;
@@ -27,11 +28,11 @@ public class PaymentService {
     private final TicketRepository ticketRepository;
     private final PaymentRepository paymentRepository;
     private final IamportClient iamportClient;
-    public RequestPayDto getRequestPayDto(Long gameId,Long seatId) {
 
-        log.info(seatId.toString());
+    public RequestPayDto getRequestPayDto(Long gameId, Long seatId) {
+
         // 티켓 엔티티 조회
-        Ticket ticket = ticketRepository.findByGameIdAndSeatId(gameId,seatId);
+        Ticket ticket = ticketRepository.findByGameIdAndSeatId(gameId, seatId);
         log.info(ticket.toString());
 
         RequestPayDto dto = new RequestPayDto();
@@ -47,22 +48,29 @@ public class PaymentService {
 
 
     public IamportResponse<Payment> paymentByCallback(PaymentCallbackRequest request) {
-
         try {
             // 결제 단건 조회(아임포트)
+            log.info("PaymentUid 조회: {}", request.getPaymentUid());
+            log.info("ticketUid 조회: {}", request.getTicketUid());
+
             IamportResponse<Payment> iamportResponse = iamportClient.paymentByImpUid(request.getPaymentUid());
-            // 주문내역 조회
-            Ticket ticket = ticketRepository.findTicketAndPayments(request.getTicketUid())
-                .orElseThrow(() -> new IllegalArgumentException("주문 내역이 없습니다."));
+
+            String ticketUid = request.getTicketUid().trim(); // 공백 제거
+            if (ticketUid.startsWith("\"") && ticketUid.endsWith("\"")) {
+                ticketUid = ticketUid.substring(1, ticketUid.length() - 1); // 양쪽 끝 따옴표 제거
+            }
+
+            Ticket ticket = ticketRepository.findByTicketUid(ticketUid)
+                    .orElseThrow(() -> new IllegalArgumentException("주문 내역이 없습니다."));
+
+
             // 결제 완료가 아니면
             if (!iamportResponse.getResponse().getStatus().equals("paid")) {
                 // 주문, 결제 삭제
                 ticketRepository.delete(ticket);
                 paymentRepository.delete(ticket.getPayments());
-
                 throw new RuntimeException("결제 미완료");
             }
-
             // DB에 저장된 결제 금액
             Long price = Long.valueOf(ticket.getSeat().getPrice());
             // 실 결제 금액
@@ -81,7 +89,10 @@ public class PaymentService {
             }
 
             // 결제 상태 변경
-            ticket.getPayments().changePaymentBySuccess(PaymentStatus.OK, iamportResponse.getResponse().getImpUid());
+            Payments payment = ticket.getPayments();
+            payment.setPaymentUid(iamportResponse.getResponse().getImpUid());
+            payment.changePaymentBySuccess(PaymentStatus.OK, iamportResponse.getResponse().getImpUid());
+            paymentRepository.save(payment);
 
             return iamportResponse;
 
