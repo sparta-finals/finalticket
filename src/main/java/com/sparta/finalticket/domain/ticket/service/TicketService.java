@@ -46,7 +46,7 @@ public class TicketService {
         }
         boolean existingTicket = seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, false);
         Game game = getGame(gameId);
-
+        
         if (!existingTicket) {
             SeatSetting seatSetting = getSeatsetting(seatId);
 
@@ -54,20 +54,20 @@ public class TicketService {
             Seat seat = new Seat(game, seatSetting, user, true, price);
             seatRepository.save(seat);
 
-            Ticket ticket = new Ticket(user, game, seat, true,"");
-            ticket.setStatus(PaymentStatus.READY);
-            ticketRepository.save(ticket);
 
             Payments payments = Payments.builder()
-                .price(Long.valueOf(seat.getPrice()))
-                .ticket(ticket)
-                .status(PaymentStatus.READY)
-                .user(user)
-                .build();
+                    .price(Long.valueOf(seat.getPrice()))
+                    .status(PaymentStatus.READY)
+                    .user(user)
+                    .build();
+
+            Ticket ticket = new Ticket(user, game, seat, true, "", payments);
+            ticketRepository.save(ticket);
+
 
             paymentRepository.save(payments);
 
-            return seatRepository.findByGameIdAndSeatsettingId(gameId,seatId).orElseThrow().getId();
+            return seatRepository.findByGameIdAndSeatsettingId(gameId, seatId).orElseThrow().getId();
 
         } else {
             Seat seat = getSeat(gameId, seatId, user.getId(), false);
@@ -76,7 +76,7 @@ public class TicketService {
             Ticket ticket = getTicket(seat.getId());
             ticket.update(true);
         }
-        game.setcount(game.getCount()-1);
+        game.setCount(game.getCount()-1);
         return null;
     }
 
@@ -88,10 +88,9 @@ public class TicketService {
         seat.update(false);
 
         Ticket ticket = getTicket(seat.getId());
-        ticket.setStatus(PaymentStatus.CANCEL);
 
         ticket.update(false);
-        game.setcount(game.getCount()+1);
+        game.setCount(game.getCount()+1);
     }
 
     private Game getGame(Long gameId) {
@@ -100,7 +99,7 @@ public class TicketService {
 
     private Seat getSeat(Long gameId, Long seatId, Long userId, boolean b) {
         return seatRepository.findSeatByGameIdAndSeatsettingIdAndUserIdAndState(gameId, seatId, userId, b)
-            .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 좌석 입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 좌석 입니다."));
     }
 
     private SeatSetting getSeatsetting(Long seatId) {
@@ -109,7 +108,7 @@ public class TicketService {
 
     private Ticket getTicket(Long gameId) {
         return ticketRepository.findBySeatId(gameId)
-            .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 티켓 입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 티켓 입니다."));
     }
 
 

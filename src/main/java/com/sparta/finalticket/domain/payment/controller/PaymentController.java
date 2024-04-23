@@ -32,7 +32,6 @@ public class PaymentController {
         return "payment";
     }
 
-
     @ResponseBody
     @PostMapping("/payment")
     public ResponseEntity<IamportResponse<Payment>> validationPayment(@RequestBody PaymentCallbackRequest request) {
@@ -42,21 +41,4 @@ public class PaymentController {
 
         return new ResponseEntity<>(iamportResponse, HttpStatus.OK);
     }
-
-    @GetMapping("/{gameId}/seats/{seatId}/success-payment")
-    public String successPaymentPage(@PathVariable Long gameId, @PathVariable Long seatId) {
-        ticketService.successPayment(gameId, seatId);
-        return "success-payment";
-    }
-
-
-    @GetMapping("/{gameId}/seats/{seatId}/fail-payment")
-    public String failPayment(@PathVariable Long gameId, @PathVariable Long seatId) {
-
-        ticketService.cancelPayment(gameId, seatId);
-
-        return "fail-payment";
-    }
-
-
 }

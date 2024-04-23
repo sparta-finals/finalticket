@@ -40,8 +40,6 @@ public class QTicket extends EntityPathBase<Ticket> {
 
     public final BooleanPath state = createBoolean("state");
 
-    public final EnumPath<com.sparta.finalticket.domain.payment.entity.PaymentStatus> status = createEnum("status", com.sparta.finalticket.domain.payment.entity.PaymentStatus.class);
-
     public final StringPath ticketUid = createString("ticketUid");
 
     public final com.sparta.finalticket.domain.user.entity.QUser user;
