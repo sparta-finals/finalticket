@@ -51,8 +51,8 @@
         </div>
     </div>
     <div class="search">
-        <input id="keyword-input" type="text" placeholder="경기이름, 팀명등"/>
-        <button onclick="serchKeyword()">검색</button>
+        <input type="text" placeholder="경기이름, 팀명등"/>
+        <button>검색</button>
     </div>
     <div class="category">
         <ul class="category-tabs">
@@ -185,13 +185,6 @@
                 console.error('Failed to fetch data:', status, error);
             }
         });
-    }
-
-    function serchKeyword(){
-        var keyword =  $('#keyword-input').val();
-        var input = document.getElementById('keyword-input');
-        input.value = null;
-        getData('v1/games/keyword/'+keyword);
     }
 </script>
 </html>
