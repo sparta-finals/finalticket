@@ -1,5 +1,6 @@
 package com.sparta.finalticket.global.interceptor;
 
+import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.global.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,11 +20,12 @@ public class LoginInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 		Object handler) throws Exception {//true controller false 처리안함
-		log.info("LoginInterceptor.preHandle");
 		if (sessionUtil.isLoggedIn(request)) {
+			User user = (User)request.getAttribute("user");
+			log.info(user.getUsername()+"님의 "+request.getRequestURL()+" 페이지 승인");
 			return true;
 		}
-		log.info(request.getRequestURL().toString());
+		log.info(request.getRequestURL().toString()+" : 쿠키에 값이 없음(로그인 x)");
 		response.sendRedirect("/v1/users/login-page");
 		return false;
 	}

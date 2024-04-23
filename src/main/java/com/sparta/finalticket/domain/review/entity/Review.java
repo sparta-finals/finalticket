@@ -18,7 +18,8 @@ import org.hibernate.annotations.Where;
 @AllArgsConstructor
 @Table(name = "review", indexes = {
 	@Index(name = "idx_game_id", columnList = "game_id"),
-	@Index(name = "idx_user_id", columnList = "user_id")
+	@Index(name = "idx_user_id", columnList = "user_id"),
+	@Index(name = "idx_state", columnList = "state")
 })
 @SQLDelete(sql = "UPDATE review SET state = true WHERE id = ?")
 @Where(clause = "state = true")
@@ -37,6 +38,12 @@ public class Review extends TimeStamped {
 	@Column
 	private Boolean state;
 
+	@Column(name = "total_review_count")
+	private Long totalReviewCount;
+
+	@Column(name = "average_review_score")
+	private Double averageReviewScore;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
@@ -44,6 +51,10 @@ public class Review extends TimeStamped {
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "game_id")
 	private Game game;
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public void setReview(String review) {
 		this.review = review;

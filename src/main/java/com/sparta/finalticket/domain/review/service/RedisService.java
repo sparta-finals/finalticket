@@ -1,40 +1,64 @@
 package com.sparta.finalticket.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class RedisService {
 
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    private final RedisTemplate<String, String> redisTemplate;
-
-    public void saveReviewScore(Long gameId, Long reviewId, Long score) {
-        Double doubleScore = score.doubleValue(); // Long 타입을 Double로 변환
-        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
-        String reviewKey = "game:" + gameId.toString();
-        hashOps.put(reviewKey, reviewId.toString(), doubleScore.toString()); // Convert to String before putting into Redis
+    public void setValues(String key, String data) {
+        redisTemplate.opsForValue().set(key, data);
     }
 
-    public void getReviewScore(Long gameId, Long reviewId) {
-        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
-        String reviewKey = "game:" + gameId.toString();
-        hashOps.delete(reviewKey, reviewId.toString());
+    public void setValues(String key, String data, Duration duration) {
+        redisTemplate.opsForValue().set(key, data, duration);
     }
 
-    public void updateReviewScore(Long gameId, Long reviewId, Long score) {
-        Double doubleScore = score.doubleValue(); // Long 타입을 Double로 변환
-        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
-        String reviewKey = "game:" + gameId.toString();
-        hashOps.put(reviewKey, reviewId.toString(), doubleScore.toString()); // Convert to String before putting into Redis
+    public String getValues(String key) {
+        Object value = redisTemplate.opsForValue().get(key);
+        return value != null ? value.toString() : null;
     }
 
-    public void deleteReviewScore(Long gameId, Long reviewId) {
-        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
-        String reviewKey = "game:" + gameId.toString();
-        hashOps.delete(reviewKey, reviewId.toString());
+    public void deleteValues(String key) {
+        redisTemplate.delete(key);
+    }
+
+    public void expireValues(String key, int timeout) {
+        redisTemplate.expire(key, timeout, TimeUnit.MILLISECONDS);
+    }
+
+    public void setHashOps(String key, Map<String, String> data) {
+        HashOperations<String, Object, Object> values = redisTemplate.opsForHash();
+        values.putAll(key, data);
+    }
+
+    public String getHashOps(String key, String hashKey) {
+        HashOperations<String, Object, Object> values = redisTemplate.opsForHash();
+        return Boolean.TRUE.equals(values.hasKey(key, hashKey)) ? (String) values.get(key, hashKey) : null;
+    }
+
+    public void deleteHashOps(String key, String hashKey) {
+        HashOperations<String, Object, Object> values = redisTemplate.opsForHash();
+        values.delete(key, hashKey);
+    }
+
+    public boolean checkExistsValue(String value) {
+        return value != null;
+    }
+
+    public Set<String> getAllKeys(String pattern) {
+        return redisTemplate.keys(pattern);
     }
 }

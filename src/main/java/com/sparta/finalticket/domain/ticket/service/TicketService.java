@@ -2,6 +2,9 @@ package com.sparta.finalticket.domain.ticket.service;
 
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
+import com.sparta.finalticket.domain.payment.entity.PaymentStatus;
+import com.sparta.finalticket.domain.payment.entity.Payments;
+import com.sparta.finalticket.domain.payment.respository.PaymentRepository;
 import com.sparta.finalticket.domain.seat.entity.Seat;
 import com.sparta.finalticket.domain.seat.repository.SeatRepository;
 import com.sparta.finalticket.domain.seatsetting.entity.SeatSetting;
@@ -28,6 +31,8 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
 
+    private final PaymentRepository paymentRepository;
+
 
     public List<TicketResponseDto> getUserTicketList(User user) {
         return ticketRepository.getUserTicketList(user.getId());
@@ -35,21 +40,35 @@ public class TicketService {
 
     //티켓팅
     @DistributedLock(key = "#seatId")
-    public void createTicket(Long gameId, Long seatId, User user) {
+    public Long createTicket(Long gameId, Long seatId, User user) {
         if (seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, true)) {
             throw new IllegalArgumentException("해당 좌석은 이미 예매 되었습니다.");
         }
         boolean existingTicket = seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, false);
+        Game game = getGame(gameId);
+
         if (!existingTicket) {
-            Game game = getGame(gameId);
             SeatSetting seatSetting = getSeatsetting(seatId);
 
             int price = seatSetting.getSeatType().getPrice();
             Seat seat = new Seat(game, seatSetting, user, true, price);
             seatRepository.save(seat);
 
-            Ticket ticket = new Ticket(user, game, seat, true);
+
+            Payments payments = Payments.builder()
+                    .price(Long.valueOf(seat.getPrice()))
+                    .status(PaymentStatus.READY)
+                    .user(user)
+                    .build();
+
+            Ticket ticket = new Ticket(user, game, seat, true, "", payments);
             ticketRepository.save(ticket);
+
+
+            paymentRepository.save(payments);
+
+            return seatRepository.findByGameIdAndSeatsettingId(gameId, seatId).orElseThrow().getId();
+
         } else {
             Seat seat = getSeat(gameId, seatId, user.getId(), false);
             seat.update(true);
@@ -57,16 +76,21 @@ public class TicketService {
             Ticket ticket = getTicket(seat.getId());
             ticket.update(true);
         }
+        game.setCount(game.getCount()-1);
+        return null;
     }
 
     //티켓팅 취소
     @DistributedLock(key = "#seatId")
     public void deleteTicket(Long gameId, Long seatId, User user) {
+        Game game = getGame(gameId);
         Seat seat = getSeat(gameId, seatId, user.getId(), true);
         seat.update(false);
 
         Ticket ticket = getTicket(seat.getId());
+
         ticket.update(false);
+        game.setCount(game.getCount()+1);
     }
 
     private Game getGame(Long gameId) {
