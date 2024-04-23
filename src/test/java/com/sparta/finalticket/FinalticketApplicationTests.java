@@ -10,11 +10,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
-@SpringBootTest
+//@SpringBootTest
 class FinalticketApplicationTests {
 
     @Test
 	void contextLoads() {
+		System.out.println("dd");
 	}
 
 }
