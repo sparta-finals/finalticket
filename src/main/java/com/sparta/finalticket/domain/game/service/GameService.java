@@ -1,12 +1,10 @@
 package com.sparta.finalticket.domain.game.service;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.finalticket.domain.game.dto.request.GameRequestDto;
 import com.sparta.finalticket.domain.game.dto.response.GameResponseDto;
 import com.sparta.finalticket.domain.game.entity.CategoryEnum;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.entity.PlaceEnum;
-import com.sparta.finalticket.domain.game.entity.QGame;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.seat.dto.SeatSettingResponseDto;
 import com.sparta.finalticket.domain.seat.entity.Seat;
@@ -97,10 +95,9 @@ public class GameService {
   }
 
   @Transactional(readOnly = true)
-  public List<GameResponseDto> getGameList(Long gameId) {
+  public GameResponseDto getGame(Long gameId) {
     Game game = validateExistGame(gameId);
-    return gameRepository.findByIdAndStateTrue(gameId).stream()
-        .map(GameResponseDto::new).toList();
+    return new GameResponseDto(game);
   }
 
 
@@ -146,7 +143,7 @@ public class GameService {
   private List<GameResponseDto> filterGames(Predicate<Game> condition) {
     return getGames().stream()
         .filter(condition)
-        .map(game -> new GameResponseDto(game.getName(), game.getCategory()))
+        .map(GameResponseDto::new)
         .toList();
   }
 
@@ -169,5 +166,13 @@ public class GameService {
       }
     }
     return remainingSeatSettings;
+  }
+
+  public List<GameResponseDto> getGameOfCategory(CategoryEnum category){
+    return gameRepository.getGameOfCategory(category);
+  }
+
+  public List<GameResponseDto> getGameOfKeyword(String keyword) {
+    return gameRepository.getGameOfKeyword(keyword);
   }
 }

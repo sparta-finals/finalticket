@@ -41,8 +41,4 @@ public class GameResponseDto {
         this.category = String.valueOf(game.getCategory());
     }
 
-    public GameResponseDto(String name, CategoryEnum category) {
-        this.name = name;
-        this.category = String.valueOf(category);
-    }
 }
