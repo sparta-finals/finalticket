@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -46,8 +45,9 @@ public class TicketService {
             throw new IllegalArgumentException("해당 좌석은 이미 예매 되었습니다.");
         }
         boolean existingTicket = seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, false);
+        Game game = getGame(gameId);
+
         if (!existingTicket) {
-            Game game = getGame(gameId);
             SeatSetting seatSetting = getSeatsetting(seatId);
 
             int price = seatSetting.getSeatType().getPrice();
@@ -76,19 +76,21 @@ public class TicketService {
             Ticket ticket = getTicket(seat.getId());
             ticket.update(true);
         }
+        game.setcount(game.getCount()-1);
         return null;
     }
 
     //티켓팅 취소
     @DistributedLock(key = "#seatId")
     public void deleteTicket(Long gameId, Long seatId, User user) {
+        Game game = getGame(gameId);
         Seat seat = getSeat(gameId, seatId, user.getId(), true);
         seat.update(false);
 
         Ticket ticket = getTicket(seat.getId());
 
         ticket.update(false);
-
+        game.setcount(game.getCount()+1);
     }
 
     private Game getGame(Long gameId) {
