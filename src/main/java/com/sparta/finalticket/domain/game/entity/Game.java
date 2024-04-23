@@ -53,4 +53,8 @@ public class Game extends TimeStamped {
     public void deleteGame() {
         this.state = false;
     }
+
+    public void setcount(int i) {
+        this.count = i;
+    }
 }
