@@ -76,7 +76,7 @@ public class TicketService {
             Ticket ticket = getTicket(seat.getId());
             ticket.update(true);
         }
-        game.setCount(game.getCount()-1);
+        game.setCount(game.getCount() - 1);
         return null;
     }
 
@@ -90,7 +90,7 @@ public class TicketService {
         Ticket ticket = getTicket(seat.getId());
 
         ticket.update(false);
-        game.setCount(game.getCount()+1);
+        game.setCount(game.getCount() + 1);
     }
 
     private Game getGame(Long gameId) {
@@ -110,5 +110,4 @@ public class TicketService {
         return ticketRepository.findBySeatId(gameId)
                 .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 티켓 입니다."));
     }
-
 }
