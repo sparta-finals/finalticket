@@ -18,7 +18,7 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     boolean existsByUserAndGameIdAndSeatsettingIdAndState(User user, Long gameId, Long seatId, boolean b);
 
     Optional<Seat> findByGameId(Long id);
-    List<Seat> findALlByGameId(Long id);
+    List<Seat> findALlByGameIdAndStateTrue(Long id);
 
     Optional<Seat> findByGameIdAndSeatsettingId(Long gameId,Long seatSettingId);
 }

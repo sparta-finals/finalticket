@@ -51,7 +51,7 @@ public class TicketService {
             SeatSetting seatSetting = getSeatsetting(seatId);
 
             int price = seatSetting.getSeatType().getPrice();
-            Seat seat = new Seat(game, seatSetting, user, true, price);
+            Seat seat = new Seat(game, seatSetting, user, false, price);
             seatRepository.save(seat);
 
 

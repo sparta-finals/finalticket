@@ -104,7 +104,6 @@ public class GameController {
 
     @GetMapping("{id}/seats")
     public ResponseEntity<List<SeatSettingResponseDto>> getSeat(@PathVariable Long id){
-        System.out.println("들어옴");
         return ResponseEntity.status(200).body(gameService.getSeat(id));
     }
 

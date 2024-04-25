@@ -148,7 +148,7 @@ public class GameService {
   }
 
   public List<SeatSettingResponseDto> getSeat(Long id) {
-    List<Seat> seatList = seatRepository.findALlByGameId(id).stream().toList();
+    List<Seat> seatList = seatRepository.findALlByGameIdAndStateTrue(id).stream().toList();
     List<SeatSetting> seatSettingList = seatSettingRepository.findAll();
     return comparedSeat(seatList, seatSettingList).stream().map(SeatSettingResponseDto::new).toList();
   }
