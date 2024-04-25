@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+
 public class RequestPayDto {
 
     private String ticketUid;
@@ -15,6 +16,16 @@ public class RequestPayDto {
     private String userName;
     private String userEmail;
     private String userAddress;
+
+    @Builder
+    public RequestPayDto(String ticketUid, String gameName, String userName, int price, String userEmail, String userAddress) {
+        this.ticketUid = ticketUid;
+        this.gameName = gameName;
+        this.userName = userName;
+        this.price = price;
+        this.userEmail = userEmail;
+        this.userAddress = userAddress;
+    }
 
     public void setTicketUid(String ticketUid) {
         this.ticketUid = ticketUid;
@@ -39,7 +50,6 @@ public class RequestPayDto {
     public void setUserAddress(String userAddress) {
         this.userAddress = userAddress;
     }
-
 
 
 }
