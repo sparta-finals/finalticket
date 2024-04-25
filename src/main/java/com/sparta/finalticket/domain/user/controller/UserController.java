@@ -2,6 +2,7 @@ package com.sparta.finalticket.domain.user.controller;
 
 import com.sparta.finalticket.domain.user.dto.request.LoginRequestDto;
 import com.sparta.finalticket.domain.user.dto.request.UserRequestDto;
+import com.sparta.finalticket.domain.user.dto.response.CommonResponse;
 import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,8 +48,8 @@ public class UserController {
         if (fieldErrors.size() > 0) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
+                new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         boolean ok = userService.signup(requestDto);
