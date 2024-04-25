@@ -2,7 +2,6 @@ package com.sparta.finalticket.domain.user.controller;
 
 import com.sparta.finalticket.domain.user.dto.request.LoginRequestDto;
 import com.sparta.finalticket.domain.user.dto.request.UserRequestDto;
-import com.sparta.finalticket.domain.user.dto.response.CommonResponse;
 import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,23 +40,22 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@RequestBody @Valid UserRequestDto requestDto,
+    public ResponseEntity<String> signup(@RequestBody @Valid UserRequestDto requestDto,
         BindingResult bindingResult) {
         // Validation 예외처리
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
         if (fieldErrors.size() > 0) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
-                new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return ResponseEntity.badRequest().body(fieldError.getDefaultMessage());
             }
         }
-
-        boolean ok = userService.signup(requestDto);
-        if(ok){
-            return new ResponseEntity<>(HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        try{
+           userService.signup(requestDto);
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")

@@ -137,8 +137,7 @@
           window.location.href = `${host}/v1/users/info/view`;
         },
         error: function(xhr, status, error) {
-          console.error('유저 정보 수정에 실패했습니다:', status, error);
-          alert('수정 실패: ' + error);
+          alert(xhr.responseText);
         }
       });
     });

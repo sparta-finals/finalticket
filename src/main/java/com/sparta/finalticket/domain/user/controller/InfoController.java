@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,14 +43,21 @@ public class InfoController {
   }
 
   @PutMapping("/info")
-  public ResponseEntity<Void> modifyInfo(HttpServletRequest request,
-      @Valid @RequestBody UserRequestDto infoRequestDto) {
-    boolean ok = userService.modifyInfo((User) request.getAttribute("user"), infoRequestDto);
-    if(ok){
-      return new ResponseEntity<>(HttpStatus.OK);
-    }else{
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+  public ResponseEntity<String> modifyInfo(HttpServletRequest request,
+      @Valid @RequestBody UserRequestDto infoRequestDto,  BindingResult bindingResult) {
+    List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+    if (fieldErrors.size() > 0) {
+      for (FieldError fieldError : bindingResult.getFieldErrors()) {
+        log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
+        return ResponseEntity.badRequest().body(fieldError.getDefaultMessage());
+      }
     }
+    try{
+      userService.modifyInfo((User) request.getAttribute("user"), infoRequestDto);
+    }catch(IllegalArgumentException e){
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+    return ResponseEntity.ok().build();
   }
 
   @GetMapping("/tickets")

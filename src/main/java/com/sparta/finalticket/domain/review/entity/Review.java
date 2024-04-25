@@ -21,7 +21,7 @@ import org.hibernate.annotations.Where;
 	@Index(name = "idx_user_id", columnList = "user_id"),
 	@Index(name = "idx_state", columnList = "state")
 })
-@SQLDelete(sql = "UPDATE review SET state = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE review SET state = false WHERE id = ?")
 @Where(clause = "state = true")
 public class Review extends TimeStamped {
 

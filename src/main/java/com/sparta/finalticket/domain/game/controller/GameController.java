@@ -31,7 +31,7 @@ public class GameController {
             @Valid @RequestBody GameRequestDto gameRequestDto, HttpServletRequest request
     ) {
         User user = (User) request.getAttribute("user");
-        GameResponseDto gameResponseDto = gameService.createGame(gameRequestDto, user.getId());
+        GameResponseDto gameResponseDto = gameService.createGame(gameRequestDto, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 CommonResponse.<GameResponseDto>builder()
                         .data(gameResponseDto).build()
@@ -43,7 +43,7 @@ public class GameController {
                                                                       @RequestBody GameRequestDto gameRequestDto, HttpServletRequest request) {
 
         User user = (User) request.getAttribute("user");
-        GameResponseDto gameResponseDto = gameService.updateGame(gameRequestDto, user.getId(),
+        GameResponseDto gameResponseDto = gameService.updateGame(gameRequestDto, user,
                 id);
 
         return ResponseEntity.ok(CommonResponse.<GameResponseDto>builder()
@@ -55,7 +55,7 @@ public class GameController {
     public ResponseEntity<CommonResponse<String>> deleteGame(@PathVariable Long id,
                                                              HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
-        gameService.deleteGame(id, user.getId());
+        gameService.deleteGame(id, user);
         return ResponseEntity.ok(
                 CommonResponse.<String>builder()
                         .statusCode(HttpStatus.OK.value())
@@ -129,14 +129,6 @@ public class GameController {
 
     @GetMapping("/keyword/{keyword}")
     public ResponseEntity<List<GameResponseDto>> getGameOfKeyword(@PathVariable String keyword){
-        System.out.println("keyword = " + keyword);
-        List<GameResponseDto> list = gameService.getGameOfKeyword("s");
-        if (list == null) {
-            System.out.println("list == null");
-        }
-        for(GameResponseDto s :list){
-            System.out.println("GameResponse = " + s);
-        }
         return ResponseEntity.status(200).body(gameService.getGameOfKeyword(keyword));
     }
 }
