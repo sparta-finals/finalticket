@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 @Target(ElementType.METHOD) //어노테이션 적용할곳
 @Retention(RetentionPolicy.RUNTIME) //적용시점
 public @interface DistributedLock {
-    String key();
+    String[] key();
     TimeUnit timeUnit() default TimeUnit.SECONDS;
 
     long waitTime() default 5L;
