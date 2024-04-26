@@ -39,7 +39,7 @@ public class TicketService {
     }
 
     //티켓팅
-    @DistributedLock(key = "#seatId")
+    @DistributedLock(key = {"#seatId", "#gamdId"})
     public Long createTicket(Long gameId, Long seatId, User user) {
         if (seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, true)) {
             throw new IllegalArgumentException("해당 좌석은 이미 예매 되었습니다.");
