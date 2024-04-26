@@ -31,6 +31,7 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
 
     @Override
     public Optional<Review> findReviewByIdAndDeleteId(Long reviewId) {
+        System.out.println("실행됨!!!!@#!@#!@#!@#!@#!@#!@#!@#!@#");
         return Optional.ofNullable(
             jpaQueryFactory.selectFrom(QReview.review1)
                 .where(QReview.review1.id.eq(reviewId))

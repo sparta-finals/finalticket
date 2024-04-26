@@ -32,13 +32,14 @@ public class GameRepositoryImpl implements CustomGameRepository {
             .where(review1.game.id.eq(gameId))
             .execute();
 
+        queryFactory.delete(ticket)
+            .where(ticket.game.id.eq(gameId))
+            .execute();
+
         queryFactory.delete(seat)
             .where(seat.game.id.eq(gameId))
             .execute();
 
-        queryFactory.delete(ticket)
-            .where(ticket.game.id.eq(gameId))
-            .execute();
     }
 
     @Override
