@@ -94,6 +94,7 @@
                 <span>${review.score}</span>
                 <label>게임 ID:</label>
                 <span>${review.gameId}</span>
+                <button class="delete-review" data-id="${review.id}/${review.gameId}">리뷰삭제</button>
               </div>
             </div>
           `;
@@ -102,6 +103,27 @@
       },
       error: function(xhr, status, error) {
         console.error('리뷰 정보를 가져오는데 실패했습니다:', status, error);
+      }
+    });
+  });
+  $(document).on('click', '.delete-review', function() {
+    // 해당 게임의 ID를 가져옵니다.
+    const data = $(this).data('id').split("/");
+    console.log(data);
+    const reviewId = data[0];
+    const gameId = data[1];
+    console.log(reviewId);
+    console.log(gameId);
+    $.ajax({
+      url: `/v1/games/${gameId}/review/${reviewId}`,
+      method: 'DELETE',
+      success: function(response) {
+        alert("리뷰삭제 성공");
+        location.reload();
+      },
+      error: function(xhr, status, error) {
+        alert('리뷰 삭제 실패');
+        console.error('리뷰 삭제 실패:', status, error);
       }
     });
   });
