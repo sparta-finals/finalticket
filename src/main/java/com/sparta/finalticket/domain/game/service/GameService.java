@@ -34,8 +34,8 @@ public class GameService {
   private final SeatRepository seatRepository;
   private final SeatSettingRepository seatSettingRepository;
 
-  public GameResponseDto createGame(GameRequestDto gameRequestDto, Long userId) {
-    User user = validateCheckAdmin(userId);
+  public GameResponseDto createGame(GameRequestDto gameRequestDto, User user) {
+    validateCheckAdmin(user);
 
     Game game = gameRepository.save(
         Game.builder()
@@ -59,8 +59,8 @@ public class GameService {
         .build();
   }
 
-  public GameResponseDto updateGame(GameRequestDto gameRequestDto, Long userId, Long gameId) {
-    User user = validateCheckAdmin(userId);
+  public GameResponseDto updateGame(GameRequestDto gameRequestDto, User user, Long gameId) {
+    validateCheckAdmin(user);
     Game game = validateExistGame(gameId);
 
     game.setName(gameRequestDto.getName());
@@ -79,10 +79,9 @@ public class GameService {
         .build();
   }
 
-  public void deleteGame(Long gameId, Long userId) {
-    User user = validateCheckAdmin(userId);
+  public void deleteGame(Long gameId, User user) {
+   validateCheckAdmin(user);
     Game game = validateExistGame(gameId);
-
     game.deleteGame();
     gameRepository.deleteGameAndRelateEntities(gameId);
   }
@@ -101,13 +100,10 @@ public class GameService {
   }
 
 
-  private User validateCheckAdmin(Long userId) {
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자 입니다."));
+  private void validateCheckAdmin(User user) {
     if (user.getRole() != UserRoleEnum.ADMIN) {
       throw new IllegalArgumentException("관리자만 경기를 등록,수정,삭제할 수 있습니다.");
     }
-    return user;
   }
 
   private Game validateExistGame(Long gameId) {
@@ -148,7 +144,7 @@ public class GameService {
   }
 
   public List<SeatSettingResponseDto> getSeat(Long id) {
-    List<Seat> seatList = seatRepository.findALlByGameId(id).stream().toList();
+    List<Seat> seatList = seatRepository.findALlByGameIdAndStateTrue(id).stream().toList();
     List<SeatSetting> seatSettingList = seatSettingRepository.findAll();
     return comparedSeat(seatList, seatSettingList).stream().map(SeatSettingResponseDto::new).toList();
   }

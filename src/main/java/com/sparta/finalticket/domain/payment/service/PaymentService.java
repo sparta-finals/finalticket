@@ -93,7 +93,8 @@ public class PaymentService {
             payment.setPaymentUid(iamportResponse.getResponse().getImpUid());
             payment.changePaymentBySuccess(PaymentStatus.OK, iamportResponse.getResponse().getImpUid());
             paymentRepository.save(payment);
-
+            ticket.getSeat().setState(true);
+            ticketRepository.save(ticket);
             return iamportResponse;
 
         } catch (IamportResponseException e) {

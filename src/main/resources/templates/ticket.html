@@ -71,7 +71,7 @@
   </div>
 </div>
 
-<script th:inline >
+<script>
   $(document).ready(function() {
     // 서버에서 티켓 정보를 가져옵니다.
     $.ajax({
@@ -98,6 +98,8 @@
                 <span>${ticket.category}</span>
                 <label>좌석 번호:</label>
                 <span>${ticket.seatNumber}</span>
+                <button class="creat-review" data-id="${ticket.gameId}">리뷰하기</button>
+                <div></div>
               </div>
             </div>
           `;
@@ -109,6 +111,53 @@
       }
     });
   });
+  $(document).on('click', '.creat-review', function() {
+    // 해당 요소의 ID를 가져옵니다.
+    const reviewId = $(this).data('id');
+    console.log(reviewId);
+
+    // 평점을 받는 input 태그를 생성
+    const inputElement = `
+      <div class="review-div">
+        <input type="number" min="0" max="5" step="1">
+        <button class="submit-review" data-id="${reviewId}">리뷰 등록</button>
+      </div>
+    `;
+
+    // 해당 요소의 부모인 .ticket-info 하위에 생성한 div를 추가
+    $(this).closest('.ticket-info').append(inputElement);
+    $(this).remove();
+  });
+
+  // 리뷰 등록 버튼에 대한 클릭 이벤트 처리
+  $(document).on('click', '.submit-review', function() {
+    const gameId = $(this).data('id');
+    const reviewScore = $(this).siblings('input').val();
+
+    // AJAX 요청
+    $.ajax({
+      url: `/v1/games/${gameId}/review`,
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ score: reviewScore }), // 평점을 JSON 형식으로 전송
+      success: function(response) {
+        console.log('리뷰 등록 성공:', response);
+      },
+      error: function(xhr, status, error) {
+        console.error('리뷰 등록 실패:', status, error);
+      }
+    });
+
+    // 리뷰 입력 폼을 삭제
+    $(this).parent().remove();
+  });
+
+  // 직접 입력 방지
+  $(document).on('keydown', '.review-div input', function(event) {
+    // 키보드 입력 이벤트의 기본 동작을 막습니다.
+    event.preventDefault();
+  });
+
 </script>
 </body>
 </html>

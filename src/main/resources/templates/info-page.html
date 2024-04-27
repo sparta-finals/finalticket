@@ -81,6 +81,7 @@
   <button id="edit-button">내 정보 수정</button>
   <button id="ticket-button">예매 조회</button>
   <button id="my-review">리뷰 조회</button>
+  <button id="withdrawal">회원 탈퇴</button>
 </div>
 
 <script>
@@ -114,6 +115,30 @@
     $('#my-review').on('click', function() {
       const host = 'http://' + window.location.host;
       window.location.href = `${host}/v1/users/info/view/review`;
+    });
+
+    document.getElementById('withdrawal').addEventListener('click', function() {
+      const host = 'http://' + window.location.host; // 원래 주소와 포트를 포함하는 호스트 URL
+      const url = `${host}/v1/users/withdrawal`;
+
+      // DELETE 요청 보내기
+      fetch(url, {
+        method: 'DELETE'
+      })
+      .then(response => {
+        // 응답 처리
+        if (!response.ok) {
+          alert("회원탈퇴 오류 발생!");
+          throw new Error('Network response was not ok');
+        }
+        alert("회원탈퇴 완료!");
+        // 여기서 추가로 처리할 내용이 있다면 여기에 작성
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+        // 오류 처리
+      });
+      window.location.href = `${host}/v1/users/login-page`;
     });
   });
 </script>

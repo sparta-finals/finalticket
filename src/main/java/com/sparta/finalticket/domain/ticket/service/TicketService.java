@@ -39,7 +39,7 @@ public class TicketService {
     }
 
     //티켓팅
-    @DistributedLock(key = "#seatId")
+    @DistributedLock(key = {"#seatId", "#gamdId"})
     public Long createTicket(Long gameId, Long seatId, User user) {
         if (seatRepository.existsByUserAndGameIdAndSeatsettingIdAndState(user, gameId, seatId, true)) {
             throw new IllegalArgumentException("해당 좌석은 이미 예매 되었습니다.");
@@ -51,7 +51,7 @@ public class TicketService {
             SeatSetting seatSetting = getSeatsetting(seatId);
 
             int price = seatSetting.getSeatType().getPrice();
-            Seat seat = new Seat(game, seatSetting, user, true, price);
+            Seat seat = new Seat(game, seatSetting, user, false, price);
             seatRepository.save(seat);
 
 
@@ -76,7 +76,7 @@ public class TicketService {
             Ticket ticket = getTicket(seat.getId());
             ticket.update(true);
         }
-        game.setCount(game.getCount()-1);
+        game.setCount(game.getCount() - 1);
         return null;
     }
 
@@ -90,7 +90,7 @@ public class TicketService {
         Ticket ticket = getTicket(seat.getId());
 
         ticket.update(false);
-        game.setCount(game.getCount()+1);
+        game.setCount(game.getCount() + 1);
     }
 
     private Game getGame(Long gameId) {
@@ -110,5 +110,4 @@ public class TicketService {
         return ticketRepository.findBySeatId(gameId)
                 .orElseThrow(() -> new IllegalArgumentException("예약되지 않은 티켓 입니다."));
     }
-
 }

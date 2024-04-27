@@ -36,26 +36,21 @@
   <div id="login-title">Sign up Select Shop</div>
 
   <div>
-    <div class="login-id-label">Username</div>
-    <input type="text" name="username" placeholder="Username" class="login-input-box">
+    <div class="login-id-label">아이디</div>
+    <input type="text" name="username" placeholder="4자 이상, 10자 이하 알파벳 소문자와 숫자" class="login-input-box">
 
-    <div class="login-id-label">Password</div>
-    <input type="password" name="password" class="login-input-box">
+    <div class="login-id-label">비밀번호</div>
+    <input type="password" name="password" placeholder="8자 이상, 15자 이하 알파벳과 특수문자, 숫자" class="login-input-box">
 
     <div class="login-id-label">E-mail</div>
-    <input type="text" name="email" placeholder="E-mail" class="login-input-box">
+    <input type="text" name="email" placeholder="E-mail을 입력해주세요" class="login-input-box">
 
-    <div class="login-id-label">Nickname</div>
-    <input type="text" name="nickname" placeholder="Nickname" class="login-input-box">
+    <div class="login-id-label">닉네임</div>
+    <input type="text" name="nickname" placeholder="닉네임은 2~10자로 구성되어야 합니다." class="login-input-box">
 
-    <div class="login-id-label">Address</div>
-    <input type="text" name="address" placeholder="Address" class="login-input-box">
+    <div class="login-id-label">주소</div>
+    <input type="text" name="address" placeholder="주소를 입력해주세요" class="login-input-box">
 
-
-    <div>
-      <input id="admin-check" type="checkbox" name="admin" onclick="onclickAdmin()" style="margin-top: 40px;">관리자
-      <input id="admin-token" type="password" name="adminToken" placeholder="관리자 암호" class="login-input-box" style="display:none">
-    </div>
     <button id="login-id-submit">회원 가입</button>
   </div>
 </div>
@@ -93,14 +88,13 @@
         success: function(response) {
           // 요청이 성공했을 때의 처리
           alert('회원 가입이 완료되었습니다!');
-          console.log('응답 데이터:', response);
+
           // 성공 후 원하는 동작을 수행합니다. 예를 들어, 페이지를 리디렉션할 수 있습니다.
-          window.location.href = response.url;
+          window.location.href = 'http://'+window.location.host;
         },
         error: function(xhr, status, error) {
           // 요청이 실패했을 때의 처리
-          alert('회원 가입에 실패했습니다. 오류 메시지: ' + error);
-          console.error('요청 실패:', status, error);
+          alert(xhr.responseText);
         }
       });
     });

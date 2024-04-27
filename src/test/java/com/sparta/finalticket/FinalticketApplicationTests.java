@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test;
 //@SpringBootTest
 class FinalticketApplicationTests {
 
-	@Test
+    @Test
 	void contextLoads() {
-		System.out.println("ss");
+		System.out.println("dd");
 	}
 
 }
