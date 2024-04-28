@@ -55,19 +55,39 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
-    public ReviewCountAndAvgResponseDto getReviewsByGameId(Long gameId) {
+    public List<ReviewGameListResponseDto> getReviewsByGameId(Long gameId) {
         RLock lock = distributedReviewService.getLock(gameId);
         try {
             if (distributedReviewService.tryLock(lock, 1000, 5000)) {
-                Double avg = Math.round(redisReviewService.getAverageReviewScore(gameId)*10)/10.0;
-                Long count = redisReviewService.getTotalReviewCount(gameId);
-                return new ReviewCountAndAvgResponseDto(avg, count);
+                List<Review> reviews = reviewRepository.findByGameId(gameId);
+                return reviews.stream()
+                        .map(ReviewGameListResponseDto::new)
+                        .toList();
             } else {
                 throw new ReviewNotFoundException("게임 ID에 대한 리뷰 조회를 위한 락 획득에 실패했습니다.");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ReviewNotFoundException("게임 ID에 대한 리뷰 조회를 위해 락을 획득하는 도중에 중단되었습니다.");
+        } finally {
+            distributedReviewService.unlock(lock);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public ReviewCountAndAvgResponseDto getReviewsCountAndAvgByGameId(Long gameId) {
+        RLock lock = distributedReviewService.getLock(gameId);
+        try {
+            if (distributedReviewService.tryLock(lock, 1000, 5000)) {
+                Double avg = Math.round(redisReviewService.getAverageReviewScore(gameId) * 10) / 10.0;
+                Long count = redisReviewService.getTotalReviewCount(gameId);
+                return new ReviewCountAndAvgResponseDto(avg, count);
+            } else {
+                throw new ReviewNotFoundException("경기 ID에 대한 리뷰 조회를 위한 락 획득에 실패했습니다.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ReviewNotFoundException("경기 ID에 대한 리뷰 조회를 위해 락을 획득하는 도중에 중단되었습니다.");
         } finally {
             distributedReviewService.unlock(lock);
         }
