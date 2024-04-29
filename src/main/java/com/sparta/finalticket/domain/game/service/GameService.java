@@ -101,8 +101,8 @@ public class GameService {
 
 
   private void validateCheckAdmin(User user) {
-    if (user.getRole() != UserRoleEnum.ADMIN) {
-      throw new IllegalArgumentException("관리자만 경기를 등록,수정,삭제할 수 있습니다.");
+    if (user.getRole() != UserRoleEnum.ADMIN && user.getRole() != UserRoleEnum.USER) {
+      throw new IllegalArgumentException("권한이 없습니다.");
     }
   }
 

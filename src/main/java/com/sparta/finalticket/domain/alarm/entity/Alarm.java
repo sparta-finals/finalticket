@@ -60,4 +60,11 @@ public class Alarm extends TimeStamped {
 	public void setIsRead(boolean isRead) {
 		this.isRead = isRead;
 	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+	public void setPriority(Priority priority) {
+		this.priority = priority;
+	}
 }

@@ -38,6 +38,8 @@ public class QAlarm extends EntityPathBase<Alarm> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 
+    public final EnumPath<Priority> priority = createEnum("priority", Priority.class);
+
     public final BooleanPath state = createBoolean("state");
 
     public final com.sparta.finalticket.domain.user.entity.QUser user;

@@ -1,9 +1,11 @@
 package com.sparta.finalticket.domain.alarm.controller;
 
 import com.sparta.finalticket.domain.alarm.dto.request.AlarmRequestDto;
+import com.sparta.finalticket.domain.alarm.dto.request.AlarmUpdateRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmListResponseDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmLogResponseDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmResponseDto;
+import com.sparta.finalticket.domain.alarm.dto.response.AlarmUpdateResponseDto;
 import com.sparta.finalticket.domain.alarm.entity.AlarmLog;
 import com.sparta.finalticket.domain.alarm.service.AlarmLogService;
 import com.sparta.finalticket.domain.alarm.service.AlarmService;
@@ -43,6 +45,16 @@ public class AlarmController {
         User user = (User) httpServletRequest.getAttribute("user");
         AlarmResponseDto alarmResponseDto = alarmService.getAlarmById(gameId, alarmId, user);
         return ResponseEntity.ok().body(alarmResponseDto);
+    }
+
+    @PutMapping("/{alarmId}")
+    public ResponseEntity<AlarmUpdateResponseDto> updateAlarm(@PathVariable(name = "gameId") Long gameId,
+                                                              @PathVariable(name = "alarmId") Long alarmId,
+                                                              @RequestBody AlarmUpdateRequestDto alarmUpdateRequestDto,
+                                                              HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        AlarmUpdateResponseDto updatedAlarm = alarmService.updateAlarm(user, gameId, alarmId, alarmUpdateRequestDto);
+        return ResponseEntity.ok(updatedAlarm);
     }
 
     @DeleteMapping("/{alarmId}")

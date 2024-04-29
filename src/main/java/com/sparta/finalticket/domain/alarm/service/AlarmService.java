@@ -1,8 +1,10 @@
 package com.sparta.finalticket.domain.alarm.service;
 
 import com.sparta.finalticket.domain.alarm.dto.request.AlarmRequestDto;
+import com.sparta.finalticket.domain.alarm.dto.request.AlarmUpdateRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmListResponseDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmResponseDto;
+import com.sparta.finalticket.domain.alarm.dto.response.AlarmUpdateResponseDto;
 import com.sparta.finalticket.domain.alarm.entity.Alarm;
 import com.sparta.finalticket.domain.alarm.entity.AlarmLog;
 import com.sparta.finalticket.domain.alarm.entity.Priority;
@@ -15,6 +17,7 @@ import com.sparta.finalticket.domain.user.repository.UserRepository;
 import com.sparta.finalticket.global.exception.alarm.AlarmGameNotFoundException;
 import com.sparta.finalticket.global.exception.alarm.AlarmNotFoundException;
 import com.sparta.finalticket.global.exception.alarm.AlarmUserNotFoundException;
+import com.sparta.finalticket.global.exception.alarm.UnauthorizedOperationException;
 import io.micrometer.jakarta9.instrument.jms.JmsObservationDocumentation;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
@@ -78,7 +81,6 @@ public class AlarmService {
         return responseDto;
     }
 
-
     @Transactional
     public AlarmResponseDto getAlarmById(Long gameId, Long alarmId, User user) {
         Long userId = user.getId();
@@ -126,6 +128,25 @@ public class AlarmService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new AlarmNotFoundException("락을 획득하는 동안 중단되었습니다");
+        }
+    }
+
+    @Transactional
+    public AlarmUpdateResponseDto updateAlarm(User user, Long gameId, Long alarmId, AlarmUpdateRequestDto alarmUpdateRequestDto) {
+        Optional<Alarm> optionalAlarm = alarmRepository.findById(alarmId);
+        if (optionalAlarm.isPresent()) {
+            Alarm alarm = optionalAlarm.get();
+
+            // 알람 업데이트
+            alarm.setContent(alarmUpdateRequestDto.getContent());
+            alarm.setPriority(alarmUpdateRequestDto.getPriority());
+
+            alarmRepository.save(alarm);
+
+            // 알람 업데이트 응답 생성
+            return new AlarmUpdateResponseDto(alarm.getId(), alarm.getContent(), alarm.getState(), user.getId(), gameId, alarm.getIsRead(), alarm.getPriority());
+        } else {
+            throw new AlarmNotFoundException("알람을 찾을 수 없습니다.");
         }
     }
 
