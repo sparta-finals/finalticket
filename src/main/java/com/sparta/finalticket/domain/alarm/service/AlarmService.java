@@ -41,12 +41,9 @@ public class AlarmService {
         // 캐시에 저장할 때 사용할 timeout 값 설정
         int timeout = alarmRequestDto.getTimeout(); // alarmRequestDto에서 timeout 값을 가져옵니다.
 
-        // 알람 생성 및 저장
-        Alarm alarm = new Alarm();
-        alarm.setContent(alarmContent);
-        alarm.setState(true);
-        alarm.setUser(user);
-        alarm.setGame(game);
+        // Alarm 객체 생성
+        Alarm alarm = new Alarm(alarmContent, true, true, user, game); // 생성자 호출하여 객체 생성
+
         alarmRepository.save(alarm);
 
         // 캐시에 알림 데이터 저장
@@ -57,10 +54,11 @@ public class AlarmService {
         messagingTemplate.convertAndSendToUser(user.getId().toString(), "/queue/alarms", alarmContent);
 
         // 생성된 알람에 대한 응답을 생성합니다. 필요한 필드 값들을 설정하여 AlarmResponseDto 객체를 반환합니다.
-        AlarmResponseDto responseDto = new AlarmResponseDto(alarm.getId(), alarmContent, alarm.getState(), user.getId(), game.getId());
+        AlarmResponseDto responseDto = new AlarmResponseDto(alarm.getId(), alarmContent, alarm.getState(), user.getId(), game.getId(), alarm.getIsRead());
 
         return responseDto;
     }
+
 
     @Transactional
     public AlarmResponseDto getAlarmById(Long gameId, Long alarmId, User user) {
@@ -74,7 +72,7 @@ public class AlarmService {
         if (cachedAlarmContent != null) {
             // 캐시된 데이터가 있다면 WebSocket을 통해 알림 전송
             messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/alarms", cachedAlarmContent);
-            return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId);
+            return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true);
         }
 
         // 쿼리 최적화: 게임 조회를 게임 ID로 바로 수행
@@ -92,7 +90,7 @@ public class AlarmService {
                     messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/alarms", alarmContent);
 
                     // 생성한 AlarmResponseDto를 반환합니다.
-                    return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId);
+                    return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true);
                 } finally {
                     // 분산 락 해제
                     distributedAlarmService.unlock(lock);
@@ -128,6 +126,25 @@ public class AlarmService {
             throw new AlarmNotFoundException("알림을 찾을 수 없습니다.");
         }
     }
+
+    @Transactional
+    public void markAlarmAsRead(Long gameId, Long alarmId) {
+        Optional<Alarm> optionalAlarm = alarmRepository.findById(alarmId);
+        if (optionalAlarm.isPresent()) {
+            Alarm alarm = optionalAlarm.get();
+            alarm.setIsRead(true); // 알림을 읽음으로 표시
+
+            // 해당 게임의 알림만을 대상으로 알림을 읽었음을 표시합니다.
+            if (!alarm.getGame().getId().equals(gameId)) {
+                throw new AlarmNotFoundException("해당 게임의 알림을 찾을 수 없습니다.");
+            }
+
+            alarmRepository.save(alarm);
+        } else {
+            throw new AlarmNotFoundException("알림을 찾을 수 없습니다.");
+        }
+    }
+
 
     private User getUserAlarmById(Long userId) {
         return userRepository.findById(userId)

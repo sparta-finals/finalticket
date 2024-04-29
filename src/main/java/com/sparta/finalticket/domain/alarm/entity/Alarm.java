@@ -14,9 +14,9 @@ import org.hibernate.annotations.Where;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Table(name = "alarm", indexes = {
-	@Index(name = "idx_game_id", columnList = "game_id"),
-	@Index(name = "idx_user_id", columnList = "user_id"),
-	@Index(name = "idx_state", columnList = "state")
+		@Index(name = "idx_game_id", columnList = "game_id"),
+		@Index(name = "idx_user_id", columnList = "user_id"),
+		@Index(name = "idx_state", columnList = "state")
 })
 @SQLDelete(sql = "UPDATE alarm SET state = true WHERE id = ?")
 @Where(clause = "state = true")
@@ -32,27 +32,31 @@ public class Alarm extends TimeStamped {
 	@Column(nullable = false)
 	private Boolean state;
 
+	@Column(nullable = false)
+	private Boolean isRead; // 읽음 여부 추가
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "game_id")
 	private Game game;
 
-	public void setGame(Game game) {
+	public Alarm(String content, Boolean state, Boolean read, User user, Game game) {
+		this.content = content;
+		this.state = state;
+		this.isRead = read;
+		this.user = user;
 		this.game = game;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public void setContent(String content) {
+	public Alarm(String content, Boolean state, Boolean isRead) {
 		this.content = content;
-	}
-
-	public void setState(boolean state) {
 		this.state = state;
+		this.isRead = isRead;
+	}
+	public void setIsRead(boolean isRead) {
+		this.isRead = isRead;
 	}
 }

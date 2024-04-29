@@ -16,4 +16,6 @@ public class AlarmRequestDto {
     private String message;
 
     private int timeout;
+
+    private Boolean isRead;
 }

@@ -45,6 +45,13 @@ public class AlarmController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{alarmId}/read")
+    public ResponseEntity<Void> markAlarmAsRead(@PathVariable(name = "gameId") Long gameId,
+                                                @PathVariable(name = "alarmId") Long alarmId) {
+        alarmService.markAlarmAsRead(gameId, alarmId);
+        return ResponseEntity.noContent().build();
+    }
+
     @MessageMapping("/alarms/{userId}")
     public void handleAlarmEvent(@DestinationVariable Long userId, String message) {
         messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/alarms", message);
