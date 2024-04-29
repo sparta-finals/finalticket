@@ -1,4 +1,4 @@
-package com.sparta.finalticket.domain.alarm.dto;
+package com.sparta.finalticket.domain.alarm.dto.response;
 
 import com.sparta.finalticket.domain.alarm.entity.Alarm;
 import lombok.AllArgsConstructor;

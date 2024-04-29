@@ -1,7 +1,7 @@
 package com.sparta.finalticket.domain.alarm.service;
 
-import com.sparta.finalticket.domain.alarm.dto.AlarmRequestDto;
-import com.sparta.finalticket.domain.alarm.dto.AlarmResponseDto;
+import com.sparta.finalticket.domain.alarm.dto.request.AlarmRequestDto;
+import com.sparta.finalticket.domain.alarm.dto.response.AlarmResponseDto;
 import com.sparta.finalticket.domain.alarm.entity.Alarm;
 import com.sparta.finalticket.domain.alarm.repository.AlarmRepository;
 import com.sparta.finalticket.domain.game.entity.Game;
