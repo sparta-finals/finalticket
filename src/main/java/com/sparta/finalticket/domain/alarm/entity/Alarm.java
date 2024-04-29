@@ -51,11 +51,6 @@ public class Alarm extends TimeStamped {
 		this.game = game;
 	}
 
-	public Alarm(String content, Boolean state, Boolean isRead) {
-		this.content = content;
-		this.state = state;
-		this.isRead = isRead;
-	}
 	public void setIsRead(boolean isRead) {
 		this.isRead = isRead;
 	}
