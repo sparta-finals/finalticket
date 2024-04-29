@@ -14,5 +14,5 @@ public class AlarmResponseDto {
     private Boolean state;
     private Long userId;
     private Long gameId;
-    private Boolean read;
+    private Boolean isRead;
 }
