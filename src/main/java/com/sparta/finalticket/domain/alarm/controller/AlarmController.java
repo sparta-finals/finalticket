@@ -2,7 +2,10 @@ package com.sparta.finalticket.domain.alarm.controller;
 
 import com.sparta.finalticket.domain.alarm.dto.request.AlarmRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmListResponseDto;
+import com.sparta.finalticket.domain.alarm.dto.response.AlarmLogResponseDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmResponseDto;
+import com.sparta.finalticket.domain.alarm.entity.AlarmLog;
+import com.sparta.finalticket.domain.alarm.service.AlarmLogService;
 import com.sparta.finalticket.domain.alarm.service.AlarmService;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +24,7 @@ import java.util.List;
 public class AlarmController {
 
     private final AlarmService alarmService;
+    private final AlarmLogService alarmLogService;
     private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping
@@ -63,6 +67,12 @@ public class AlarmController {
         return ResponseEntity.ok(alarmList);
     }
 
+    @GetMapping("/history")
+    public ResponseEntity<List<AlarmLogResponseDto>> getAlarmHistory(@PathVariable(name = "gameId") Long gameId,
+                                                                     @PathVariable(name = "userId") Long userId) {
+        List<AlarmLogResponseDto> alarmLogList = alarmLogService.getAlarmHistory(gameId, userId);
+        return ResponseEntity.ok(alarmLogList);
+    }
 
     @MessageMapping("/alarms/{userId}")
     public void handleAlarmEvent(@DestinationVariable Long userId, String message) {

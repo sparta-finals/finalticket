@@ -4,7 +4,9 @@ import com.sparta.finalticket.domain.alarm.dto.request.AlarmRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmListResponseDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmResponseDto;
 import com.sparta.finalticket.domain.alarm.entity.Alarm;
+import com.sparta.finalticket.domain.alarm.entity.AlarmLog;
 import com.sparta.finalticket.domain.alarm.entity.Priority;
+import com.sparta.finalticket.domain.alarm.repository.AlarmLogRepository;
 import com.sparta.finalticket.domain.alarm.repository.AlarmRepository;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
@@ -20,6 +22,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +32,7 @@ import java.util.Optional;
 public class AlarmService {
 
     private final AlarmRepository alarmRepository;
+    private final AlarmLogRepository alarmLogRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final RedisAlarmCacheService redisCacheService;
@@ -54,6 +58,13 @@ public class AlarmService {
 
         alarmRepository.save(alarm);
 
+        // 알림을 생성하는 시점의 시간을 receivedAt 변수에 할당
+        LocalDateTime receivedAt = LocalDateTime.now();
+
+        // 알림 로그 생성
+        AlarmLog alarmLog = new AlarmLog(alarm, receivedAt);
+        alarmLogRepository.save(alarmLog);
+
         // 캐시에 알림 데이터 저장
         String cacheKey = "alarm:user:" + user.getId() + ":game:" + game.getId();
         redisCacheService.setAlarm(cacheKey, alarmContent, timeout);
@@ -66,6 +77,7 @@ public class AlarmService {
 
         return responseDto;
     }
+
 
     @Transactional
     public AlarmResponseDto getAlarmById(Long gameId, Long alarmId, User user) {
