@@ -22,7 +22,8 @@ public class LoginInterceptor implements HandlerInterceptor {
 		Object handler) throws Exception {//true controller false 처리안함
 		if (sessionUtil.isLoggedIn(request)) {
 			User user = (User)request.getAttribute("user");
-			log.info(user.getUsername()+"님의 "+request.getRequestURL()+" 페이지 승인");
+			log.info("유저 데이터 꺼내옴");
+//			log.info(user.getUsername()+"님의 "+request.getRequestURL()+" 페이지 승인");
 			return true;
 		}
 		log.info(request.getRequestURL().toString()+" : 쿠키에 값이 없음(로그인 x)");
