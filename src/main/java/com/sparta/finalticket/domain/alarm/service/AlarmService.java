@@ -1,6 +1,7 @@
 package com.sparta.finalticket.domain.alarm.service;
 
 import com.sparta.finalticket.domain.alarm.dto.request.AlarmRequestDto;
+import com.sparta.finalticket.domain.alarm.dto.response.AlarmListResponseDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmResponseDto;
 import com.sparta.finalticket.domain.alarm.entity.Alarm;
 import com.sparta.finalticket.domain.alarm.repository.AlarmRepository;
@@ -17,6 +18,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -136,7 +139,7 @@ public class AlarmService {
 
             // 해당 게임의 알림만을 대상으로 알림을 읽었음을 표시합니다.
             if (!alarm.getGame().getId().equals(gameId)) {
-                throw new AlarmNotFoundException("해당 게임의 알림을 찾을 수 없습니다.");
+                throw new AlarmNotFoundException("해당 경기의 알림을 찾을 수 없습니다.");
             }
 
             alarmRepository.save(alarm);
@@ -145,6 +148,14 @@ public class AlarmService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<AlarmListResponseDto> getAllAlarms(User user, Long gameId) {
+        List<Alarm> alarmList = alarmRepository.findByUserAndGameIdOrderByCreatedAtDesc(user, gameId);
+        return alarmList.stream()
+                .map(AlarmListResponseDto::new)
+                .sorted(Comparator.comparing(AlarmListResponseDto::getCreatedAt).reversed())
+                .toList();
+    }
 
     private User getUserAlarmById(Long userId) {
         return userRepository.findById(userId)
