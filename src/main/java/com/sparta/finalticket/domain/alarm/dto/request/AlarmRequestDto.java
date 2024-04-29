@@ -1,5 +1,6 @@
 package com.sparta.finalticket.domain.alarm.dto.request;
 
+import com.sparta.finalticket.domain.alarm.entity.Priority;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,4 +19,6 @@ public class AlarmRequestDto {
     private int timeout;
 
     private Boolean isRead;
+
+    private Priority priority;
 }

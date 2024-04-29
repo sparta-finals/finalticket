@@ -4,6 +4,7 @@ import com.sparta.finalticket.domain.alarm.dto.request.AlarmRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmListResponseDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmResponseDto;
 import com.sparta.finalticket.domain.alarm.entity.Alarm;
+import com.sparta.finalticket.domain.alarm.entity.Priority;
 import com.sparta.finalticket.domain.alarm.repository.AlarmRepository;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
@@ -12,6 +13,7 @@ import com.sparta.finalticket.domain.user.repository.UserRepository;
 import com.sparta.finalticket.global.exception.alarm.AlarmGameNotFoundException;
 import com.sparta.finalticket.global.exception.alarm.AlarmNotFoundException;
 import com.sparta.finalticket.global.exception.alarm.AlarmUserNotFoundException;
+import io.micrometer.jakarta9.instrument.jms.JmsObservationDocumentation;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -35,17 +37,20 @@ public class AlarmService {
 
     @Transactional
     public AlarmResponseDto createAlarm(User user, Long gameId, AlarmRequestDto alarmRequestDto) {
-        // 알람 내용을 구성합니다. 이 예시에서는 간단하게 DTO에서 가져온 내용을 사용합니다.
+        // 중요도 정보를 가져와서 설정
+        Priority priority = alarmRequestDto.getPriority();
+
+        // 알림 내용을 구성
         String alarmContent = "알람: " + user.getNickname() + "님, " + alarmRequestDto.getMessage();
 
         // 쿼리 최적화: 게임 조회를 게임 ID로 바로 수행
         Game game = getGameAlarmById(gameId);
 
         // 캐시에 저장할 때 사용할 timeout 값 설정
-        int timeout = alarmRequestDto.getTimeout(); // alarmRequestDto에서 timeout 값을 가져옵니다.
+        int timeout = alarmRequestDto.getTimeout();
 
-        // Alarm 객체 생성
-        Alarm alarm = new Alarm(alarmContent, true, true, user, game); // 생성자 호출하여 객체 생성
+        // createAlarm 메서드에서 우선순위 값 설정
+        Alarm alarm = new Alarm(alarmContent, true, true, user, game, alarmRequestDto.getPriority());
 
         alarmRepository.save(alarm);
 
@@ -57,11 +62,10 @@ public class AlarmService {
         messagingTemplate.convertAndSendToUser(user.getId().toString(), "/queue/alarms", alarmContent);
 
         // 생성된 알람에 대한 응답을 생성합니다. 필요한 필드 값들을 설정하여 AlarmResponseDto 객체를 반환합니다.
-        AlarmResponseDto responseDto = new AlarmResponseDto(alarm.getId(), alarmContent, alarm.getState(), user.getId(), game.getId(), alarm.getIsRead());
+        AlarmResponseDto responseDto = new AlarmResponseDto(alarm.getId(), alarmContent, alarm.getState(), user.getId(), game.getId(), alarm.getIsRead(), priority);
 
         return responseDto;
     }
-
 
     @Transactional
     public AlarmResponseDto getAlarmById(Long gameId, Long alarmId, User user) {
@@ -75,7 +79,8 @@ public class AlarmService {
         if (cachedAlarmContent != null) {
             // 캐시된 데이터가 있다면 WebSocket을 통해 알림 전송
             messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/alarms", cachedAlarmContent);
-            return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true);
+            // getAlarmById 메서드에서 AlarmResponseDto 객체 생성 시 매개변수의 오타 수정
+            return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true, Priority.HIGH);
         }
 
         // 쿼리 최적화: 게임 조회를 게임 ID로 바로 수행
@@ -92,8 +97,13 @@ public class AlarmService {
                     // WebSocket을 통해 알림 전송
                     messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/alarms", alarmContent);
 
+                    Alarm alarm = alarmRepository.findById(alarmId)
+                            .orElseThrow(() -> new AlarmNotFoundException("알림을 찾을 수 없습니다."));
+                    Priority priority = alarm.getPriority();
+
                     // 생성한 AlarmResponseDto를 반환합니다.
-                    return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true);
+                    // getAlarmById 메서드에서 AlarmResponseDto 객체 생성 시 매개변수의 오타 수정
+                    return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true, priority);
                 } finally {
                     // 분산 락 해제
                     distributedAlarmService.unlock(lock);
@@ -150,10 +160,12 @@ public class AlarmService {
 
     @Transactional(readOnly = true)
     public List<AlarmListResponseDto> getAllAlarms(User user, Long gameId) {
+        // 유저와 게임을 모두 고려하여 알람을 검색하고 생성일에 따라 정렬합니다.
         List<Alarm> alarmList = alarmRepository.findByUserAndGameIdOrderByCreatedAtDesc(user, gameId);
         return alarmList.stream()
                 .map(AlarmListResponseDto::new)
-                .sorted(Comparator.comparing(AlarmListResponseDto::getCreatedAt).reversed())
+                .sorted(Comparator.comparing(AlarmListResponseDto::getPriority).reversed()
+                        .thenComparing(Comparator.comparing(AlarmListResponseDto::getCreatedAt).reversed()))
                 .toList();
     }
 
