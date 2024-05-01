@@ -12,5 +12,4 @@ import java.util.List;
 public class ReviewStatsResponseDto {
     private List<ReviewGameListResponseDto> reviews;
     private ReviewCountAndAvgResponseDto countAndAvgResponse;
-
 }

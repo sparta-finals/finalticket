@@ -105,5 +105,4 @@ public class ReviewController {
         ReviewResponseDto responseDto = reviewService.recommendReview(reviewId);
         return ResponseEntity.ok().body(responseDto);
     }
-
 }
