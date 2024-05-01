@@ -56,6 +56,9 @@ public class Review extends TimeStamped {
 	@Column
 	private Long reportCount;
 
+	@Column
+	private Long recommendationCount;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
@@ -110,5 +113,9 @@ public class Review extends TimeStamped {
 
 	public void setReportCount(long reportCount) {
 		this.reportCount = reportCount;
+	}
+
+	public void setRecommendationCount(long recommendationCount) {
+		this.recommendationCount = recommendationCount;
 	}
 }

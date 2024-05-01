@@ -99,4 +99,11 @@ public class ReviewController {
         return ResponseEntity.ok().body(filteredReviews);
     }
 
+    @PostMapping("/review/{reviewId}/recommend")
+    public ResponseEntity<ReviewResponseDto> recommendReview(@PathVariable(name = "gameId") Long gameId,
+                                                             @PathVariable(name = "reviewId") Long reviewId) {
+        ReviewResponseDto responseDto = reviewService.recommendReview(reviewId);
+        return ResponseEntity.ok().body(responseDto);
+    }
+
 }

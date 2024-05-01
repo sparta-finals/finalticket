@@ -4,6 +4,7 @@ import com.sparta.finalticket.domain.review.entity.Review;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor
@@ -16,8 +17,11 @@ public class ReviewResponseDto {
     private Boolean state;
     private Long userId;
     private Long gameId;
+    @Setter
     private Long likeCount;
+    @Setter
     private Long dislikeCount;
+    private Long recommendationCount;
 
     public ReviewResponseDto(Review review) {
         this.id = review.getId();
@@ -28,6 +32,7 @@ public class ReviewResponseDto {
         this.gameId = review.getGame() != null ? review.getGame().getId() : null;
         this.likeCount = review.getLikeCount();
         this.dislikeCount = review.getDislikeCount();
+        this.recommendationCount = review.getRecommendationCount();
     }
 
     public void setId(Long id) {
@@ -54,12 +59,8 @@ public class ReviewResponseDto {
         this.gameId = gameId;
     }
 
-    public void setLikeCount(Long likeCount) {
-        this.likeCount = likeCount;
-    }
-
-    public void setDislikeCount(Long dislikeCount) {
-        this.dislikeCount = dislikeCount;
+    public void setRecommendationCount(Long recommendationCount) {
+        this.recommendationCount = recommendationCount;
     }
 }
 

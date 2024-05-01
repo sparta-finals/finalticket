@@ -189,7 +189,6 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
-
     public List<ReviewResponseDto> filterReviewsByCriteria(Long gameId, Long minScore, Long maxScore) {
         List<Review> reviews = reviewRepository.findByGameId(gameId);
 
@@ -203,6 +202,19 @@ public class ReviewService {
         return filteredAndSortedReviews.stream()
                 .map(ReviewResponseDto::new)
                 .toList();
+    }
+
+    @Transactional
+    public ReviewResponseDto recommendReview(Long reviewId) {
+        Review review = getReviewById(reviewId);
+        Long recommendationCount = review.getRecommendationCount();
+        if (recommendationCount == null) {
+            review.setRecommendationCount(1L);
+        } else {
+            review.setRecommendationCount(recommendationCount + 1);
+        }
+        Review updatedReview = reviewRepository.save(review);
+        return new ReviewResponseDto(updatedReview);
     }
 
 
