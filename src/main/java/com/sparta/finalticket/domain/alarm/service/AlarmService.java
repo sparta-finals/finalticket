@@ -101,7 +101,9 @@ public class AlarmService {
         if (cachedAlarmContent != null) {
             // 캐시된 데이터가 있다면 WebSocket을 통해 알림 전송
             messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/alarms", cachedAlarmContent);
+            // getAlarmById 메서드에서 AlarmResponseDto 객체 생성 시 매개변수의 오타 수정
             return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true, Priority.HIGH, new AlarmGroup());
+
         }
 
         // 쿼리 최적화: 게임 조회를 게임 ID로 바로 수행
