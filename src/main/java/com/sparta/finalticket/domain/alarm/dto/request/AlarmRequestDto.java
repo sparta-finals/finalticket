@@ -21,4 +21,10 @@ public class AlarmRequestDto {
     private Boolean isRead;
 
     private Priority priority;
+
+    private String groupName;
+
+    public String getGroupName() {
+        return groupName;
+    }
 }

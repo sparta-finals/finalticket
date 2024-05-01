@@ -36,9 +36,13 @@ public class Alarm extends TimeStamped {
 	private Boolean isRead; // 읽음 여부 추가
 
 	// Alarm 엔티티에 우선순위 필드 추가
-	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Priority priority;
+
+	// 알림 그룹을 위한 필드 추가
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "group_id")
+	private AlarmGroup group;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
@@ -48,13 +52,14 @@ public class Alarm extends TimeStamped {
 	@JoinColumn(name = "game_id")
 	private Game game;
 
-	public Alarm(String content, Boolean state, Boolean read, User user, Game game, Priority priority) {
+	public Alarm(String content, Boolean state, Boolean read, User user, Game game, Priority priority, AlarmGroup group) {
 		this.content = content;
 		this.state = state;
 		this.isRead = read;
 		this.user = user;
 		this.game = game;
 		this.priority = priority;
+		this.group = group;
 	}
 
 	public void setIsRead(boolean isRead) {
@@ -64,7 +69,12 @@ public class Alarm extends TimeStamped {
 	public void setContent(String content) {
 		this.content = content;
 	}
+
 	public void setPriority(Priority priority) {
 		this.priority = priority;
+	}
+
+	public void setGroup(AlarmGroup group) {
+		this.group = group;
 	}
 }

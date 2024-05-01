@@ -1,12 +1,12 @@
 package com.sparta.finalticket.domain.alarm.controller;
 
+import com.sparta.finalticket.domain.alarm.dto.request.AlarmGroupRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.request.AlarmRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.request.AlarmUpdateRequestDto;
-import com.sparta.finalticket.domain.alarm.dto.response.AlarmListResponseDto;
-import com.sparta.finalticket.domain.alarm.dto.response.AlarmLogResponseDto;
-import com.sparta.finalticket.domain.alarm.dto.response.AlarmResponseDto;
-import com.sparta.finalticket.domain.alarm.dto.response.AlarmUpdateResponseDto;
+import com.sparta.finalticket.domain.alarm.dto.response.*;
+import com.sparta.finalticket.domain.alarm.entity.AlarmGroup;
 import com.sparta.finalticket.domain.alarm.entity.AlarmLog;
+import com.sparta.finalticket.domain.alarm.service.AlarmGroupService;
 import com.sparta.finalticket.domain.alarm.service.AlarmLogService;
 import com.sparta.finalticket.domain.alarm.service.AlarmService;
 import com.sparta.finalticket.domain.user.entity.User;
@@ -27,6 +27,7 @@ public class AlarmController {
 
     private final AlarmService alarmService;
     private final AlarmLogService alarmLogService;
+    private final AlarmGroupService alarmGroupService;
     private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping
@@ -84,6 +85,22 @@ public class AlarmController {
                                                                      @PathVariable(name = "userId") Long userId) {
         List<AlarmLogResponseDto> alarmLogList = alarmLogService.getAlarmHistory(gameId, userId);
         return ResponseEntity.ok(alarmLogList);
+    }
+
+    // 새로운 알림 그룹 생성 엔드포인트
+    @PostMapping("/groups")
+    public ResponseEntity<AlarmGroupResponseDto> createAlarmGroup(@RequestBody AlarmGroupRequestDto requestDto, @PathVariable String gameId) {
+        AlarmGroup group = alarmGroupService.createAlarmGroup(requestDto.getGroupName());
+        AlarmGroupResponseDto responseDto = new AlarmGroupResponseDto(group.getId(), group.getGroupName());
+        return ResponseEntity.ok(responseDto);
+    }
+
+    // 기존의 알림 그룹 조회 메서드
+    @GetMapping("/groups/{groupId}")
+    public ResponseEntity<AlarmGroupResponseDto> getAlarmGroupById(@PathVariable(name = "groupId") Long groupId) {
+        AlarmGroup group = alarmGroupService.getAlarmGroupById(groupId);
+        AlarmGroupResponseDto responseDto = new AlarmGroupResponseDto(group.getId(), group.getGroupName());
+        return ResponseEntity.ok(responseDto);
     }
 
     /*

@@ -6,8 +6,10 @@ import com.sparta.finalticket.domain.alarm.dto.response.AlarmListResponseDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmResponseDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmUpdateResponseDto;
 import com.sparta.finalticket.domain.alarm.entity.Alarm;
+import com.sparta.finalticket.domain.alarm.entity.AlarmGroup;
 import com.sparta.finalticket.domain.alarm.entity.AlarmLog;
 import com.sparta.finalticket.domain.alarm.entity.Priority;
+import com.sparta.finalticket.domain.alarm.repository.AlarmGroupRepository;
 import com.sparta.finalticket.domain.alarm.repository.AlarmLogRepository;
 import com.sparta.finalticket.domain.alarm.repository.AlarmRepository;
 import com.sparta.finalticket.domain.game.entity.Game;
@@ -32,6 +34,7 @@ public class AlarmService {
 
     private final AlarmRepository alarmRepository;
     private final AlarmLogRepository alarmLogRepository;
+    private final AlarmGroupRepository alarmGroupRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final RedisAlarmCacheService redisCacheService;
@@ -52,8 +55,17 @@ public class AlarmService {
         // 캐시에 저장할 때 사용할 timeout 값 설정
         int timeout = alarmRequestDto.getTimeout();
 
+        // 알림 그룹 생성 및 알림에 할당
+        AlarmGroup group = new AlarmGroup();
+        group.setGroupName("관련 알림 그룹"); // 그룹 이름은 필요에 따라 설정
+
         // createAlarm 메서드에서 우선순위 값 설정
-        Alarm alarm = new Alarm(alarmContent, true, true, user, game, alarmRequestDto.getPriority());
+        Alarm alarm = new Alarm(alarmContent, true, true, user, game, alarmRequestDto.getPriority(), group);
+
+        // 알람 그룹 생성 또는 가져오기
+        AlarmGroup groups = getOrCreateAlarmGroup(alarmRequestDto.getGroupName());
+
+        alarm.setGroup(groups);
 
         alarmRepository.save(alarm);
 
@@ -72,7 +84,7 @@ public class AlarmService {
         messagingTemplate.convertAndSendToUser(user.getId().toString(), "/queue/alarms", alarmContent);
 
         // 생성된 알람에 대한 응답을 생성합니다. 필요한 필드 값들을 설정하여 AlarmResponseDto 객체를 반환합니다.
-        AlarmResponseDto responseDto = new AlarmResponseDto(alarm.getId(), alarmContent, alarm.getState(), user.getId(), game.getId(), alarm.getIsRead(), priority);
+        AlarmResponseDto responseDto = new AlarmResponseDto(alarm.getId(), alarmContent, alarm.getState(), user.getId(), game.getId(), alarm.getIsRead(), priority, groups);
 
         return responseDto;
     }
@@ -89,8 +101,7 @@ public class AlarmService {
         if (cachedAlarmContent != null) {
             // 캐시된 데이터가 있다면 WebSocket을 통해 알림 전송
             messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/alarms", cachedAlarmContent);
-            // getAlarmById 메서드에서 AlarmResponseDto 객체 생성 시 매개변수의 오타 수정
-            return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true, Priority.HIGH);
+            return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true, Priority.HIGH, new AlarmGroup());
         }
 
         // 쿼리 최적화: 게임 조회를 게임 ID로 바로 수행
@@ -110,10 +121,11 @@ public class AlarmService {
                     Alarm alarm = alarmRepository.findById(alarmId)
                             .orElseThrow(() -> new AlarmNotFoundException("알림을 찾을 수 없습니다."));
                     Priority priority = alarm.getPriority();
+                    AlarmGroup group = alarm.getGroup();
 
                     // 생성한 AlarmResponseDto를 반환합니다.
                     // getAlarmById 메서드에서 AlarmResponseDto 객체 생성 시 매개변수의 오타 수정
-                    return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true, priority);
+                    return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true, priority, group);
                 } finally {
                     // 분산 락 해제
                     distributedAlarmService.unlock(lock);
@@ -196,6 +208,15 @@ public class AlarmService {
                 .sorted(Comparator.comparing(AlarmListResponseDto::getPriority).reversed()
                         .thenComparing(Comparator.comparing(AlarmListResponseDto::getCreatedAt).reversed()))
                 .toList();
+    }
+
+    private AlarmGroup getOrCreateAlarmGroup(String groupName) {
+        Optional<AlarmGroup> optionalGroup = alarmGroupRepository.findByGroupName(groupName);
+        return optionalGroup.orElseGet(() -> {
+            AlarmGroup newGroup = new AlarmGroup();
+            newGroup.setGroupName(groupName);
+            return alarmGroupRepository.save(newGroup);
+        });
     }
 
     private User getUserAlarmById(Long userId) {
