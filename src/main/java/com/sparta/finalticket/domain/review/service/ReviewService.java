@@ -19,6 +19,7 @@ import org.redisson.api.RLock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -186,6 +187,22 @@ public class ReviewService {
         Long reportCount = review.getReportCount();
         review.setReportCount(reportCount != null ? reportCount + 1 : 1);
         reviewRepository.save(review);
+    }
+
+
+    public List<ReviewResponseDto> filterReviewsByCriteria(Long gameId, Long minScore, Long maxScore) {
+        List<Review> reviews = reviewRepository.findByGameId(gameId);
+
+        // 평점 기준으로 필터링 및 정렬
+        List<Review> filteredAndSortedReviews = reviews.stream()
+                .filter(review -> (minScore == null || review.getScore() >= minScore) &&
+                        (maxScore == null || review.getScore() <= maxScore))
+                .sorted(Comparator.comparingLong(Review::getScore)) // 평점에 따라 오름차순 정렬
+                .toList();
+
+        return filteredAndSortedReviews.stream()
+                .map(ReviewResponseDto::new)
+                .toList();
     }
 
 

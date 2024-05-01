@@ -90,4 +90,13 @@ public class ReviewController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/reviews/filter")
+    public ResponseEntity<List<ReviewResponseDto>> filterReviewsByCriteria(
+            @PathVariable(name = "gameId") Long gameId,
+            @RequestParam(name = "minScore", required = false) Long minScore,
+            @RequestParam(name = "maxScore", required = false) Long maxScore) {
+        List<ReviewResponseDto> filteredReviews = reviewService.filterReviewsByCriteria(gameId, minScore, maxScore);
+        return ResponseEntity.ok().body(filteredReviews);
+    }
+
 }
