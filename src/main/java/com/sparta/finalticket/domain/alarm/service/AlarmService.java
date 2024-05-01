@@ -217,8 +217,6 @@ public class AlarmService {
                 .toList();
     }
 
-    // AlarmService.java
-
     @Transactional
     public void resendAlarm(User user, Long gameId, Long alarmId) {
         Optional<Alarm> optionalAlarm = alarmRepository.findById(alarmId);

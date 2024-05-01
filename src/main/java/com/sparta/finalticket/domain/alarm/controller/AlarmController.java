@@ -83,14 +83,15 @@ public class AlarmController {
 
     @GetMapping("/history")
     public ResponseEntity<List<AlarmLogResponseDto>> getAlarmHistory(@PathVariable(name = "gameId") Long gameId,
-                                                                     @PathVariable(name = "userId") Long userId) {
-        List<AlarmLogResponseDto> alarmLogList = alarmLogService.getAlarmHistory(gameId, userId);
+                                                                     HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        List<AlarmLogResponseDto> alarmLogList = alarmLogService.getAlarmHistory(gameId, user);
         return ResponseEntity.ok(alarmLogList);
     }
 
     // 새로운 알림 그룹 생성 엔드포인트
     @PostMapping("/groups")
-    public ResponseEntity<AlarmGroupResponseDto> createAlarmGroup(@RequestBody AlarmGroupRequestDto requestDto, @PathVariable String gameId) {
+    public ResponseEntity<AlarmGroupResponseDto> createAlarmGroup(@RequestBody AlarmGroupRequestDto requestDto, @PathVariable(name = "gameId") String gameId) {
         AlarmGroup group = alarmGroupService.createAlarmGroup(requestDto.getGroupName());
         AlarmGroupResponseDto responseDto = new AlarmGroupResponseDto(group.getId(), group.getGroupName());
         return ResponseEntity.ok(responseDto);
