@@ -50,6 +50,11 @@ public class Review extends TimeStamped {
 	@Column
 	private Long dislikeCount;
 
+	@Column
+	private Boolean reported;
+
+	@Column
+	private Long reportCount;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
@@ -99,4 +104,11 @@ public class Review extends TimeStamped {
 		return dislikeCount != null ? dislikeCount.longValue() : 0L; // null일 경우 0을 반환하도록 수정
 	}
 
+	public void setReported(boolean reported) {
+		this.reported = reported;
+	}
+
+	public void setReportCount(long reportCount) {
+		this.reportCount = reportCount;
+	}
 }

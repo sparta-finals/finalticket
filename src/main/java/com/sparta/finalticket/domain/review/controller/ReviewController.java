@@ -81,4 +81,13 @@ public class ReviewController {
         return ResponseEntity.ok().body(responseDto);
     }
 
+    @PostMapping("/review/{reviewId}/report")
+    public ResponseEntity<Void> reportReview(@PathVariable(name = "gameId") Long gameId,
+                                             @PathVariable(name = "reviewId") Long reviewId,
+                                             HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        reviewService.reportReview(gameId, reviewId, user);
+        return ResponseEntity.ok().build();
+    }
+
 }

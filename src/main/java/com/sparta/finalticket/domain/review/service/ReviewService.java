@@ -179,6 +179,16 @@ public class ReviewService {
         return new ReviewResponseDto(updatedReview);
     }
 
+    @Transactional
+    public void reportReview(Long gameId, Long reviewId, User user) {
+        Review review = getReviewById(reviewId);
+        review.setReported(true);
+        Long reportCount = review.getReportCount();
+        review.setReportCount(reportCount != null ? reportCount + 1 : 1);
+        reviewRepository.save(review);
+    }
+
+
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {
             throw new GameIdRequiredException("게임 ID가 필요합니다.");
