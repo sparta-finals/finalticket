@@ -3,6 +3,7 @@ package com.sparta.finalticket.domain.alarm.controller;
 import com.sparta.finalticket.domain.alarm.dto.request.AlarmGroupRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.request.AlarmRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.request.AlarmUpdateRequestDto;
+import com.sparta.finalticket.domain.alarm.dto.request.CustomAlarmRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.response.*;
 import com.sparta.finalticket.domain.alarm.entity.AlarmGroup;
 import com.sparta.finalticket.domain.alarm.entity.AlarmLog;
@@ -110,6 +111,21 @@ public class AlarmController {
         User user = (User) httpServletRequest.getAttribute("user");
         alarmService.resendAlarm(user, gameId, alarmId);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/custom")
+    public ResponseEntity<CustomAlarmResponseDto> createCustomAlarm(@RequestBody CustomAlarmRequestDto customAlarmRequestDto,
+                                                                    HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        CustomAlarmResponseDto createdCustomAlarm = alarmService.createCustomAlarm(user, customAlarmRequestDto);
+        return ResponseEntity.ok(createdCustomAlarm);
+    }
+
+    @GetMapping("/custom")
+    public ResponseEntity<List<CustomAlarmResponseDto>> getAllCustomAlarms(HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        List<CustomAlarmResponseDto> customAlarmList = alarmService.getAllCustomAlarms(user);
+        return ResponseEntity.ok(customAlarmList);
     }
 
 

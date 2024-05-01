@@ -2,16 +2,16 @@ package com.sparta.finalticket.domain.alarm.service;
 
 import com.sparta.finalticket.domain.alarm.dto.request.AlarmRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.request.AlarmUpdateRequestDto;
+import com.sparta.finalticket.domain.alarm.dto.request.CustomAlarmRequestDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmListResponseDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmResponseDto;
 import com.sparta.finalticket.domain.alarm.dto.response.AlarmUpdateResponseDto;
-import com.sparta.finalticket.domain.alarm.entity.Alarm;
-import com.sparta.finalticket.domain.alarm.entity.AlarmGroup;
-import com.sparta.finalticket.domain.alarm.entity.AlarmLog;
-import com.sparta.finalticket.domain.alarm.entity.Priority;
+import com.sparta.finalticket.domain.alarm.dto.response.CustomAlarmResponseDto;
+import com.sparta.finalticket.domain.alarm.entity.*;
 import com.sparta.finalticket.domain.alarm.repository.AlarmGroupRepository;
 import com.sparta.finalticket.domain.alarm.repository.AlarmLogRepository;
 import com.sparta.finalticket.domain.alarm.repository.AlarmRepository;
+import com.sparta.finalticket.domain.alarm.repository.CustomAlarmRepository;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.user.entity.User;
@@ -24,6 +24,7 @@ import org.redisson.api.RLock;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -35,6 +36,7 @@ public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final AlarmLogRepository alarmLogRepository;
     private final AlarmGroupRepository alarmGroupRepository;
+    private final CustomAlarmRepository customAlarmRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final RedisAlarmCacheService redisCacheService;
@@ -233,6 +235,26 @@ public class AlarmService {
         } else {
             throw new AlarmNotFoundException("알림을 찾을 수 없습니다.");
         }
+    }
+
+    public CustomAlarmResponseDto createCustomAlarm(User user,@RequestBody CustomAlarmRequestDto customAlarmResponseDto) {
+        // 사용자가 작성한 알림 내용과 필요한 정보로 CustomAlarm 엔티티 생성 및 저장
+        CustomAlarm customAlarm = CustomAlarm.builder()
+                .content(customAlarmResponseDto.getContent())
+                .user(user)
+                .build();
+        customAlarmRepository.save(customAlarm);
+
+        // 생성된 알람에 대한 응답을 생성하여 반환
+        return new CustomAlarmResponseDto(customAlarm.getId(), customAlarm.getContent());
+    }
+
+    public List<CustomAlarmResponseDto> getAllCustomAlarms(User user) {
+        // 사용자가 작성한 모든 알림을 조회하여 DTO로 변환하여 반환
+        List<CustomAlarm> customAlarmList = customAlarmRepository.findByUser(user);
+        return customAlarmList.stream()
+                .map(customAlarm -> new CustomAlarmResponseDto(customAlarm.getId(), customAlarm.getContent()))
+                .toList();
     }
 
 
