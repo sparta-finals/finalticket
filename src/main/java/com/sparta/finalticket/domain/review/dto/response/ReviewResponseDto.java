@@ -17,9 +17,7 @@ public class ReviewResponseDto {
     private Boolean state;
     private Long userId;
     private Long gameId;
-    @Setter
     private Long likeCount;
-    @Setter
     private Long dislikeCount;
     private Long recommendationCount;
 
