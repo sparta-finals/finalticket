@@ -103,6 +103,16 @@ public class AlarmController {
         return ResponseEntity.ok(responseDto);
     }
 
+    @PostMapping("/{alarmId}/resend")
+    public ResponseEntity<Void> resendAlarm(@PathVariable(name = "gameId") Long gameId,
+                                            @PathVariable(name = "alarmId") Long alarmId,
+                                            HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        alarmService.resendAlarm(user, gameId, alarmId);
+        return ResponseEntity.ok().build();
+    }
+
+
     /*
      * 이 메서드는 WebSocket을 통해 알림 이벤트를 처리하고, 특정 사용자에게 메시지를 보내는 역할을 합니다.
      *

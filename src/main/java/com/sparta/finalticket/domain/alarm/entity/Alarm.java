@@ -35,6 +35,9 @@ public class Alarm extends TimeStamped {
 	@Column(nullable = false)
 	private Boolean isRead; // 읽음 여부 추가
 
+	@Column(nullable = false)
+	private Integer deliveryAttempts; // 전송 시도 횟수
+
 	// Alarm 엔티티에 우선순위 필드 추가
 	@Enumerated(EnumType.STRING)
 	private Priority priority;
@@ -60,9 +63,17 @@ public class Alarm extends TimeStamped {
 		this.game = game;
 		this.priority = priority;
 		this.group = group;
+		this.deliveryAttempts = 0; // 초기 전송 시도 횟수는 0으로 설정
 	}
 
+	// deliveryAttempts 필드의 getter 및 setter 추가
+	public Integer getDeliveryAttempts() {
+		return deliveryAttempts;
+	}
 
+	public void setDeliveryAttempts(Integer deliveryAttempts) {
+		this.deliveryAttempts = deliveryAttempts;
+	}
 
 	public void setIsRead(boolean isRead) {
 		this.isRead = isRead;

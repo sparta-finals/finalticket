@@ -39,6 +39,9 @@ public class AlarmService {
     private final GameRepository gameRepository;
     private final RedisAlarmCacheService redisCacheService;
     private final DistributedAlarmService distributedAlarmService;
+    private final AlarmDeliveryService alarmDeliveryService;
+    private final AlarmRetryService alarmRetryService;
+
     private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
@@ -211,6 +214,27 @@ public class AlarmService {
                         .thenComparing(Comparator.comparing(AlarmListResponseDto::getCreatedAt).reversed()))
                 .toList();
     }
+
+    // AlarmService.java
+
+    @Transactional
+    public void resendAlarm(User user, Long gameId, Long alarmId) {
+        Optional<Alarm> optionalAlarm = alarmRepository.findById(alarmId);
+        if (optionalAlarm.isPresent()) {
+            Alarm alarm = optionalAlarm.get();
+
+            // 알림 전송 시도
+            boolean deliverySuccess = alarmDeliveryService.sendAlarm(user, alarm);
+
+            if (!deliverySuccess) {
+                // 전송 실패 시 재시도
+                alarmRetryService.retryAlarm(user, alarm);
+            }
+        } else {
+            throw new AlarmNotFoundException("알림을 찾을 수 없습니다.");
+        }
+    }
+
 
     private AlarmGroup getOrCreateAlarmGroup(String groupName) {
         Optional<AlarmGroup> optionalGroup = alarmGroupRepository.findByGroupName(groupName);
