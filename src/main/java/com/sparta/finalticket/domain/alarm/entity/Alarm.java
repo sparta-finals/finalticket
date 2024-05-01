@@ -62,6 +62,8 @@ public class Alarm extends TimeStamped {
 		this.group = group;
 	}
 
+
+
 	public void setIsRead(boolean isRead) {
 		this.isRead = isRead;
 	}
