@@ -14,4 +14,8 @@ public class ReviewRequestDto {
     private Long score;
 
     private Boolean state;
+
+    private Long likeCount;
+
+    private Long dislikeCount;
 }

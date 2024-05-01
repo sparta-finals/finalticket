@@ -158,6 +158,27 @@ public class ReviewService {
         }
     }
 
+    @Transactional
+    public ReviewResponseDto likeReview(Long reviewId) {
+        Review review = getReviewById(reviewId);
+        Long likeCount = review.getLikeCount();
+        if (likeCount == null) {
+            review.setLikeCount(1L);
+        } else {
+            review.setLikeCount(likeCount + 1);
+        }
+        Review updatedReview = reviewRepository.save(review);
+        return new ReviewResponseDto(updatedReview);
+    }
+
+    @Transactional
+    public ReviewResponseDto dislikeReview(Long reviewId) {
+        Review review = getReviewById(reviewId);
+        review.setDislikeCount(review.getDislikeCount() + 1);
+        Review updatedReview = reviewRepository.save(review);
+        return new ReviewResponseDto(updatedReview);
+    }
+
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {
             throw new GameIdRequiredException("게임 ID가 필요합니다.");

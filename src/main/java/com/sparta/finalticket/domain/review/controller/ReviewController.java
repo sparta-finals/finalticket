@@ -66,4 +66,19 @@ public class ReviewController {
         reviewService.deleteReview(gameId, reviewId, user);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/review/{reviewId}/like")
+    public ResponseEntity<ReviewResponseDto> likeReview(@PathVariable(name = "gameId") Long gameId,
+                                                        @PathVariable(name = "reviewId") Long reviewId) {
+        ReviewResponseDto responseDto = reviewService.likeReview(reviewId);
+        return ResponseEntity.ok().body(responseDto);
+    }
+
+    @PostMapping("/review/{reviewId}/dislike")
+    public ResponseEntity<ReviewResponseDto> dislikeReview(@PathVariable(name = "gameId") Long gameId,
+                                                           @PathVariable(name = "reviewId") Long reviewId) {
+        ReviewResponseDto responseDto = reviewService.dislikeReview(reviewId);
+        return ResponseEntity.ok().body(responseDto);
+    }
+
 }

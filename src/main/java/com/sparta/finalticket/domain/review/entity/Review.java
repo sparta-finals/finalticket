@@ -38,11 +38,18 @@ public class Review extends TimeStamped {
 	@Column
 	private Boolean state;
 
-	@Column(name = "total_review_count")
+	@Column
 	private Long totalReviewCount;
 
-	@Column(name = "average_review_score")
+	@Column
 	private Double averageReviewScore;
+
+	@Column
+	private Long likeCount;
+
+	@Column
+	private Long dislikeCount;
+
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
@@ -75,4 +82,21 @@ public class Review extends TimeStamped {
 	public void setGame(Game game) {
 		this.game = game;
 	}
+
+	public void setLikeCount(Long likeCount) {
+		this.likeCount = likeCount;
+	}
+
+	public void setDislikeCount(Long dislikeCount) {
+		this.dislikeCount = dislikeCount;
+	}
+
+	public long getLikeCount() {
+		return likeCount != null ? likeCount.longValue() : 0L; // null일 경우 0을 반환하도록 수정
+	}
+
+	public long getDislikeCount() {
+		return dislikeCount != null ? dislikeCount.longValue() : 0L; // null일 경우 0을 반환하도록 수정
+	}
+
 }

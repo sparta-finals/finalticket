@@ -16,6 +16,8 @@ public class ReviewResponseDto {
     private Boolean state;
     private Long userId;
     private Long gameId;
+    private Long likeCount;
+    private Long dislikeCount;
 
     public ReviewResponseDto(Review review) {
         this.id = review.getId();
@@ -24,6 +26,8 @@ public class ReviewResponseDto {
         this.state = review.getState();
         this.userId = review.getUser() != null ? review.getUser().getId() : null;
         this.gameId = review.getGame() != null ? review.getGame().getId() : null;
+        this.likeCount = review.getLikeCount();
+        this.dislikeCount = review.getDislikeCount();
     }
 
     public void setId(Long id) {
@@ -48,6 +52,14 @@ public class ReviewResponseDto {
 
     public void setGameId(Long gameId) {
         this.gameId = gameId;
+    }
+
+    public void setLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public void setDislikeCount(Long dislikeCount) {
+        this.dislikeCount = dislikeCount;
     }
 }
 
