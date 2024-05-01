@@ -21,7 +21,7 @@ public class AlarmGroup {
     @Column
     private String groupName;
 
-    @OneToMany(mappedBy = "alarmGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Alarm> alarms;
 
     public void setGroupName(String relatedAlarmsGroup) {
