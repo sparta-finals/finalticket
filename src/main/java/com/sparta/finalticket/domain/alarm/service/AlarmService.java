@@ -17,8 +17,6 @@ import com.sparta.finalticket.domain.user.repository.UserRepository;
 import com.sparta.finalticket.global.exception.alarm.AlarmGameNotFoundException;
 import com.sparta.finalticket.global.exception.alarm.AlarmNotFoundException;
 import com.sparta.finalticket.global.exception.alarm.AlarmUserNotFoundException;
-import com.sparta.finalticket.global.exception.alarm.UnauthorizedOperationException;
-import io.micrometer.jakarta9.instrument.jms.JmsObservationDocumentation;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -26,9 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
