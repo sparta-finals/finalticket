@@ -23,8 +23,4 @@ public class AlarmRequestDto {
     private Priority priority;
 
     private String groupName;
-
-    public String getGroupName() {
-        return groupName;
-    }
 }
