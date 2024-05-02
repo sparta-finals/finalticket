@@ -12,4 +12,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
 
     @Query("SELECT AVG(r.score) FROM Review r WHERE r.game.id = :gameId")
     Double calculateAverageScoreByGameId(@Param("gameId") Long gameId);
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.game.id = :gameId AND r.score > 0")
+    Long countPositiveReviews(@Param("gameId") Long gameId);
 }
