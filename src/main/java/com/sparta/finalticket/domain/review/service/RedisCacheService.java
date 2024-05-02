@@ -4,6 +4,7 @@ import com.sparta.finalticket.domain.review.entity.Review;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Set;
 
 @Service
@@ -26,6 +27,11 @@ public class RedisCacheService {
 
     public void updateReviews(Long reviewId, Review review) {
         redisService.setValues("review_" + reviewId, review.toString());
+    }
+
+    // 캐시 만료 시간 설정
+    public void cacheReviewsData(Long reviewId, Review review, Duration duration) {
+        redisService.setValues("review_" + reviewId, review.toString(), duration);
     }
 
     public void cacheReviewData(Long reviewId, Review review) {
