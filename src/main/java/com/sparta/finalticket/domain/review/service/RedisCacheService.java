@@ -1,6 +1,5 @@
 package com.sparta.finalticket.domain.review.service;
 
-import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.entity.Review;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,10 @@ public class RedisCacheService {
 
     public void updateReview(Long reviewId, Review updatedReviewData) {
         cacheReviewData(reviewId, updatedReviewData);
+    }
+
+    public void updateReviews(Long reviewId, Review review) {
+        redisService.setValues("review_" + reviewId, review.toString());
     }
 
     public void cacheReviewData(Long reviewId, Review review) {

@@ -217,6 +217,19 @@ public class ReviewService {
         return new ReviewResponseDto(updatedReview);
     }
 
+    // 모든 게임의 리뷰 통계를 업데이트하는 메서드
+    @Transactional
+    public void updateReviewStatisticsForAllGames() {
+        List<Game> games = gameRepository.findAll();
+        games.forEach(game -> reviewStatisticService.updateReviewStatistics(game.getId()));
+    }
+
+    // 모든 리뷰 데이터를 조회하는 메서드
+    @Transactional(readOnly = true)
+    public List<Review> getAllReviews() {
+        return reviewRepository.findAll();
+    }
+
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {
