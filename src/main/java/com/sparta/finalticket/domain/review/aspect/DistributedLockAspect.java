@@ -11,19 +11,20 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Component
 @Aspect
 @RequiredArgsConstructor
 public class DistributedLockAspect {
 
-    private final RedisCacheService redisCacheService;
     private final RedisReviewService redisReviewService;
     private final RedissonClient redissonClient;
 
     @Pointcut("execution(* com.sparta.finalticket.domain.review.service.ReviewService.createReview(..)) " +
-        "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.getReviewByGameId(..)) " +
-        "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.updateReview(..)) " +
-        "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.deleteReview(..))")
+            "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.getReviewByGameId(..)) " +
+            "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.updateReview(..)) " +
+            "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.deleteReview(..))")
     public void reviewServiceMethods() {
     }
 
@@ -31,15 +32,12 @@ public class DistributedLockAspect {
     public Object applyDistributedLock(ProceedingJoinPoint joinPoint) throws Throwable {
         Object result;
         Object[] args = joinPoint.getArgs();
-        Long gameId = null;
 
-        // gameId를 찾는 로직
-        for (Object arg : args) {
-            if (arg instanceof Long && gameId == null) {
-                gameId = (Long) arg;
-                break;
-            }
-        }
+        Long gameId = Arrays.stream(args)
+                .filter(arg -> arg instanceof Long)
+                .map(arg -> (Long) arg)
+                .findFirst()
+                .orElse(null);
 
         if (gameId != null) {
             RLock lock = redissonClient.getLock("reviewLock:" + gameId);
