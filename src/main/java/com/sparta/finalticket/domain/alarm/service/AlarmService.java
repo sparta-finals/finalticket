@@ -158,6 +158,11 @@ public class AlarmService {
 
             alarmRepository.save(alarm);
 
+            // Update the cache
+            String cacheKey = "alarm:user:" + user.getId() + ":game:" + gameId;
+            String updatedAlarmContent = "알람: " + user.getNickname() + "님, " + alarmUpdateRequestDto.getContent();
+            redisCacheService.updateCache(cacheKey, updatedAlarmContent, alarmUpdateRequestDto.getTimeout());
+
             // 알람 업데이트 응답 생성
             return new AlarmUpdateResponseDto(alarm.getId(), alarm.getContent(), alarm.getState(), user.getId(), gameId, alarm.getIsRead(), alarm.getPriority());
         } else {
