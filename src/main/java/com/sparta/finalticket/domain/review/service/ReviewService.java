@@ -177,9 +177,13 @@ public class ReviewService {
     @Transactional
     public ReviewResponseDto dislikeReview(Long reviewId) {
         Review review = getReviewById(reviewId);
-        review.setDislikeCount(review.getDislikeCount() + 1);
-        Review updatedReview = reviewRepository.save(review);
-        return new ReviewResponseDto(updatedReview);
+        if (review.getDislikeCount() > 0) {
+            review.setDislikeCount(review.getDislikeCount() - 1);
+            Review updatedReview = reviewRepository.save(review);
+            return new ReviewResponseDto(updatedReview);
+        } else {
+            throw new ReviewNotFoundException("이 리뷰에 대한 싫어요 수는 이미 0입니다.");
+        }
     }
 
     @Transactional

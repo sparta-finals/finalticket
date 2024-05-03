@@ -108,13 +108,6 @@ public class Review extends TimeStamped {
 		this.dislikeCount = dislikeCount;
 	}
 
-	public long getLikeCount() {
-		return likeCount != null ? likeCount.longValue() : 0L; // null일 경우 0을 반환하도록 수정
-	}
-
-	public long getDislikeCount() {
-		return dislikeCount != null ? dislikeCount.longValue() : 0L; // null일 경우 0을 반환하도록 수정
-	}
 
 	public void setReported(boolean reported) {
 		this.reported = reported;

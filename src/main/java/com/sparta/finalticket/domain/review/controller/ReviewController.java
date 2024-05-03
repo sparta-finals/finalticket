@@ -14,8 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/games/{gameId}")
@@ -68,7 +66,7 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/review/{reviewId}/like")
+    @PostMapping("/review/{reviewId}/likedislike")
     public ResponseEntity<ReviewResponseDto> likeReview(@PathVariable(name = "gameId") Long gameId,
                                                         @PathVariable(name = "reviewId") Long reviewId) {
         ReviewResponseDto responseDto = reviewService.likeReview(reviewId);
@@ -124,5 +122,4 @@ public class ReviewController {
         List<PopularReviewResponseDto> popularReviews = reviewService.getPopularReviewsByGameId(gameId, page, size);
         return ResponseEntity.ok().body(popularReviews);
     }
-
 }
