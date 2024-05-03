@@ -1,7 +1,5 @@
 package com.sparta.finalticket.domain.review.aspect;
 
-import com.sparta.finalticket.domain.review.dto.response.ReviewAspectResponseDto;
-import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.service.RedisCacheService;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
