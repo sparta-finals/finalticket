@@ -1,10 +1,13 @@
 package com.sparta.finalticket.domain.review.dto.response;
 
 import com.sparta.finalticket.domain.review.entity.Review;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -20,6 +23,8 @@ public class ReviewResponseDto {
     private Long likeCount;
     private Long dislikeCount;
     private Long recommendationCount;
+    private Long viewCount;
+    private LocalDateTime reviewTime;
 
     public ReviewResponseDto(Review review) {
         this.id = review.getId();
@@ -31,6 +36,8 @@ public class ReviewResponseDto {
         this.likeCount = review.getLikeCount();
         this.dislikeCount = review.getDislikeCount();
         this.recommendationCount = review.getRecommendationCount();
+        this.viewCount = review.getViewCount();
+        this.reviewTime = review.getReviewTime();
     }
 
     public void setId(Long id) {

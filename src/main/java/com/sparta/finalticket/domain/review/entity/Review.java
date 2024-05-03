@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -65,6 +67,9 @@ public class Review extends TimeStamped {
 	@Column
 	private Long viewCount;
 
+	@Column
+	private LocalDateTime reviewTime; // 리뷰 작성 시간대를 저장할 필드 추가
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
@@ -108,6 +113,13 @@ public class Review extends TimeStamped {
 		this.dislikeCount = dislikeCount;
 	}
 
+	public long getLikeCount() {
+		return likeCount != null ? likeCount.longValue() : 0L; // null일 경우 0을 반환하도록 수정
+	}
+
+	public long getDislikeCount() {
+		return dislikeCount != null ? dislikeCount.longValue() : 0L; // null일 경우 0을 반환하도록 수정
+	}
 
 	public void setReported(boolean reported) {
 		this.reported = reported;
@@ -119,5 +131,9 @@ public class Review extends TimeStamped {
 
 	public void setRecommendationCount(long recommendationCount) {
 		this.recommendationCount = recommendationCount;
+	}
+
+	public void setReviewTime(LocalDateTime now) {
+		this.reviewTime = now;
 	}
 }

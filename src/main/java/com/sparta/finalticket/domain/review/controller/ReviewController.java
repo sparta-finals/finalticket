@@ -8,7 +8,12 @@ import com.sparta.finalticket.domain.review.service.ReviewService;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -121,5 +126,11 @@ public class ReviewController {
                                                                             @RequestParam(name = "size", defaultValue = "10") int size) {
         List<PopularReviewResponseDto> popularReviews = reviewService.getPopularReviewsByGameId(gameId, page, size);
         return ResponseEntity.ok().body(popularReviews);
+    }
+
+    @GetMapping("/reviews/activityHour")
+    public ResponseEntity<Map<LocalTime, Long>> getReviewActivityByHour(@PathVariable(name = "gameId") Long gameId) {
+        Map<LocalTime, Long> reviewActivityByHour = reviewService.getReviewActivityByHourForGame(gameId);
+        return ResponseEntity.ok().body(reviewActivityByHour);
     }
 }

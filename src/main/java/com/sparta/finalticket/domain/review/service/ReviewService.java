@@ -20,8 +20,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.counting;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +48,7 @@ public class ReviewService {
             if (distributedReviewService.tryLock(lock, 1000, 5000)) {
                 Review review = createReviewFromRequest(gameId, requestDto);
                 review.setUser(user);
+                review.setReviewTime(LocalDateTime.now()); // 리뷰 작성 시간 저장
                 Review createdReview = reviewRepository.save(review);
                 createCacheAndRedis(gameId, createdReview);
                 reviewStatisticService.updateReviewStatistics(gameId);
@@ -268,6 +276,27 @@ public class ReviewService {
                 .map(PopularReviewResponseDto::new)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public Map<LocalTime, Long> getReviewActivityByHourForGame(Long gameId) {
+        List<Review> reviews = reviewRepository.findByGameId(gameId); // 해당 게임의 모든 리뷰를 가져옴
+        return trackReviewActivityByHour(reviews); // 시간대별 리뷰 활동을 추적하여 반환
+    }
+
+
+    public Map<LocalTime, Long> trackReviewActivityByHour(List<Review> reviews) {
+        // 리뷰가 작성된 시간대별로 카운트를 추적할 Map
+        Map<LocalTime, Long> reviewActivityByHour = new HashMap<>();
+
+        // 모든 리뷰를 시간대별로 그룹화하여 카운트
+        reviews.stream()
+                .map(review -> review.getCreatedAt().toLocalTime()) // 리뷰 작성 시간대 추출
+                .collect(Collectors.groupingBy(time -> time, counting())) // 시간대별로 그룹화하여 카운트
+                .forEach(reviewActivityByHour::put); // 결과를 Map에 저장
+
+        return reviewActivityByHour;
+    }
+
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {
