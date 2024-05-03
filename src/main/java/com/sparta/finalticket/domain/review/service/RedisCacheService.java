@@ -38,6 +38,14 @@ public class RedisCacheService {
         redisService.setValues("review_" + reviewId, review.toString());
     }
 
+    public Object getCachedData(String cacheKey) {
+        return redisService.getValues(cacheKey);
+    }
+
+    public void cacheData(String cacheKey, Object data) {
+        redisService.setValues(cacheKey, data.toString());
+    }
+
     public String getCachedReviewData(Long reviewId) {
         return redisService.getValues("review_" + reviewId);
     }
