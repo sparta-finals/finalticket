@@ -9,6 +9,7 @@ import com.sparta.finalticket.domain.review.dto.response.ReviewGameListResponseD
 import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.dto.response.ReviewUpdateResponseDto;
 import com.sparta.finalticket.domain.review.entity.Review;
+import com.sparta.finalticket.domain.review.entity.ReviewSortType;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
 import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.global.exception.review.GameIdRequiredException;
@@ -230,6 +231,29 @@ public class ReviewService {
         return reviewRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<ReviewResponseDto> filterReviewsByCriteria(Long gameId, Long minScore, Long maxScore, ReviewSortType sortType) {
+        List<Review> reviews = reviewRepository.findByGameId(gameId);
+
+        // 평점 기준으로 필터링
+        List<Review> filteredReviews = reviews.stream()
+                .filter(review -> (minScore == null || review.getScore() >= minScore) &&
+                        (maxScore == null || review.getScore() <= maxScore))
+                .toList();
+
+        // 선택된 정렬 방법에 해당하는 Comparator 인스턴스를 가져옴
+        Comparator<Review> comparator = sortType.getComparator();
+
+        // 정렬
+        List<Review> sortedReviews = filteredReviews.stream()
+                .sorted(comparator)
+                .toList();
+
+        // DTO로 변환하여 반환
+        return sortedReviews.stream()
+                .map(ReviewResponseDto::new)
+                .toList();
+    }
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {

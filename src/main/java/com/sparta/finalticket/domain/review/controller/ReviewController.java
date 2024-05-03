@@ -3,6 +3,7 @@ package com.sparta.finalticket.domain.review.controller;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.request.ReviewUpdateRequestDto;
 import com.sparta.finalticket.domain.review.dto.response.*;
+import com.sparta.finalticket.domain.review.entity.ReviewSortType;
 import com.sparta.finalticket.domain.review.service.ReviewService;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -104,5 +105,15 @@ public class ReviewController {
                                                              @PathVariable(name = "reviewId") Long reviewId) {
         ReviewResponseDto responseDto = reviewService.recommendReview(reviewId);
         return ResponseEntity.ok().body(responseDto);
+    }
+
+    @GetMapping("/reviews/filter/sorted")
+    public ResponseEntity<List<ReviewResponseDto>> filterReviewsByCriteria(
+            @PathVariable(name = "gameId") Long gameId,
+            @RequestParam(name = "minScore", required = false) Long minScore,
+            @RequestParam(name = "maxScore", required = false) Long maxScore,
+            @RequestParam(name = "sortType", defaultValue = "LATEST") ReviewSortType sortType) { // 기본값으로 최신순 설정
+        List<ReviewResponseDto> filteredReviews = reviewService.filterReviewsByCriteria(gameId, minScore, maxScore, sortType);
+        return ResponseEntity.ok().body(filteredReviews);
     }
 }
