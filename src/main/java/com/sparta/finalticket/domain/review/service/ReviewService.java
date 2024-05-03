@@ -100,8 +100,8 @@ public class ReviewService {
         RLock lock = distributedReviewService.getLock(gameId);
         try {
             if (distributedReviewService.tryLock(lock, 1000, 5000)) {
-                Review review = getReviewByIdAndGameId(gameId, reviewId);
-                Game game = getGameById(gameId);
+                Review review = ReviewByIdAndGameId(gameId, reviewId);
+                Game game = GameById(gameId);
                 review.setGame(game);
                 getCacheAndRedis(reviewId, review);
                 return new ReviewResponseDto(review);
@@ -265,14 +265,14 @@ public class ReviewService {
         review.setReview(requestDto.getReview());
         review.setScore(requestDto.getScore());
         review.setState(true);
-        Game game = getGameById(gameId);
+        Game game = GameById(gameId);
         review.setGame(game);
         return review;
     }
 
     private Review updateReviewFromRequest(Long gameId, Long reviewId, ReviewUpdateRequestDto requestDto) {
-        Review review = getReviewById(reviewId);
-        Game game = getGameById(gameId);
+        Review review = updateReviewById(reviewId);
+        Game game = GameById(gameId);
         review.setGame(game);
         review.setReview(requestDto.getReview());
         review.setScore(requestDto.getScore());
@@ -296,12 +296,12 @@ public class ReviewService {
         redisCacheService.clearReviewCache(reviewId);
     }
 
-    private Game getGameById(Long gameId) {
+    private Game GameById(Long gameId) {
         return gameRepository.findById(gameId)
             .orElseThrow(() -> new ReviewGameNotFoundException("경기를 찾을 수 없습니다."));
     }
 
-    private Review getReviewByIdAndGameId(Long gameId, Long reviewId) {
+    private Review ReviewByIdAndGameId(Long gameId, Long reviewId) {
         return (Review) reviewRepository.findReviewByGameIdAndReviewId(gameId, reviewId)
             .orElseThrow(() -> new ReviewNotFoundException("리뷰를 찾을 수 없습니다."));
     }
@@ -309,6 +309,11 @@ public class ReviewService {
     private Review getReviewById(Long reviewId) {
         return reviewRepository.findReviewByIdAndStateTrue(reviewId)
             .orElseThrow(() -> new ReviewNotFoundException("리뷰를 찾을 수 없습니다."));
+    }
+
+    private Review updateReviewById(Long reviewId) {
+        return reviewRepository.findReviewByIdAndStateTrue(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException("리뷰를 찾을 수 없습니다."));
     }
 
     private Review deleteReviewById(Long reviewId) {
