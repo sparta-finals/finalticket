@@ -1,5 +1,6 @@
 package com.sparta.finalticket.domain.review.entity;
 
+import com.sparta.finalticket.domain.comment.entity.Comment;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.timeStamped.TimeStamped;
 import com.sparta.finalticket.domain.user.entity.User;
@@ -10,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -66,6 +69,9 @@ public class Review extends TimeStamped {
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "game_id")
 	private Game game;
+
+	@OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Comment> comments;
 
 	public void setId(Long id) {
 		this.id = id;
