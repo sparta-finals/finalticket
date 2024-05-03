@@ -13,8 +13,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.stereotype.Component;
+
 @Component
-@Aspect
 @RequiredArgsConstructor
 public class DistributedLockAspect {
 
