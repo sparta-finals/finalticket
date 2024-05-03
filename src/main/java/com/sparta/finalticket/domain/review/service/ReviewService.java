@@ -144,6 +144,7 @@ public class ReviewService {
         try {
             if (distributedReviewService.tryLock(lock, 1000, 5000)) {
                 Review review = deleteReviewById(reviewId);
+                review.setUser(user);
                 Game game = new Game();
                 review.setGame(game);
                 reviewRepository.delete(review);
