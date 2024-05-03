@@ -41,12 +41,12 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     }
 
     @Override
-    public Optional<Object> findReviewByGameIdAndReviewId(Long gameId, Long reviewId) {
+    public Optional<Review> findReviewByGameIdAndReviewId(Long gameId, Long reviewId) {
         return Optional.ofNullable(
-            jpaQueryFactory.selectFrom(QReview.review1)
-                .where(QReview.review1.game.id.eq(gameId)
-                    .and(QReview.review1.id.eq(reviewId)))
-                .fetchOne()
+                jpaQueryFactory.selectFrom(QReview.review1)
+                        .where(QReview.review1.game.id.eq(gameId)
+                                .and(QReview.review1.id.eq(reviewId)))
+                        .fetchOne()
         );
     }
 
@@ -65,7 +65,6 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                 .orderBy(review.viewCount.desc())
                 .fetch();
     }
-
 
     @Override
     public List<ReviewResponseDto> getUserReviewList(User user) {
