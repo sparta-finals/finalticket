@@ -20,7 +20,7 @@ import org.hibernate.annotations.Where;
 @Table(name = "comment", indexes = {
         @Index(name = "idx_game_id", columnList = "game_id"),
         @Index(name = "idx_user_id", columnList = "user_id"),
-        @Index(name = "idx_review_id",columnList = "comment_id"),
+        @Index(name = "idx_review_id",columnList = "review_id"),
         @Index(name = "idx_state", columnList = "state")
 })
 @SQLDelete(sql = "UPDATE comment SET state = false WHERE id = ?")
