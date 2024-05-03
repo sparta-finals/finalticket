@@ -1,21 +1,15 @@
 package com.sparta.finalticket.domain.review.aspect;
 
-import com.sparta.finalticket.domain.review.service.RedisCacheService;
 import com.sparta.finalticket.domain.review.service.RedisReviewService;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
