@@ -4,10 +4,7 @@ import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.request.ReviewUpdateRequestDto;
-import com.sparta.finalticket.domain.review.dto.response.ReviewCountAndAvgResponseDto;
-import com.sparta.finalticket.domain.review.dto.response.ReviewGameListResponseDto;
-import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
-import com.sparta.finalticket.domain.review.dto.response.ReviewUpdateResponseDto;
+import com.sparta.finalticket.domain.review.dto.response.*;
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.entity.ReviewSortType;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
@@ -17,6 +14,9 @@ import com.sparta.finalticket.global.exception.review.ReviewGameNotFoundExceptio
 import com.sparta.finalticket.global.exception.review.ReviewNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -253,6 +253,15 @@ public class ReviewService {
         // DTO로 변환하여 반환
         return sortedReviews.stream()
                 .map(ReviewResponseDto::new)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PopularReviewResponseDto> getPopularReviewsByGameId(Long gameId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("viewCount").descending());
+        List<Review> popularReviews = reviewRepository.findTopPopularReviewsByGameId(gameId, pageable);
+        return popularReviews.stream()
+                .map(PopularReviewResponseDto::new)
                 .toList();
     }
 

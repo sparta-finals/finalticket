@@ -62,6 +62,9 @@ public class Review extends TimeStamped {
 	@Column
 	private Long recommendationCount;
 
+	@Column
+	private Long viewCount;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;

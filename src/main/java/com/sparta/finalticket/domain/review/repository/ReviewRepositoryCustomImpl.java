@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -55,6 +56,16 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
             .where(QReview.review1.game.id.eq(gameId))
             .fetch();
     }
+
+    @Override
+    public List<Review> findTopPopularReviewsByGameId(Long gameId, Pageable pageable) {
+        QReview review = QReview.review1;
+        return jpaQueryFactory.selectFrom(review)
+                .where(review.game.id.eq(gameId))
+                .orderBy(review.viewCount.desc())
+                .fetch();
+    }
+
 
     @Override
     public List<ReviewResponseDto> getUserReviewList(User user) {

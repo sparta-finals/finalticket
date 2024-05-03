@@ -116,4 +116,13 @@ public class ReviewController {
         List<ReviewResponseDto> filteredReviews = reviewService.filterReviewsByCriteria(gameId, minScore, maxScore, sortType);
         return ResponseEntity.ok().body(filteredReviews);
     }
+
+    @GetMapping("/reviews/popular")
+    public ResponseEntity<List<PopularReviewResponseDto>> getPopularReviews(@PathVariable(name = "gameId") Long gameId,
+                                                                            @RequestParam(name = "page", defaultValue = "0") int page,
+                                                                            @RequestParam(name = "size", defaultValue = "10") int size) {
+        List<PopularReviewResponseDto> popularReviews = reviewService.getPopularReviewsByGameId(gameId, page, size);
+        return ResponseEntity.ok().body(popularReviews);
+    }
+
 }
