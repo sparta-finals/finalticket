@@ -2,18 +2,16 @@ package com.sparta.finalticket.domain.review.dto.response;
 
 import com.sparta.finalticket.domain.review.entity.Genre;
 import com.sparta.finalticket.domain.review.entity.Review;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewResponseDto {
+public class ReviewGenreResponseDto {
 
     private Long id;
     private String review;
@@ -26,8 +24,9 @@ public class ReviewResponseDto {
     private Long recommendationCount;
     private Long viewCount;
     private LocalDateTime reviewTime;
+    private Genre genre;
 
-    public ReviewResponseDto(Review review) {
+    public ReviewGenreResponseDto(Review review) {
         this.id = review.getId();
         this.review = review.getReview();
         this.score = review.getScore();
@@ -39,34 +38,6 @@ public class ReviewResponseDto {
         this.recommendationCount = review.getRecommendationCount();
         this.viewCount = review.getViewCount();
         this.reviewTime = review.getReviewTime();
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setReview(String review) {
-        this.review = review;
-    }
-
-    public void setScore(Long score) {
-        this.score = score;
-    }
-
-    public void setState(Boolean state) {
-        this.state = state;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public void setGameId(Long gameId) {
-        this.gameId = gameId;
-    }
-
-    public void setRecommendationCount(Long recommendationCount) {
-        this.recommendationCount = recommendationCount;
+        this.genre = review.getGenre();
     }
 }
-

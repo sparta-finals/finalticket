@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewRequestDto {
+public class ReviewGenreRequestDto {
 
     private String review;
 

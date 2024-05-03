@@ -3,6 +3,7 @@ package com.sparta.finalticket.domain.review.controller;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.request.ReviewUpdateRequestDto;
 import com.sparta.finalticket.domain.review.dto.response.*;
+import com.sparta.finalticket.domain.review.entity.Genre;
 import com.sparta.finalticket.domain.review.entity.ReviewSortType;
 import com.sparta.finalticket.domain.review.service.ReviewService;
 import com.sparta.finalticket.domain.user.entity.User;
@@ -133,4 +134,12 @@ public class ReviewController {
         Map<LocalTime, Long> reviewActivityByHour = reviewService.getReviewActivityByHourForGame(gameId);
         return ResponseEntity.ok().body(reviewActivityByHour);
     }
+
+    @GetMapping("/reviews/genre")
+    public ResponseEntity<List<ReviewGenreResponseDto>> getReviewsByGenre(
+            @PathVariable(name = "gameId") Long gameId) {
+        List<ReviewGenreResponseDto> reviews = reviewService.getReviewsByGenre(gameId);
+        return ResponseEntity.ok().body(reviews);
+    }
+
 }

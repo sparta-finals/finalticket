@@ -5,6 +5,7 @@ import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.request.ReviewUpdateRequestDto;
 import com.sparta.finalticket.domain.review.dto.response.*;
+import com.sparta.finalticket.domain.review.entity.Genre;
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.entity.ReviewSortType;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
@@ -74,11 +75,11 @@ public class ReviewService {
                         .map(ReviewGameListResponseDto::new)
                         .toList();
             } else {
-                throw new ReviewNotFoundException("게임 ID에 대한 리뷰 조회를 위한 락 획득에 실패했습니다.");
+                throw new ReviewNotFoundException("경기 ID에 대한 리뷰 조회를 위한 락 획득에 실패했습니다.");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new ReviewNotFoundException("게임 ID에 대한 리뷰 조회를 위해 락을 획득하는 도중에 중단되었습니다.");
+            throw new ReviewNotFoundException("경기 ID에 대한 리뷰 조회를 위해 락을 획득하는 도중에 중단되었습니다.");
         } finally {
             distributedReviewService.unlock(lock);
         }
@@ -297,6 +298,25 @@ public class ReviewService {
         return reviewActivityByHour;
     }
 
+    public List<ReviewGenreResponseDto> getReviewsByGenre(Long gameId) {
+        RLock lock = distributedReviewService.getLock(gameId);
+        try {
+            if (distributedReviewService.tryLock(lock, 1000, 5000)) {
+                List<Review> reviews = reviewRepository.findGameById(gameId);
+                return reviews.stream()
+                        .map(ReviewGenreResponseDto::new)
+                        .toList();
+            } else {
+                throw new ReviewNotFoundException("경기 ID에 대한 리뷰 조회를 위한 락 획득에 실패했습니다.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ReviewNotFoundException("경기 ID에 대한 리뷰 조회를 위해 락을 획득하는 도중에 중단되었습니다.");
+        } finally {
+            distributedReviewService.unlock(lock);
+        }
+    }
+
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {
@@ -307,6 +327,7 @@ public class ReviewService {
         review.setReview(requestDto.getReview());
         review.setScore(requestDto.getScore());
         review.setState(true);
+        review.setGenre(requestDto.getGenre());
         Game game = GameById(gameId);
         review.setGame(game);
         return review;

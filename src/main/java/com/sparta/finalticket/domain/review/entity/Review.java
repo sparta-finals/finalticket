@@ -24,7 +24,8 @@ import java.util.List;
 @Table(name = "review", indexes = {
 	@Index(name = "idx_game_id", columnList = "game_id"),
 	@Index(name = "idx_user_id", columnList = "user_id"),
-	@Index(name = "idx_state", columnList = "state")
+	@Index(name = "idx_state", columnList = "state"),
+    @Index(name = "idx_genre", columnList = "genre")
 })
 @SQLDelete(sql = "UPDATE review SET state = false WHERE id = ?")
 @Where(clause = "state = true")
@@ -69,6 +70,9 @@ public class Review extends TimeStamped {
 
 	@Column
 	private LocalDateTime reviewTime; // 리뷰 작성 시간대를 저장할 필드 추가
+
+	@Enumerated(EnumType.STRING)
+	private Genre genre; // 게임의 장르 정보
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
@@ -135,5 +139,9 @@ public class Review extends TimeStamped {
 
 	public void setReviewTime(LocalDateTime now) {
 		this.reviewTime = now;
+	}
+
+	public void setGenre(Genre genre) {
+		this.genre = genre;
 	}
 }

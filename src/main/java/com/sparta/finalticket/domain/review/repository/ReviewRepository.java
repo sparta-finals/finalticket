@@ -1,5 +1,6 @@
 package com.sparta.finalticket.domain.review.repository;
 
+import com.sparta.finalticket.domain.review.entity.Genre;
 import com.sparta.finalticket.domain.review.entity.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,4 +16,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
 
     @Query("SELECT COUNT(r) FROM Review r WHERE r.game.id = :gameId AND r.score > 0")
     Long countPositiveReviews(@Param("gameId") Long gameId);
+
+    List<Review> findGameById(Long gameId);
 }
