@@ -144,6 +144,10 @@ public class Review extends TimeStamped {
 		this.reviewTime = now;
 	}
 
+	public void setUserTrustScore(Double userTrustScore) {
+		this.userTrustScore = userTrustScore;
+	}
+
 	public void setGenre(Genre genre) {
 		this.genre = genre;
 	}

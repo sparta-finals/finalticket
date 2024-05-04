@@ -47,6 +47,7 @@ public class ReviewService {
                 Review review = createReviewFromRequest(gameId, requestDto);
                 review.setUser(user);
                 review.setReviewTime(LocalDateTime.now()); // 리뷰 작성 시간 저장
+                review.setUserTrustScore(requestDto.getUserTrustScore());
                 Review createdReview = reviewRepository.save(review);
                 createCacheAndRedis(gameId, createdReview);
                 reviewStatisticService.updateReviewStatistics(gameId);
@@ -377,6 +378,15 @@ public class ReviewService {
         List<Review> userReviews = reviewRepository.findByUser(user);
         return userReviews.stream()
                 .map(ReviewResponseDto::new)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewListResponseDto> getAllReviewsByGameId(Long gameId) {
+        List<Review> reviews = reviewRepository.findByGameId(gameId);
+        return reviews.stream()
+                .sorted(Comparator.comparing(Review::getCreatedAt).reversed()) // 최신순으로 정렬
+                .map(ReviewListResponseDto::new)
                 .toList();
     }
 

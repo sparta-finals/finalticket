@@ -167,4 +167,11 @@ public class ReviewController {
         return ResponseEntity.ok().body(userReviews);
     }
 
+    @GetMapping("/reviews/all")
+    public ResponseEntity<List<ReviewListResponseDto>> getAllReviewsByGameId(
+            @PathVariable(name = "gameId") Long gameId) {
+        List<ReviewListResponseDto> reviews = reviewService.getAllReviewsByGameId(gameId);
+        return ResponseEntity.ok().body(reviews);
+    }
+
 }
