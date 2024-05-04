@@ -339,7 +339,6 @@ public class ReviewService {
                 .toList();
     }
 
-
     @Transactional(readOnly = true)
     public List<ReviewResponseDto> getReviewsWithTrustScore(Long gameId, ReviewSortType sortType) {
         if (gameId == null) {
