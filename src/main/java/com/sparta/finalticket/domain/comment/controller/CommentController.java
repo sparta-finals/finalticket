@@ -4,6 +4,7 @@ import com.sparta.finalticket.domain.comment.dto.request.CommentRequestDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentListResponseDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentResponseDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentUpdateResponseDto;
+import com.sparta.finalticket.domain.comment.entity.ReactionType;
 import com.sparta.finalticket.domain.comment.service.CommentService;
 import com.sparta.finalticket.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -68,5 +69,23 @@ public class CommentController {
         User user = (User) httpServletRequest.getAttribute("user");
         commentService.deleteComment(gameId, reviewId, commentId, user);
         return ResponseEntity.noContent().build();
+    }
+
+    // 댓글에 대한 좋아요 기능 추가
+    @PostMapping("/comment/{commentId}/like")
+    public ResponseEntity<CommentResponseDto> likeComment(@PathVariable(name = "commentId") Long commentId,
+                                                          HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        CommentResponseDto responseDto = commentService.reactToComment(commentId, ReactionType.LIKE, user);
+        return ResponseEntity.ok().body(responseDto);
+    }
+
+    // 댓글에 대한 싫어요 기능 추가
+    @PostMapping("/comment/{commentId}/dislike")
+    public ResponseEntity<CommentResponseDto> dislikeComment(@PathVariable(name = "commentId") Long commentId,
+                                                             HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        CommentResponseDto responseDto = commentService.reactToComment(commentId, ReactionType.DISLIKE, user);
+        return ResponseEntity.ok().body(responseDto);
     }
 }

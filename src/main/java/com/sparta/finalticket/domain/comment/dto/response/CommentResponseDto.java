@@ -16,6 +16,9 @@ public class CommentResponseDto {
     private Long userId;
     private Long gameId;
     private Long reviewId;
+    private Long likes; // 좋아요 수
+    private Long dislikes; // 싫어요 수
+
 
     public CommentResponseDto(Comment comment) {
         this.id = comment.getId();
@@ -24,5 +27,7 @@ public class CommentResponseDto {
         this.userId = comment.getUser().getId();
         this.gameId = comment.getGame().getId();
         this.reviewId = comment.getReview().getId();
+        this.likes = comment.getLikes();
+        this.dislikes = comment.getDislikes();
     }
 }

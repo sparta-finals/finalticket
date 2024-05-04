@@ -37,6 +37,12 @@ public class Comment extends TimeStamped {
     @Column
     private Boolean state;
 
+    @Column
+    private Long likes; // 좋아요 수
+
+    @Column
+    private Long dislikes; // 싫어요 수
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -67,5 +73,13 @@ public class Comment extends TimeStamped {
 
     public void setReview(Review review) {
         this.review = review;
+    }
+
+    public void setLikes(Long likes) {
+        this.likes = likes;
+    }
+
+    public void setDislikes(Long dislikes) {
+        this.dislikes = dislikes;
     }
 }
