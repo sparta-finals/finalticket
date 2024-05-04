@@ -55,4 +55,12 @@ public class CommentReport {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public void setReportDate(LocalDateTime reportDate) {
+        this.reportDate = reportDate;
+    }
+
+    public void setReportStatus(ReportStatus reportStatus) {
+        this.reportStatus = reportStatus;
+    }
 }
