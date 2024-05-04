@@ -19,7 +19,6 @@ public class CommentResponseDto {
     private Long likes; // 좋아요 수
     private Long dislikes; // 싫어요 수
 
-
     public CommentResponseDto(Comment comment) {
         this.id = comment.getId();
         this.content = comment.getContent();
