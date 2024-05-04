@@ -440,7 +440,7 @@ public class ReviewService {
             .orElseThrow(() -> new ReviewNotFoundException("리뷰를 찾을 수 없습니다."));
     }
 
-    private Review getReviewById(Long reviewId) {
+    Review getReviewById(Long reviewId) {
         return reviewRepository.findReviewByIdAndStateTrue(reviewId)
             .orElseThrow(() -> new ReviewNotFoundException("리뷰를 찾을 수 없습니다."));
     }

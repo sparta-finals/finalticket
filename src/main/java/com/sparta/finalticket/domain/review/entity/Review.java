@@ -74,6 +74,15 @@ public class Review extends TimeStamped {
 	@Column
 	private Double userTrustScore;
 
+	@Column
+	private String sharePlatform; // 공유 플랫폼 (e.g., "Facebook", "Twitter", "WhatsApp", etc.)
+
+	@Column
+	private String shareMessage; // 공유 메시지
+
+	@Column
+	private String shareLink; // 공유 링크
+
 	@Enumerated(EnumType.STRING)
 	private Genre genre; // 게임의 장르 정보
 
