@@ -6,6 +6,7 @@ import com.sparta.finalticket.domain.comment.dto.response.CommentResponseDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentUpdateResponseDto;
 import com.sparta.finalticket.domain.comment.entity.Comment;
 import com.sparta.finalticket.domain.comment.entity.CommentReaction;
+import com.sparta.finalticket.domain.comment.entity.CommentSortType;
 import com.sparta.finalticket.domain.comment.entity.ReactionType;
 import com.sparta.finalticket.domain.comment.repository.CommentReactionRepository;
 import com.sparta.finalticket.domain.comment.repository.CommentRepository;
@@ -139,6 +140,14 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
+    @Transactional
+    public List<CommentListResponseDto> getAllCommentSorted(Long gameId, Long reviewId, User user, CommentSortType sortType) {
+        List<Comment> commentList = commentRepository.findByUserAndGameIdAndReviewId(user, gameId, reviewId);
+        return commentList.stream()
+                .map(CommentListResponseDto::new)
+                .sorted(sortType.getComparator())
+                .toList();
+    }
 
     private Game GameById(Long gameId) {
         return gameRepository.findById(gameId)

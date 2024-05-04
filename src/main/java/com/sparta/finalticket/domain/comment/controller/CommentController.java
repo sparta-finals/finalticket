@@ -1,9 +1,11 @@
 package com.sparta.finalticket.domain.comment.controller;
 
 import com.sparta.finalticket.domain.comment.dto.request.CommentRequestDto;
+import com.sparta.finalticket.domain.comment.dto.request.CommentSortTypeRequestDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentListResponseDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentResponseDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentUpdateResponseDto;
+import com.sparta.finalticket.domain.comment.entity.CommentSortType;
 import com.sparta.finalticket.domain.comment.entity.ReactionType;
 import com.sparta.finalticket.domain.comment.service.CommentService;
 import com.sparta.finalticket.domain.user.entity.User;
@@ -88,4 +90,16 @@ public class CommentController {
         CommentResponseDto responseDto = commentService.reactToComment(commentId, ReactionType.DISLIKE, user);
         return ResponseEntity.ok().body(responseDto);
     }
+
+    @GetMapping("/comments/sorted")
+    public ResponseEntity<List<CommentListResponseDto>> getAllCommentSorted(@PathVariable(name = "gameId") Long gameId,
+                                                                            @PathVariable(name = "reviewId") Long reviewId,
+                                                                            @RequestParam(name = "sortType", defaultValue = "LATEST") CommentSortTypeRequestDto sortType,
+                                                                            HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        CommentSortType sortTypeEnum = sortType.mapToSortType();
+        List<CommentListResponseDto> commentList = commentService.getAllCommentSorted(gameId, reviewId, user, sortTypeEnum);
+        return ResponseEntity.ok().body(commentList);
+    }
+
 }
