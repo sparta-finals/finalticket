@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -36,11 +37,25 @@ public class CommentService {
     private final CommentReactionRepository commentReactionRepository;
     private final ParentCommentRepository parentCommentRepository;
 
+    // 부적절한 내용이나 욕설 패턴
+    private static final Pattern INAPPROPRIATE_PATTERN = Pattern.compile("욕설|부적절한 내용|비속어");
+
+    // 댓글 필터링 메소드
+    private boolean isCommentFiltered(String content) {
+        return INAPPROPRIATE_PATTERN.matcher(content).find();
+    }
+
+
     @Transactional
     public CommentResponseDto createComment(Long gameId, Long reviewId, CommentRequestDto requestDto, User user) {
         Comment comment = new Comment();
-        comment.setContent(requestDto.getContent());
-        comment.setState(true);
+        String filteredContent = requestDto.getContent();
+        if (isCommentFiltered(filteredContent)) {
+            // 필터링된 댓글은 자동으로 숨김 처리
+            comment.setState(false);
+            filteredContent = "이 댓글은 부적절한 내용을 포함하고 있습니다.";
+        }
+        comment.setContent(filteredContent);
         comment.setUser(user);
 
         Game game = GameById(gameId);
@@ -76,8 +91,13 @@ public class CommentService {
     @Transactional
     public CommentUpdateResponseDto updateComment(Long gameId, Long reviewId, Long commentId, CommentRequestDto requestDto, User user) {
         Comment comment = updateCommentById(commentId);
-        comment.setContent(requestDto.getContent());
-        comment.setState(true);
+        String filteredContent = requestDto.getContent();
+        if (isCommentFiltered(filteredContent)) {
+            // 필터링된 댓글은 자동으로 숨김 처리
+            comment.setState(false);
+            filteredContent = "이 댓글은 부적절한 내용을 포함하고 있습니다.";
+        }
+        comment.setContent(filteredContent);
         comment.setUser(user);
 
         Game game = GameById(gameId);
