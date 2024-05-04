@@ -3,7 +3,6 @@ package com.sparta.finalticket.domain.review.controller;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.request.ReviewUpdateRequestDto;
 import com.sparta.finalticket.domain.review.dto.response.*;
-import com.sparta.finalticket.domain.review.entity.Genre;
 import com.sparta.finalticket.domain.review.entity.ReviewSortType;
 import com.sparta.finalticket.domain.review.service.ReviewService;
 import com.sparta.finalticket.domain.user.entity.User;
@@ -16,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -178,5 +178,15 @@ public class ReviewController {
     public ResponseEntity<ReviewScoreAnalysisResponseDto> analyzeReviewScores(@PathVariable(name = "gameId") Long gameId) {
         ReviewScoreAnalysisResponseDto analysisResponseDto = reviewService.analyzeReviewScores(gameId);
         return ResponseEntity.ok().body(analysisResponseDto);
+    }
+
+    @GetMapping("/reviews/filterByDate")
+    public ResponseEntity<List<ReviewResponseDto>> filterReviewsByCriteria(
+            @PathVariable(name = "gameId") Long gameId,
+            @RequestParam(name = "minScore", required = false) Long minScore,
+            @RequestParam(name = "maxScore", required = false) Long maxScore,
+            @RequestParam(name = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromDate) {
+        List<ReviewResponseDto> filteredReviews = reviewService.retrieveFilteredReviews(gameId, minScore, maxScore, fromDate);
+        return ResponseEntity.ok().body(filteredReviews);
     }
 }

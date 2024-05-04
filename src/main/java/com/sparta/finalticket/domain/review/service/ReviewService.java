@@ -5,7 +5,6 @@ import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.finalticket.domain.review.dto.request.ReviewUpdateRequestDto;
 import com.sparta.finalticket.domain.review.dto.response.*;
-import com.sparta.finalticket.domain.review.entity.Genre;
 import com.sparta.finalticket.domain.review.entity.Review;
 import com.sparta.finalticket.domain.review.entity.ReviewSortType;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
@@ -416,6 +415,30 @@ public class ReviewService {
         // 리뷰 점수 분석 및 비교 결과를 DTO로 반환
         return new ReviewScoreAnalysisResponseDto(maxScore, minScore, averageScore);
     }
+
+    @Transactional(readOnly = true)
+    public List<ReviewResponseDto> retrieveFilteredReviews(Long gameId, Long minScore, Long maxScore, LocalDateTime fromDate) {
+        List<Review> reviews = reviewRepository.findByGameId(gameId);
+
+        // 평점 기준으로 필터링
+        List<Review> filteredReviews = reviews.stream()
+                .filter(review -> (minScore == null || review.getScore() >= minScore) &&
+                        (maxScore == null || review.getScore() <= maxScore))
+                .toList();
+
+        // 최근 작성된 리뷰만 필터링
+        if (fromDate != null) {
+            filteredReviews = filteredReviews.stream()
+                    .filter(review -> review.getCreatedAt().isAfter(fromDate))
+                    .toList();
+        }
+
+        // DTO로 변환하여 반환
+        return filteredReviews.stream()
+                .map(ReviewResponseDto::new)
+                .toList();
+    }
+
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {
