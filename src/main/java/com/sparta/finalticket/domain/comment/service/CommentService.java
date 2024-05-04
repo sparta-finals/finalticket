@@ -1,15 +1,15 @@
 package com.sparta.finalticket.domain.comment.service;
 
 import com.sparta.finalticket.domain.comment.dto.request.CommentRequestDto;
+import com.sparta.finalticket.domain.comment.dto.request.ParentCommentRequestDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentListResponseDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentResponseDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentUpdateResponseDto;
-import com.sparta.finalticket.domain.comment.entity.Comment;
-import com.sparta.finalticket.domain.comment.entity.CommentReaction;
-import com.sparta.finalticket.domain.comment.entity.CommentSortType;
-import com.sparta.finalticket.domain.comment.entity.ReactionType;
+import com.sparta.finalticket.domain.comment.dto.response.ParentCommentResponseDto;
+import com.sparta.finalticket.domain.comment.entity.*;
 import com.sparta.finalticket.domain.comment.repository.CommentReactionRepository;
 import com.sparta.finalticket.domain.comment.repository.CommentRepository;
+import com.sparta.finalticket.domain.comment.repository.ParentCommentRepository;
 import com.sparta.finalticket.domain.game.entity.Game;
 import com.sparta.finalticket.domain.game.repository.GameRepository;
 import com.sparta.finalticket.domain.review.entity.Review;
@@ -34,6 +34,7 @@ public class CommentService {
     private final ReviewRepository reviewRepository;
     private final CommentRepository commentRepository;
     private final CommentReactionRepository commentReactionRepository;
+    private final ParentCommentRepository parentCommentRepository;
 
     @Transactional
     public CommentResponseDto createComment(Long gameId, Long reviewId, CommentRequestDto requestDto, User user) {
@@ -148,6 +149,27 @@ public class CommentService {
                 .sorted(sortType.getComparator())
                 .toList();
     }
+
+    @Transactional
+    public ParentCommentResponseDto createParentComment(Long gameId, Long reviewId, Long commentId, ParentCommentRequestDto requestDto, User user) {
+        ParentComment parentComment = new ParentComment();
+        parentComment.setContent(requestDto.getContent());
+        parentComment.setState(true);
+        parentComment.setUser(user);
+
+        Game game = GameById(gameId);
+        parentComment.setGame(game);
+
+        Review review = ReviewById(reviewId);
+        parentComment.setReview(review);
+
+        Comment originalComment = getCommentById(commentId);
+        parentComment.setComment(originalComment); // 원본 댓글에 대한 참조 설정
+
+        ParentComment createdParentComment = parentCommentRepository.save(parentComment);
+        return new ParentCommentResponseDto(createdParentComment);
+    }
+
 
     private Game GameById(Long gameId) {
         return gameRepository.findById(gameId)

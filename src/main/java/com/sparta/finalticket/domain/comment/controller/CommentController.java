@@ -2,9 +2,11 @@ package com.sparta.finalticket.domain.comment.controller;
 
 import com.sparta.finalticket.domain.comment.dto.request.CommentRequestDto;
 import com.sparta.finalticket.domain.comment.dto.request.CommentSortTypeRequestDto;
+import com.sparta.finalticket.domain.comment.dto.request.ParentCommentRequestDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentListResponseDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentResponseDto;
 import com.sparta.finalticket.domain.comment.dto.response.CommentUpdateResponseDto;
+import com.sparta.finalticket.domain.comment.dto.response.ParentCommentResponseDto;
 import com.sparta.finalticket.domain.comment.entity.CommentSortType;
 import com.sparta.finalticket.domain.comment.entity.ReactionType;
 import com.sparta.finalticket.domain.comment.service.CommentService;
@@ -100,6 +102,17 @@ public class CommentController {
         CommentSortType sortTypeEnum = sortType.mapToSortType();
         List<CommentListResponseDto> commentList = commentService.getAllCommentSorted(gameId, reviewId, user, sortTypeEnum);
         return ResponseEntity.ok().body(commentList);
+    }
+
+    @PostMapping("/comment/{commentId}/parent")
+    public ResponseEntity<ParentCommentResponseDto> postParentComment(@PathVariable(name = "gameId") Long gameId,
+                                                                      @PathVariable(name = "reviewId") Long reviewId,
+                                                                      @PathVariable(name = "commentId") Long commentId,
+                                                                      @RequestBody @Valid ParentCommentRequestDto requestDto,
+                                                                      HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        ParentCommentResponseDto parentCommentResponseDto = commentService.createParentComment(gameId, reviewId, commentId, requestDto, user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(parentCommentResponseDto);
     }
 
 }
