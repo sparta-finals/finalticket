@@ -372,6 +372,14 @@ public class ReviewService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<ReviewResponseDto> getUserReviews(User user) {
+        List<Review> userReviews = reviewRepository.findByUser(user);
+        return userReviews.stream()
+                .map(ReviewResponseDto::new)
+                .toList();
+    }
+
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {
             throw new GameIdRequiredException("게임 ID가 필요합니다.");

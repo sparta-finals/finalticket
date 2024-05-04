@@ -160,4 +160,11 @@ public class ReviewController {
         return ResponseEntity.ok().body(sortedReviews);
     }
 
+    @GetMapping("/user/reviews")
+    public ResponseEntity<List<ReviewResponseDto>> getUserReviews(HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        List<ReviewResponseDto> userReviews = reviewService.getUserReviews(user);
+        return ResponseEntity.ok().body(userReviews);
+    }
+
 }

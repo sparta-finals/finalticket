@@ -2,6 +2,7 @@ package com.sparta.finalticket.domain.review.repository;
 
 import com.sparta.finalticket.domain.review.entity.Genre;
 import com.sparta.finalticket.domain.review.entity.Review;
+import com.sparta.finalticket.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +19,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
     Long countPositiveReviews(@Param("gameId") Long gameId);
 
     List<Review> findGameById(Long gameId);
+
+    List<Review> findByUser(User user);
 }
