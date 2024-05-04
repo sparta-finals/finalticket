@@ -45,6 +45,9 @@ public class Comment extends TimeStamped {
     @Column
     private Long dislikes; // 싫어요 수
 
+    @Column
+    private Boolean anonymous; // Add the anonymous field
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -86,5 +89,9 @@ public class Comment extends TimeStamped {
 
     public void setDislikes(Long dislikes) {
         this.dislikes = dislikes;
+    }
+
+    public void setAnonymous(Boolean anonymous) {
+        this.anonymous = anonymous;
     }
 }

@@ -12,4 +12,6 @@ public class CommentRequestDto {
     private String content;
 
     private Boolean state;
+
+    private Boolean anonymous;
 }

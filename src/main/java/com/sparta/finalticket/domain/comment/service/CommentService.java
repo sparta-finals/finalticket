@@ -45,7 +45,6 @@ public class CommentService {
         return INAPPROPRIATE_PATTERN.matcher(content).find();
     }
 
-
     @Transactional
     public CommentResponseDto createComment(Long gameId, Long reviewId, CommentRequestDto requestDto, User user) {
         Comment comment = new Comment();
@@ -63,6 +62,12 @@ public class CommentService {
 
         Review review = ReviewById(reviewId);
         comment.setReview(review);
+
+
+        if (requestDto.getAnonymous()) {
+            // 익명 댓글일 경우 작성자 정보를 저장하지 않음
+            comment.setAnonymous(true);
+        }
 
         Comment createdComment = commentRepository.save(comment);
         return new CommentResponseDto(createdComment);
