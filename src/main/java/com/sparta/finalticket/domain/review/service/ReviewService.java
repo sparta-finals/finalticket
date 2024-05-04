@@ -287,7 +287,6 @@ public class ReviewService {
         return trackReviewActivityByHour(reviews); // 시간대별 리뷰 활동을 추적하여 반환
     }
 
-
     public Map<LocalTime, Long> trackReviewActivityByHour(List<Review> reviews) {
         // 리뷰가 작성된 시간대별로 카운트를 추적할 Map
         Map<LocalTime, Long> reviewActivityByHour = new HashMap<>();
@@ -392,6 +391,30 @@ public class ReviewService {
                 .sorted(Comparator.comparing(Review::getCreatedAt).reversed()) // 최신순으로 정렬
                 .map(ReviewListResponseDto::new)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public ReviewScoreAnalysisResponseDto analyzeReviewScores(Long gameId) {
+        List<Review> reviews = reviewRepository.findByGameId(gameId);
+
+        // 모든 리뷰의 점수를 추출하여 리스트로 변환
+        List<Long> scores = reviews.stream()
+                .map(Review::getScore)
+                .sorted(Comparator.reverseOrder()) // 평점을 내림차순으로 정렬
+                .toList();
+
+        // 최고 평점 및 최저 평점을 구함
+        Long maxScore = scores.isEmpty() ? 0L : scores.get(0); // 정렬된 리스트에서 첫 번째 요소가 최고 평점
+        Long minScore = scores.isEmpty() ? 0L : scores.get(scores.size() - 1); // 정렬된 리스트에서 마지막 요소가 최저 평점
+
+        // 평균 평점을 계산
+        Double averageScore = scores.stream()
+                .mapToDouble(Long::doubleValue)
+                .average()
+                .orElse(0.0);
+
+        // 리뷰 점수 분석 및 비교 결과를 DTO로 반환
+        return new ReviewScoreAnalysisResponseDto(maxScore, minScore, averageScore);
     }
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {

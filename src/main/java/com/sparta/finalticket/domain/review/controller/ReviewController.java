@@ -174,6 +174,9 @@ public class ReviewController {
         return ResponseEntity.ok().body(reviews);
     }
 
-
-
+    @GetMapping("/reviews/analysis")
+    public ResponseEntity<ReviewScoreAnalysisResponseDto> analyzeReviewScores(@PathVariable(name = "gameId") Long gameId) {
+        ReviewScoreAnalysisResponseDto analysisResponseDto = reviewService.analyzeReviewScores(gameId);
+        return ResponseEntity.ok().body(analysisResponseDto);
+    }
 }
