@@ -71,6 +71,9 @@ public class Review extends TimeStamped {
 	@Column
 	private LocalDateTime reviewTime; // 리뷰 작성 시간대를 저장할 필드 추가
 
+	@Column
+	private Double userTrustScore;
+
 	@Enumerated(EnumType.STRING)
 	private Genre genre; // 게임의 장르 정보
 

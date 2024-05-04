@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,4 +23,6 @@ public class ReviewRequestDto {
     private Long dislikeCount;
 
     private Genre genre;
+
+    private Double userTrustScore;
 }

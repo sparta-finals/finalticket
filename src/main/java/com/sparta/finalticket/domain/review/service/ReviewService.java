@@ -23,10 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.counting;
@@ -317,6 +314,63 @@ public class ReviewService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<ReviewResponseDto> filterReviewsByTrustScore(Long gameId, Long minScore, Long maxScore, ReviewSortType sortType) {
+        List<Review> reviews = reviewRepository.findByGameId(gameId);
+
+        // 평점 기준으로 필터링
+        List<Review> filteredReviews = reviews.stream()
+                .filter(review -> (minScore == null || review.getScore() >= minScore) &&
+                        (maxScore == null || review.getScore() <= maxScore))
+                .toList();
+
+        // 선택된 정렬 방법에 해당하는 Comparator 인스턴스를 가져옴
+        Comparator<Review> comparator = sortType.getComparator();
+
+        // 정렬
+        List<Review> sortedReviews = filteredReviews.stream()
+                .sorted(comparator)
+                .toList();
+
+        // DTO로 변환하여 반환
+        return sortedReviews.stream()
+                .map(ReviewResponseDto::new)
+                .toList();
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<ReviewResponseDto> getReviewsWithTrustScore(Long gameId, ReviewSortType sortType) {
+        if (gameId == null) {
+            throw new IllegalArgumentException("경기 ID는 null일 수 없습니다.");
+        }
+
+        Optional<Review> reviews = reviewRepository.findById(gameId);
+
+        if (reviews == null || reviews.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 리뷰 작성자의 신뢰도를 기준으로 정렬
+        Comparator<Review> comparator = Comparator.comparingDouble(Review::getUserTrustScore).reversed();
+
+        // 선택된 정렬 방법에 따라 정렬
+        if (sortType == ReviewSortType.LATEST) {
+            comparator = comparator.thenComparing(Comparator.comparing(Review::getCreatedAt).reversed());
+        } else if (sortType == ReviewSortType.HIGHEST_SCORE) {
+            comparator = comparator.thenComparingLong(Review::getViewCount).reversed();
+        }
+
+        // 정렬
+        List<Review> sortedReviews = reviews.stream()
+                .sorted(comparator)
+                .toList();
+
+        // DTO로 변환하여 반환
+        return sortedReviews.stream()
+                .map(ReviewResponseDto::new)
+                .toList();
+    }
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {

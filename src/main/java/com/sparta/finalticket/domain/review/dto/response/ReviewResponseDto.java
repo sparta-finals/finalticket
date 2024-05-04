@@ -26,6 +26,7 @@ public class ReviewResponseDto {
     private Long recommendationCount;
     private Long viewCount;
     private LocalDateTime reviewTime;
+    private Double userTrustScore;
 
     public ReviewResponseDto(Review review) {
         this.id = review.getId();
@@ -39,6 +40,7 @@ public class ReviewResponseDto {
         this.recommendationCount = review.getRecommendationCount();
         this.viewCount = review.getViewCount();
         this.reviewTime = review.getReviewTime();
+        this.userTrustScore = review.getUserTrustScore();
     }
 
     public void setId(Long id) {

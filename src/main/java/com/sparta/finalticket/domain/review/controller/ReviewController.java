@@ -142,4 +142,22 @@ public class ReviewController {
         return ResponseEntity.ok().body(reviews);
     }
 
+    @GetMapping("/reviews/filter/trustScore")
+    public ResponseEntity<List<ReviewResponseDto>> getReviewsFilteredByTrustScore(
+            @PathVariable(name = "gameId") Long gameId,
+            @RequestParam(name = "minScore", required = false) Long minScore,
+            @RequestParam(name = "maxScore", required = false) Long maxScore,
+            @RequestParam(name = "sortType", defaultValue = "LATEST") ReviewSortType sortType) { // 기본값으로 최신순 설정
+        List<ReviewResponseDto> filteredReviews = reviewService.filterReviewsByTrustScore(gameId, minScore, maxScore, sortType);
+        return ResponseEntity.ok().body(filteredReviews);
+    }
+
+    @GetMapping("/reviews/trustScore")
+    public ResponseEntity<List<ReviewResponseDto>> getReviewsSortedByTrustScore(
+            @PathVariable(name = "gameId") Long gameId,
+            @RequestParam(name = "sortType", defaultValue = "LATEST") ReviewSortType sortType) { // 기본값으로 최신순 설정
+        List<ReviewResponseDto> sortedReviews = reviewService.getReviewsWithTrustScore(gameId, sortType);
+        return ResponseEntity.ok().body(sortedReviews);
+    }
+
 }
