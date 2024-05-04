@@ -38,6 +38,7 @@ public class ReviewService {
     private final ReviewStatisticService reviewStatisticService;
     private final DistributedReviewService distributedReviewService;
     private final RedisReviewService redisReviewService;
+    private final RealTimeReviewUpdateService realTimeReviewUpdateService;
 
     @Transactional
     public ReviewResponseDto createReview(Long gameId, ReviewRequestDto requestDto, User user) {
@@ -51,6 +52,8 @@ public class ReviewService {
                 Review createdReview = reviewRepository.save(review);
                 createCacheAndRedis(gameId, createdReview);
                 reviewStatisticService.updateReviewStatistics(gameId);
+                // 실시간 리뷰 업데이트 기능 호출
+                realTimeReviewUpdateService.updateReviewAndNotify(gameId, createdReview);
                 return new ReviewResponseDto(createdReview);
             } else {
                 throw new RuntimeException("리뷰 생성을 위한 락 획득에 실패했습니다.");
@@ -133,6 +136,8 @@ public class ReviewService {
                 Review updatedReview = reviewRepository.save(review);
                 updateCacheAndRedis(reviewId, updatedReview);
                 reviewStatisticService.updateReviewStatistics(gameId);
+                // 실시간 리뷰 업데이트 기능 호출
+                realTimeReviewUpdateService.updateReviewAndNotify(gameId, updatedReview);
                 return new ReviewUpdateResponseDto(updatedReview);
             } else {
                 throw new ReviewNotFoundException("리뷰 업데이트를 위한 락 획득에 실패했습니다.");
