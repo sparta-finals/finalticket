@@ -1,9 +1,12 @@
 package com.sparta.finalticket.domain.alarm.dto.request;
 
+import com.sparta.finalticket.domain.alarm.entity.AlarmType;
 import com.sparta.finalticket.domain.alarm.entity.Priority;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -23,4 +26,12 @@ public class AlarmRequestDto {
     private Priority priority;
 
     private String groupName;
+
+    private LocalDateTime scheduledTime;
+
+    private String teamName;
+
+    private AlarmType alarmType;
+
+    private LocalDateTime alarmTime; // 알람 시간
 }

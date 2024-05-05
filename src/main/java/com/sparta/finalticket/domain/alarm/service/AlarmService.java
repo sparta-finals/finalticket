@@ -52,7 +52,7 @@ public class AlarmService {
         Priority priority = alarmRequestDto.getPriority();
 
         // 알림 내용을 구성
-        String alarmContent = "알람: " + user.getNickname() + "님, " + alarmRequestDto.getMessage();
+        String alarmContent = "알람: " + user.getNickname() + "경기가 곧 시작됩니다. 좌석을 확인하세요! " + alarmRequestDto.getMessage();
 
         // 쿼리 최적화: 게임 조회를 게임 ID로 바로 수행
         Game game = getGameAlarmById(gameId);
@@ -66,6 +66,16 @@ public class AlarmService {
 
         // createAlarm 메서드에서 우선순위 값 설정
         Alarm alarm = new Alarm(alarmContent, true, true, user, game, alarmRequestDto.getPriority(), group);
+
+        // 새로운 알람 유형을 설정
+        alarm.setAlarmType(alarmRequestDto.getAlarmType());
+
+        // 새로운 세부 정보 설정
+        alarm.setScheduledTime(alarmRequestDto.getScheduledTime());
+        alarm.setTeamName(alarmRequestDto.getTeamName());
+
+        // 알람 시간 가져오기
+        alarm.setAlarmTime(alarmRequestDto.getAlarmTime());
 
         // 알람 그룹 생성 또는 가져오기
         AlarmGroup groups = getOrCreateAlarmGroup(alarmRequestDto.getGroupName());
@@ -98,7 +108,7 @@ public class AlarmService {
     public AlarmResponseDto getAlarmById(Long gameId, Long alarmId, User user) {
         Long userId = user.getId();
         User users = getUserAlarmById(userId);
-        String alarmContent = "알람: " + users.getNickname() + "님, 티켓이 발매되었습니다!";
+        String alarmContent = "알람: " + users.getNickname() + "경기가 곧 시작됩니다. 좌석을 확인하세요!";
         String cacheKey = "alarm:user:" + userId + ":game:" + gameId;
 
         // Redis에서 알림 데이터 조회
@@ -151,6 +161,9 @@ public class AlarmService {
         Optional<Alarm> optionalAlarm = alarmRepository.findById(alarmId);
         if (optionalAlarm.isPresent()) {
             Alarm alarm = optionalAlarm.get();
+
+            // 새로운 알람 유형을 설정
+            alarm.setAlarmType(alarmUpdateRequestDto.getAlarmType());
 
             // 알람 업데이트
             alarm.setContent(alarmUpdateRequestDto.getContent());

@@ -24,6 +24,10 @@ public class QAlarm extends EntityPathBase<Alarm> {
 
     public final com.sparta.finalticket.domain.timeStamped.QTimeStamped _super = new com.sparta.finalticket.domain.timeStamped.QTimeStamped(this);
 
+    public final DateTimePath<java.time.LocalDateTime> alarmTime = createDateTime("alarmTime", java.time.LocalDateTime.class);
+
+    public final EnumPath<AlarmType> alarmType = createEnum("alarmType", AlarmType.class);
+
     public final StringPath content = createString("content");
 
     //inherited
@@ -44,7 +48,11 @@ public class QAlarm extends EntityPathBase<Alarm> {
 
     public final EnumPath<Priority> priority = createEnum("priority", Priority.class);
 
+    public final DateTimePath<java.time.LocalDateTime> scheduledTime = createDateTime("scheduledTime", java.time.LocalDateTime.class);
+
     public final BooleanPath state = createBoolean("state");
+
+    public final StringPath teamName = createString("teamName");
 
     public final com.sparta.finalticket.domain.user.entity.QUser user;
 
