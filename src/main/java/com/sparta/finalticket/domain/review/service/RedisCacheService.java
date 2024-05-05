@@ -54,6 +54,11 @@ public class RedisCacheService {
         redisService.deleteValues("review_" + reviewId);
     }
 
+    public void cacheReviewsDataWithDuration(Long reviewId, Review review, Duration duration) {
+        // 리뷰 데이터를 Redis에 캐시하고 유효 기간을 설정합니다.
+        redisService.cacheReviewsData("review_" + reviewId, review.toString(), duration);
+    }
+
     // 매개변수 없는 버전의 clearReviewCache 메서드 추가
     public void clearReviewCache() {
         // Redis에서 모든 리뷰 데이터를 삭제

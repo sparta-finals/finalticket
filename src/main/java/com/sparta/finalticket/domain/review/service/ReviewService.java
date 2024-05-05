@@ -38,6 +38,8 @@ public class ReviewService {
     private final DistributedReviewService distributedReviewService;
     private final RedisReviewService redisReviewService;
     private final RealTimeReviewUpdateService realTimeReviewUpdateService;
+    private final CacheHitMonitorService cacheHitMonitorService;
+    private final DynamicCacheConfiguratorService dynamicCacheConfiguratorService;
 
     @Transactional
     public ReviewResponseDto createReview(Long gameId, ReviewRequestDto requestDto, User user) {
@@ -113,6 +115,7 @@ public class ReviewService {
                 Game game = GameById(gameId);
                 review.setGame(game);
                 getCacheAndRedis(reviewId, review);
+                cacheHitMonitorService.monitorCacheHit(reviewId.toString());
                 return new ReviewResponseDto(review);
             } else {
                 throw new ReviewNotFoundException("경기 ID에 대한 리뷰 조회를 위한 락 획득에 실패했습니다.");
@@ -466,6 +469,7 @@ public class ReviewService {
     }
 
     public void createCacheAndRedis(Long gameId, Review review) {
+        dynamicCacheConfiguratorService.monitorCacheHits(review.getId(), review);
         redisCacheService.createReview(review.getId(), review);
     }
 

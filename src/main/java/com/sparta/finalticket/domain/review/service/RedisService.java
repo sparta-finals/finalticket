@@ -61,4 +61,8 @@ public class RedisService {
     public Set<String> getAllKeys(String pattern) {
         return redisTemplate.keys(pattern);
     }
+
+    public void cacheReviewsData(String key, String data, Duration duration) {
+        redisTemplate.opsForValue().set(key, data, duration);
+    }
 }
