@@ -39,4 +39,5 @@ public class TicketController {
         IntStream.range(0, 1000).parallel().forEach(i -> ticketService.createTicket(gameId, seatId, getUser(request)));
         return ResponseEntity.status(201).build();
     }
+//    dd
 }
