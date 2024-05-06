@@ -25,7 +25,8 @@ import java.util.List;
 	@Index(name = "idx_game_id", columnList = "game_id"),
 	@Index(name = "idx_user_id", columnList = "user_id"),
 	@Index(name = "idx_state", columnList = "state"),
-    @Index(name = "idx_genre", columnList = "genre")
+    @Index(name = "idx_genre", columnList = "genre"),
+	@Index(name = "idx_created_at", columnList = "created_at")
 })
 @SQLDelete(sql = "UPDATE review SET state = false WHERE id = ?")
 @Where(clause = "state = true")
