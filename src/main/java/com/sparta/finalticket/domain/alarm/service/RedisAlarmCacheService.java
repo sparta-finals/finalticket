@@ -33,9 +33,6 @@ public class RedisAlarmCacheService {
                 // 캐시 갱신
                 setAlarm(key, value, timeout);
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            // 예외 처리
         } finally {
             // 락 해제
             distributedAlarmService.unlock(lock);

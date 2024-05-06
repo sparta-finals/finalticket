@@ -64,44 +64,57 @@ public class AlarmService {
         AlarmGroup group = new AlarmGroup();
         group.setGroupName("관련 알림 그룹"); // 그룹 이름은 필요에 따라 설정
 
-        // createAlarm 메서드에서 우선순위 값 설정
-        Alarm alarm = new Alarm(alarmContent, true, true, user, game, alarmRequestDto.getPriority(), group);
+        // 분산 락 획득
+        RLock lock = distributedAlarmService.getLock(user.getId());
+        // 락 획득 시도
+        boolean isLocked = distributedAlarmService.tryLock(lock, 10, 60);
+        if (isLocked) {
+            try {
+                // createAlarm 메서드에서 우선순위 값 설정
+                Alarm alarm = new Alarm(alarmContent, true, true, user, game, alarmRequestDto.getPriority(), group);
 
-        // 새로운 알람 유형을 설정
-        alarm.setAlarmType(alarmRequestDto.getAlarmType());
+                // 새로운 알람 유형을 설정
+                alarm.setAlarmType(alarmRequestDto.getAlarmType());
 
-        // 새로운 세부 정보 설정
-        alarm.setScheduledTime(alarmRequestDto.getScheduledTime());
-        alarm.setTeamName(alarmRequestDto.getTeamName());
+                // 새로운 세부 정보 설정
+                alarm.setScheduledTime(alarmRequestDto.getScheduledTime());
+                alarm.setTeamName(alarmRequestDto.getTeamName());
 
-        // 알람 시간 가져오기
-        alarm.setAlarmTime(alarmRequestDto.getAlarmTime());
+                // 알람 시간 가져오기
+                alarm.setAlarmTime(alarmRequestDto.getAlarmTime());
 
-        // 알람 그룹 생성 또는 가져오기
-        AlarmGroup groups = getOrCreateAlarmGroup(alarmRequestDto.getGroupName());
+                // 알람 그룹 생성 또는 가져오기
+                AlarmGroup groups = getOrCreateAlarmGroup(alarmRequestDto.getGroupName());
 
-        alarm.setGroup(groups);
+                alarm.setGroup(groups);
 
-        alarmRepository.save(alarm);
+                alarmRepository.save(alarm);
 
-        // 알림을 생성하는 시점의 시간을 receivedAt 변수에 할당
-        LocalDateTime receivedAt = LocalDateTime.now();
+                // 알림을 생성하는 시점의 시간을 receivedAt 변수에 할당
+                LocalDateTime receivedAt = LocalDateTime.now();
 
-        // 알림 로그 생성
-        AlarmLog alarmLog = new AlarmLog(alarm, receivedAt);
-        alarmLogRepository.save(alarmLog);
+                // 알림 로그 생성
+                AlarmLog alarmLog = new AlarmLog(alarm, receivedAt);
+                alarmLogRepository.save(alarmLog);
 
-        // 캐시에 알림 데이터 저장
-        String cacheKey = "alarm:user:" + user.getId() + ":game:" + game.getId();
-        redisCacheService.setAlarm(cacheKey, alarmContent, timeout);
+                // 캐시에 알림 데이터 저장
+                String cacheKey = "alarm:user:" + user.getId() + ":game:" + game.getId();
+                redisCacheService.setAlarm(cacheKey, alarmContent, timeout);
 
-        // WebSocket을 통해 알림 전송
-        messagingTemplate.convertAndSendToUser(user.getId().toString(), "/queue/alarms", alarmContent);
+                // WebSocket을 통해 알림 전송
+                messagingTemplate.convertAndSendToUser(user.getId().toString(), "/topic/alarms", alarmContent);
 
-        // 생성된 알람에 대한 응답을 생성합니다. 필요한 필드 값들을 설정하여 AlarmResponseDto 객체를 반환합니다.
-        AlarmResponseDto responseDto = new AlarmResponseDto(alarm.getId(), alarmContent, alarm.getState(), user.getId(), game.getId(), alarm.getIsRead(), priority, groups);
+                // 생성된 알람에 대한 응답을 생성합니다. 필요한 필드 값들을 설정하여 AlarmResponseDto 객체를 반환합니다.
+                AlarmResponseDto responseDto = new AlarmResponseDto(alarm.getId(), alarmContent, alarm.getState(), user.getId(), game.getId(), alarm.getIsRead(), priority, groups);
 
-        return responseDto;
+                return responseDto;
+            } finally {
+                // 분산 락 해제
+                distributedAlarmService.unlock(lock);
+            }
+        } else {
+            throw new RuntimeException("락을 획득하지 못했습니다.");
+        }
     }
 
     @Transactional
@@ -128,31 +141,26 @@ public class AlarmService {
         int timeout = 60000; // 예시 값 (60초)
 
         RLock lock = distributedAlarmService.getLock(userId);
-        try {
-            boolean isLocked = distributedAlarmService.tryLock(lock, 10, 60);
-            if (isLocked) {
-                try {
-                    // WebSocket을 통해 알림 전송
-                    messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/alarms", alarmContent);
+        boolean isLocked = distributedAlarmService.tryLock(lock, 10, 60);
+        if (isLocked) {
+            try {
+                // WebSocket을 통해 알림 전송
+                messagingTemplate.convertAndSendToUser(userId.toString(), "/topic/alarms", alarmContent);
 
-                    Alarm alarm = alarmRepository.findById(alarmId)
-                            .orElseThrow(() -> new AlarmNotFoundException("알림을 찾을 수 없습니다."));
-                    Priority priority = alarm.getPriority();
-                    AlarmGroup group = alarm.getGroup();
+                Alarm alarm = alarmRepository.findById(alarmId)
+                        .orElseThrow(() -> new AlarmNotFoundException("알림을 찾을 수 없습니다."));
+                Priority priority = alarm.getPriority();
+                AlarmGroup group = alarm.getGroup();
 
-                    // 생성한 AlarmResponseDto를 반환합니다.
-                    // getAlarmById 메서드에서 AlarmResponseDto 객체 생성 시 매개변수의 오타 수정
-                    return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true, priority, group);
-                } finally {
-                    // 분산 락 해제
-                    distributedAlarmService.unlock(lock);
-                }
-            } else {
-                throw new AlarmNotFoundException("락을 획득하지 못했습니다");
+                // 생성한 AlarmResponseDto를 반환합니다.
+                // getAlarmById 메서드에서 AlarmResponseDto 객체 생성 시 매개변수의 오타 수정
+                return new AlarmResponseDto(alarmId, alarmContent, true, userId, gameId, true, priority, group);
+            } finally {
+                // 분산 락 해제
+                distributedAlarmService.unlock(lock);
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new AlarmNotFoundException("락을 획득하는 동안 중단되었습니다");
+        } else {
+            throw new AlarmNotFoundException("락을 획득하지 못했습니다");
         }
     }
 

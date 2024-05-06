@@ -15,17 +15,25 @@ public class DistributedAlarmService {
 
     private static final String ALARM_LOCK_KEY_PREFIX = "alarmLock:";
 
-    public RLock getLock(Long alarmId) {
-        return redissonClient.getFairLock(ALARM_LOCK_KEY_PREFIX + alarmId);
+    public RLock getLock(Long userId) {
+        return redissonClient.getFairLock(ALARM_LOCK_KEY_PREFIX + userId);
     }
 
-    public boolean tryLock(RLock lock, long waitTime, long leaseTime) throws InterruptedException {
-        return lock.tryLock(waitTime, leaseTime, TimeUnit.MILLISECONDS);
+    public void lock(RLock lock) throws InterruptedException {
+        lock.lock();
+    }
+
+    public boolean tryLock(RLock lock, long waitTime, long leaseTime) {
+        try {
+            return lock.tryLock(waitTime, leaseTime, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Interrupt 상태를 재설정
+            throw new RuntimeException("락을 획득하는 동안 중단되었습니다", e);
+        }
     }
 
     public void unlock(RLock lock) {
-        if (lock.isHeldByCurrentThread()) {
-            lock.unlock();
-        }
+        lock.unlock();
     }
 }
+
