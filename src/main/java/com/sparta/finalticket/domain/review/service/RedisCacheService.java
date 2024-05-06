@@ -59,6 +59,12 @@ public class RedisCacheService {
         redisService.cacheReviewsData("review_" + reviewId, review.toString(), duration);
     }
 
+    // 만료 시간 설정
+    public void expire(Long reviewId, long seconds) {
+        redisService.expire("review_" + reviewId, seconds);
+    }
+
+
     // 매개변수 없는 버전의 clearReviewCache 메서드 추가
     public void clearReviewCache() {
         Set<String> keys = redisService.getAllKeys("review_*");

@@ -21,8 +21,7 @@ public class ReviewSchedulerService {
         updateCacheAndStatistics();
     }
 
-    // 혹은 특정 시간마다 실행되는 스케줄러
-    // 예시: 매 6시간마다 실행
+    // 특정 시간마다 실행되는 스케줄러
     @Scheduled(fixedRate = 6 * 60 * 60 * 1000) // milliseconds
     public void refreshCachePeriodically() {
         // 모든 리뷰 데이터의 캐시를 갱신하고 모든 리뷰 통계를 업데이트

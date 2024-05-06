@@ -52,7 +52,6 @@ public class ReviewService {
         RLock lock = distributedReviewService.getLock(gameId);
         try {
             if (distributedReviewService.tryLock(lock, 1000, 5000)) {
-                // 이 부분에서 checkOptimisticLock 메서드 호출 추가
                 long expectedVersion = redissonClient.getAtomicLong("reviewVersion:" + gameId).get();
                 if (distributedReviewService.checkOptimisticLock(gameId, expectedVersion)) {
                     Review review = createReviewFromRequest(gameId, requestDto);
@@ -65,10 +64,11 @@ public class ReviewService {
                     messageQueueAspectService.afterReviewCreation(new ReviewResponseDto(createdReview));
                     // 실시간 리뷰 업데이트 기능 호출
                     realTimeReviewUpdateService.updateReviewAndNotify(gameId, createdReview);
-
-                    // Create queue if needed
                     createQueueIfNeeded("reviewQueue");
-
+                    // 작업이 성공하면 버전 업데이트
+                    redissonClient.getAtomicLong("reviewVersion:" + gameId).incrementAndGet();
+                    realTimeReviewUpdateService.updateReviewAndNotify(gameId, createdReview);
+                    createQueueIfNeeded("reviewQueue");
                     return new ReviewResponseDto(createdReview);
                 } else {
                     throw new OptimisticLockException("Optimistic 락이 gameId에 대해 실패했습니다." + gameId);
@@ -159,8 +159,6 @@ public class ReviewService {
                 reviewStatisticService.updateReviewStatistics(gameId);
                 // 실시간 리뷰 업데이트 기능 호출
                 realTimeReviewUpdateService.updateReviewAndNotify(gameId, updatedReview);
-
-                // Update queue if needed
                 updateQueueIfNeeded("reviewQueue", true);
 
                 return new ReviewUpdateResponseDto(updatedReview);
@@ -468,6 +466,10 @@ public class ReviewService {
                 .toList();
     }
 
+    // 게임 ID와 리뷰 ID를 함께 고려하여 캐시 키 생성하는 메서드 추가
+    private String generateCacheKey(Long gameId, Long reviewId) {
+        return "review_" + gameId + "_" + reviewId;
+    }
 
     private Review createReviewFromRequest(Long gameId, ReviewRequestDto requestDto) {
         if (gameId == null) {
@@ -497,6 +499,9 @@ public class ReviewService {
     public void createCacheAndRedis(Long gameId, Review review) {
         dynamicCacheConfiguratorService.monitorCacheHits(review.getId(), review);
         redisCacheService.createReview(review.getId(), review);
+
+        // 캐시 만료 시간 설정
+        redisCacheService.expire(review.getId(), 3600); // 만료 시간은 초 단위로 설정됩니다.
     }
 
     public void getCacheAndRedis(Long reviewId, Review review) {
@@ -505,6 +510,9 @@ public class ReviewService {
 
     public void updateCacheAndRedis(Long reviewId, Review review) {
         redisCacheService.updateReview(reviewId, review);
+
+        // 캐시 만료 시간 설정
+        redisCacheService.expire(reviewId, 3600); // 만료 시간은 초 단위로 설정됩니다.
     }
 
     public void deleteCacheAndRedis(Long reviewId) {

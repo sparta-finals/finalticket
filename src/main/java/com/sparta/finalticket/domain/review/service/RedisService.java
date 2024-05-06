@@ -37,6 +37,12 @@ public class RedisService {
         redisTemplate.delete(key);
     }
 
+    // 만료 시간 설정
+    public void expire(String key, long timeoutSeconds) {
+        redisTemplate.expire(key, timeoutSeconds, TimeUnit.SECONDS);
+    }
+
+
     public void expireValues(String key, int timeout) {
         redisTemplate.expire(key, timeout, TimeUnit.MILLISECONDS);
     }
