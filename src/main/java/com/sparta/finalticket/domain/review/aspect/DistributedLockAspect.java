@@ -1,11 +1,11 @@
 package com.sparta.finalticket.domain.review.aspect;
 
 import com.sparta.finalticket.domain.review.service.RedisReviewService;
+import com.sparta.finalticket.global.exception.review.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
-import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
@@ -37,12 +37,17 @@ public class DistributedLockAspect {
                 .orElse(null);
 
         if (gameId != null) {
-            RLock lock = redissonClient.getLock("reviewLock:" + gameId);
-            try {
-                lock.lock();
-                result = joinPoint.proceed();
-            } finally {
-                lock.unlock();
+            // 낙관적 락 적용
+            long expectedVersion = redissonClient.getAtomicLong("reviewVersion:" + gameId).get();
+            if (redisReviewService.checkOptimisticLock(gameId, expectedVersion)) {
+                try {
+                    result = joinPoint.proceed();
+                } finally {
+                    // 작업이 성공적으로 수행되면 버전 업데이트
+                    redissonClient.getAtomicLong("reviewVersion:" + gameId).incrementAndGet();
+                }
+            } else {
+                throw new OptimisticLockException("Optimistic 락이 gameId에 대해 실패했습니다." + gameId);
             }
 
             // 리뷰 관련 데이터를 Redis에 업데이트

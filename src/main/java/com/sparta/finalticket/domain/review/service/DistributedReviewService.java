@@ -28,4 +28,10 @@ public class DistributedReviewService {
             lock.unlock();
         }
     }
+
+    // 낙관적 락을 이용하여 리뷰 작업의 충돌을 방지하는 메서드
+    public boolean checkOptimisticLock(Long gameId, long expectedVersion) {
+        long actualVersion = redissonClient.getAtomicLong("reviewVersion:" + gameId).get();
+        return actualVersion == expectedVersion;
+    }
 }

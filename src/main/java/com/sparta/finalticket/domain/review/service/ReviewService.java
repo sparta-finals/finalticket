@@ -10,10 +10,12 @@ import com.sparta.finalticket.domain.review.entity.ReviewSortType;
 import com.sparta.finalticket.domain.review.repository.ReviewRepository;
 import com.sparta.finalticket.domain.user.entity.User;
 import com.sparta.finalticket.global.exception.review.GameIdRequiredException;
+import com.sparta.finalticket.global.exception.review.OptimisticLockException;
 import com.sparta.finalticket.global.exception.review.ReviewGameNotFoundException;
 import com.sparta.finalticket.global.exception.review.ReviewNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -40,22 +42,30 @@ public class ReviewService {
     private final RealTimeReviewUpdateService realTimeReviewUpdateService;
     private final CacheHitMonitorService cacheHitMonitorService;
     private final DynamicCacheConfiguratorService dynamicCacheConfiguratorService;
+    private final RedissonClient redissonClient;
+
 
     @Transactional
     public ReviewResponseDto createReview(Long gameId, ReviewRequestDto requestDto, User user) {
         RLock lock = distributedReviewService.getLock(gameId);
         try {
             if (distributedReviewService.tryLock(lock, 1000, 5000)) {
-                Review review = createReviewFromRequest(gameId, requestDto);
-                review.setUser(user);
-                review.setReviewTime(LocalDateTime.now()); // 리뷰 작성 시간 저장
-                review.setUserTrustScore(requestDto.getUserTrustScore());
-                Review createdReview = reviewRepository.save(review);
-                createCacheAndRedis(gameId, createdReview);
-                reviewStatisticService.updateReviewStatistics(gameId);
-                // 실시간 리뷰 업데이트 기능 호출
-                realTimeReviewUpdateService.updateReviewAndNotify(gameId, createdReview);
-                return new ReviewResponseDto(createdReview);
+                // 이 부분에서 checkOptimisticLock 메서드 호출 추가
+                long expectedVersion = redissonClient.getAtomicLong("reviewVersion:" + gameId).get();
+                if (distributedReviewService.checkOptimisticLock(gameId, expectedVersion)) {
+                    Review review = createReviewFromRequest(gameId, requestDto);
+                    review.setUser(user);
+                    review.setReviewTime(LocalDateTime.now()); // 리뷰 작성 시간 저장
+                    review.setUserTrustScore(requestDto.getUserTrustScore());
+                    Review createdReview = reviewRepository.save(review);
+                    createCacheAndRedis(gameId, createdReview);
+                    reviewStatisticService.updateReviewStatistics(gameId);
+                    // 실시간 리뷰 업데이트 기능 호출
+                    realTimeReviewUpdateService.updateReviewAndNotify(gameId, createdReview);
+                    return new ReviewResponseDto(createdReview);
+                } else {
+                    throw new OptimisticLockException("Optimistic 락이 gameId에 대해 실패했습니다." + gameId);
+                }
             } else {
                 throw new RuntimeException("리뷰 생성을 위한 락 획득에 실패했습니다.");
             }
