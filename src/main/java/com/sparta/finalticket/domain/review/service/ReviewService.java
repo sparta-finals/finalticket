@@ -42,8 +42,10 @@ public class ReviewService {
     private final RealTimeReviewUpdateService realTimeReviewUpdateService;
     private final CacheHitMonitorService cacheHitMonitorService;
     private final DynamicCacheConfiguratorService dynamicCacheConfiguratorService;
+    private final ReviewQueueService reviewQueueService;
+    private final DynamicQueueService dynamicQueueService;
+    private final MessageQueueAspectService messageQueueAspectService;
     private final RedissonClient redissonClient;
-
 
     @Transactional
     public ReviewResponseDto createReview(Long gameId, ReviewRequestDto requestDto, User user) {
@@ -60,8 +62,13 @@ public class ReviewService {
                     Review createdReview = reviewRepository.save(review);
                     createCacheAndRedis(gameId, createdReview);
                     reviewStatisticService.updateReviewStatistics(gameId);
+                    messageQueueAspectService.afterReviewCreation(new ReviewResponseDto(createdReview));
                     // 실시간 리뷰 업데이트 기능 호출
                     realTimeReviewUpdateService.updateReviewAndNotify(gameId, createdReview);
+
+                    // Create queue if needed
+                    createQueueIfNeeded("reviewQueue");
+
                     return new ReviewResponseDto(createdReview);
                 } else {
                     throw new OptimisticLockException("Optimistic 락이 gameId에 대해 실패했습니다." + gameId);
@@ -72,6 +79,8 @@ public class ReviewService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ReviewNotFoundException("리뷰 생성을 위해 락을 획득하는 도중에 중단되었습니다.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             distributedReviewService.unlock(lock);
         }
@@ -150,6 +159,10 @@ public class ReviewService {
                 reviewStatisticService.updateReviewStatistics(gameId);
                 // 실시간 리뷰 업데이트 기능 호출
                 realTimeReviewUpdateService.updateReviewAndNotify(gameId, updatedReview);
+
+                // Update queue if needed
+                updateQueueIfNeeded("reviewQueue", true);
+
                 return new ReviewUpdateResponseDto(updatedReview);
             } else {
                 throw new ReviewNotFoundException("리뷰 업데이트를 위한 락 획득에 실패했습니다.");
@@ -174,6 +187,9 @@ public class ReviewService {
                 reviewRepository.delete(review);
                 deleteCacheAndRedis(reviewId);
                 reviewStatisticService.updateReviewStatistics(gameId);
+
+                // Delete queue if needed
+                deleteQueueIfNeeded("reviewQueue");
             } else {
                 throw new ReviewNotFoundException("리뷰 삭제를 위한 락 획득에 실패했습니다.");
             }
@@ -522,5 +538,34 @@ public class ReviewService {
 
     public List<ReviewResponseDto> getUserReviewList(User user) {
         return reviewRepository.getUserReviewList(user);
+    }
+
+
+    public void createQueueIfNeeded(String queueName) {
+        boolean condition = true;
+
+        if (condition) {
+            dynamicQueueService.createQueue(queueName);
+        }
+    }
+
+    public void updateQueueIfNeeded(String queueName, boolean isDurable) {
+        boolean condition = true;
+
+        if (condition) {
+            String durable = isDurable ? "true" : "false";
+
+            org.springframework.amqp.core.Queue springQueue = new org.springframework.amqp.core.Queue(queueName, Boolean.parseBoolean(durable));
+
+            dynamicQueueService.updateQueue(queueName, springQueue);
+        }
+    }
+
+    public void deleteQueueIfNeeded(String queueName) {
+        boolean condition = true;
+
+        if (condition) {
+            dynamicQueueService.deleteQueue(queueName);
+        }
     }
 }
