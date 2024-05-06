@@ -26,11 +26,14 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, data, duration);
     }
 
+
+    @Cacheable(value = "reviewCache", key = "#key", condition = "!#key.isEmpty()")
     public String getValues(String key) {
         Object value = redisTemplate.opsForValue().get(key);
         return value != null ? value.toString() : null;
     }
 
+    @CacheEvict(value = "reviewCache", key = "#key", condition = "!#key.isEmpty()")
     public void deleteValues(String key) {
         redisTemplate.delete(key);
     }
