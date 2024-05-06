@@ -26,7 +26,6 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, data, duration);
     }
 
-
     @Cacheable(value = "reviewCache", key = "#key", condition = "!#key.isEmpty()")
     public String getValues(String key) {
         Object value = redisTemplate.opsForValue().get(key);

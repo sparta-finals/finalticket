@@ -59,7 +59,6 @@ public class RedisCacheService {
         redisService.cacheReviewsData("review_" + reviewId, review.toString(), duration);
     }
 
-
     // 매개변수 없는 버전의 clearReviewCache 메서드 추가
     public void clearReviewCache() {
         Set<String> keys = redisService.getAllKeys("review_*");
