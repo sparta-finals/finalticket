@@ -13,12 +13,10 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 public class AspectConfig {
 
     private final RedisCacheService redisCacheService;
-    private final RedisReviewService redisReviewService;
-    private final RedissonClient redissonClient;
+
 
     @Bean
     public RedisCacheAspect reviewCacheAspect() {
-        return new RedisCacheAspect(redisCacheService, redisReviewService, redissonClient);
+        return new RedisCacheAspect(redisCacheService);
     }
 }
-
