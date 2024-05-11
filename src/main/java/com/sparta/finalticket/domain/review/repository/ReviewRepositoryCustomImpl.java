@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -40,12 +41,12 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     }
 
     @Override
-    public Optional<Object> findReviewByGameIdAndReviewId(Long gameId, Long reviewId) {
+    public Optional<Review> findReviewByGameIdAndReviewId(Long gameId, Long reviewId) {
         return Optional.ofNullable(
-            jpaQueryFactory.selectFrom(QReview.review1)
-                .where(QReview.review1.game.id.eq(gameId)
-                    .and(QReview.review1.id.eq(reviewId)))
-                .fetchOne()
+                jpaQueryFactory.selectFrom(QReview.review1)
+                        .where(QReview.review1.game.id.eq(gameId)
+                                .and(QReview.review1.id.eq(reviewId)))
+                        .fetchOne()
         );
     }
 
@@ -54,6 +55,15 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
         return jpaQueryFactory.selectFrom(QReview.review1)
             .where(QReview.review1.game.id.eq(gameId))
             .fetch();
+    }
+
+    @Override
+    public List<Review> findTopPopularReviewsByGameId(Long gameId, Pageable pageable) {
+        QReview review = QReview.review1;
+        return jpaQueryFactory.selectFrom(review)
+                .where(review.game.id.eq(gameId))
+                .orderBy(review.viewCount.desc())
+                .fetch();
     }
 
     @Override

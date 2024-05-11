@@ -24,19 +24,35 @@ public class QAlarm extends EntityPathBase<Alarm> {
 
     public final com.sparta.finalticket.domain.timeStamped.QTimeStamped _super = new com.sparta.finalticket.domain.timeStamped.QTimeStamped(this);
 
+    public final DateTimePath<java.time.LocalDateTime> alarmTime = createDateTime("alarmTime", java.time.LocalDateTime.class);
+
+    public final EnumPath<AlarmType> alarmType = createEnum("alarmType", AlarmType.class);
+
     public final StringPath content = createString("content");
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
+    public final NumberPath<Integer> deliveryAttempts = createNumber("deliveryAttempts", Integer.class);
+
     public final com.sparta.finalticket.domain.game.entity.QGame game;
 
+    public final QAlarmGroup group;
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
+
+    public final BooleanPath isRead = createBoolean("isRead");
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 
+    public final EnumPath<Priority> priority = createEnum("priority", Priority.class);
+
+    public final DateTimePath<java.time.LocalDateTime> scheduledTime = createDateTime("scheduledTime", java.time.LocalDateTime.class);
+
     public final BooleanPath state = createBoolean("state");
+
+    public final StringPath teamName = createString("teamName");
 
     public final com.sparta.finalticket.domain.user.entity.QUser user;
 
@@ -59,6 +75,7 @@ public class QAlarm extends EntityPathBase<Alarm> {
     public QAlarm(Class<? extends Alarm> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.game = inits.isInitialized("game") ? new com.sparta.finalticket.domain.game.entity.QGame(forProperty("game"), inits.get("game")) : null;
+        this.group = inits.isInitialized("group") ? new QAlarmGroup(forProperty("group")) : null;
         this.user = inits.isInitialized("user") ? new com.sparta.finalticket.domain.user.entity.QUser(forProperty("user")) : null;
     }
 

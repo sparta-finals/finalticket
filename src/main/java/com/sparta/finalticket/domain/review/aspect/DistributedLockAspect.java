@@ -1,29 +1,27 @@
 package com.sparta.finalticket.domain.review.aspect;
 
-import com.sparta.finalticket.domain.review.service.RedisCacheService;
 import com.sparta.finalticket.domain.review.service.RedisReviewService;
+import com.sparta.finalticket.global.exception.review.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Component
-@Aspect
 @RequiredArgsConstructor
 public class DistributedLockAspect {
 
-    private final RedisCacheService redisCacheService;
     private final RedisReviewService redisReviewService;
     private final RedissonClient redissonClient;
 
     @Pointcut("execution(* com.sparta.finalticket.domain.review.service.ReviewService.createReview(..)) " +
-        "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.getReviewByGameId(..)) " +
-        "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.updateReview(..)) " +
-        "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.deleteReview(..))")
+            "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.getReviewByGameId(..)) " +
+            "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.updateReview(..)) " +
+            "|| execution(* com.sparta.finalticket.domain.review.service.ReviewService.deleteReview(..))")
     public void reviewServiceMethods() {
     }
 
@@ -31,23 +29,25 @@ public class DistributedLockAspect {
     public Object applyDistributedLock(ProceedingJoinPoint joinPoint) throws Throwable {
         Object result;
         Object[] args = joinPoint.getArgs();
-        Long gameId = null;
 
-        // gameId를 찾는 로직
-        for (Object arg : args) {
-            if (arg instanceof Long && gameId == null) {
-                gameId = (Long) arg;
-                break;
-            }
-        }
+        Long gameId = Arrays.stream(args)
+                .filter(arg -> arg instanceof Long)
+                .map(arg -> (Long) arg)
+                .findFirst()
+                .orElse(null);
 
         if (gameId != null) {
-            RLock lock = redissonClient.getLock("reviewLock:" + gameId);
-            try {
-                lock.lock();
-                result = joinPoint.proceed();
-            } finally {
-                lock.unlock();
+            // 낙관적 락 적용
+            long expectedVersion = redissonClient.getAtomicLong("reviewVersion:" + gameId).get();
+            if (redisReviewService.checkOptimisticLock(gameId, expectedVersion)) {
+                try {
+                    result = joinPoint.proceed();
+                } finally {
+                    // 작업이 성공적으로 수행되면 버전 업데이트
+                    redissonClient.getAtomicLong("reviewVersion:" + gameId).incrementAndGet();
+                }
+            } else {
+                throw new OptimisticLockException("Optimistic 락이 gameId에 대해 실패했습니다." + gameId);
             }
 
             // 리뷰 관련 데이터를 Redis에 업데이트

@@ -1,6 +1,7 @@
 package com.sparta.finalticket.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 public class RedisReviewService {
 
     private final RedisTemplate<String, Object> redisTemplate;
+
+    private final RedissonClient redissonClient;
 
     // 게임의 리뷰 총수를 Redis에 저장하는 메서드
     public void setTotalReviewCount(Long gameId, Long totalReviewCount) {
@@ -29,5 +32,10 @@ public class RedisReviewService {
     public Double getAverageReviewScore(Long gameId) {
         Object value = redisTemplate.opsForValue().get("game:" + gameId + ":averageReviewScore");
         return value != null ? ((Number) value).doubleValue() : 0.0;
+    }
+
+    public boolean checkOptimisticLock(Long gameId, long expectedVersion) {
+        long actualVersion = redissonClient.getAtomicLong("reviewVersion:" + gameId).get();
+        return actualVersion == expectedVersion;
     }
 }

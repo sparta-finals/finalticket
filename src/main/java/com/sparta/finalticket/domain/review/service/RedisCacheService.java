@@ -1,10 +1,10 @@
 package com.sparta.finalticket.domain.review.service;
 
-import com.sparta.finalticket.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.finalticket.domain.review.entity.Review;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Set;
 
 @Service
@@ -25,8 +25,20 @@ public class RedisCacheService {
         cacheReviewData(reviewId, updatedReviewData);
     }
 
+    public void updateReviews(Long reviewId, Review review) {
+        redisService.cacheReviewsData("review_" + reviewId, review.toString(), Duration.ofMinutes(30)); // 예시로 30분 유효 기간 설정
+    }
+
     public void cacheReviewData(Long reviewId, Review review) {
-        redisService.setValues("review_" + reviewId, review.toString());
+        redisService.cacheReviewsData("review_" + reviewId, review.toString(), Duration.ofMinutes(30)); // 예시로 30분 유효 기간 설정
+    }
+
+    public Object getCachedData(String cacheKey) {
+        return redisService.getValues(cacheKey);
+    }
+
+    public void cacheData(String cacheKey, Object data) {
+        redisService.cacheReviewsData(cacheKey, data.toString(), Duration.ofMinutes(30)); // 예시로 30분 유효 기간 설정
     }
 
     public String getCachedReviewData(Long reviewId) {
@@ -37,37 +49,35 @@ public class RedisCacheService {
         redisService.deleteValues("review_" + reviewId);
     }
 
+    // 캐시 만료 시간 설정
+    public void cacheReviewsData(Long reviewId, Review review, Duration duration) {
+        redisService.setValues("review_" + reviewId, review.toString(), duration);
+    }
+
+    public void cacheReviewsDataWithDuration(Long reviewId, Review review, Duration duration) {
+        // 리뷰 데이터를 Redis에 캐시하고 유효 기간을 설정합니다.
+        redisService.cacheReviewsData("review_" + reviewId, review.toString(), duration);
+    }
+
+    // 만료 시간 설정
+    public void expire(Long reviewId, long seconds) {
+        redisService.expire("review_" + reviewId, seconds);
+    }
+
+
     // 매개변수 없는 버전의 clearReviewCache 메서드 추가
     public void clearReviewCache() {
-        // Redis에서 모든 리뷰 데이터를 삭제
         Set<String> keys = redisService.getAllKeys("review_*");
         keys.forEach(redisService::deleteValues);
     }
 
     public void clearGameCache(Long gameId) {
-        // 해당 게임에 대한 리뷰 캐시를 모두 삭제합니다.
         Set<String> keys = redisService.getAllKeys("review_" + gameId + "_*");
         keys.forEach(redisService::deleteValues);
     }
 
-    // 모든 리뷰 데이터를 캐시에서 삭제하는 메서드
     public void clearAllReviews() {
-        // Redis에서 모든 리뷰 데이터를 삭제
         Set<String> keys = redisService.getAllKeys("review_*");
-        keys.forEach(key -> {
-            // 키에서 리뷰 ID를 추출
-            String reviewIdString = key.substring(key.lastIndexOf("_") + 1);
-            Long reviewId;
-            try {
-                // 리뷰 ID를 Long 형으로 파싱
-                reviewId = Long.parseLong(reviewIdString);
-            } catch (NumberFormatException e) {
-                // 리뷰 ID가 올바르지 않은 경우, 로그를 출력하고 건너뜀
-                System.out.println("Invalid review ID: " + reviewIdString);
-                return;
-            }
-            // 리뷰 데이터 삭제
-            redisService.deleteValues(key);
-        });
+        keys.forEach(redisService::deleteValues);
     }
 }

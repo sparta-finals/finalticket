@@ -26,14 +26,22 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, data, duration);
     }
 
+    @Cacheable(value = "reviewCache", key = "#key", condition = "!#key.isEmpty()")
     public String getValues(String key) {
         Object value = redisTemplate.opsForValue().get(key);
         return value != null ? value.toString() : null;
     }
 
+    @CacheEvict(value = "reviewCache", key = "#key", condition = "!#key.isEmpty()")
     public void deleteValues(String key) {
         redisTemplate.delete(key);
     }
+
+    // 만료 시간 설정
+    public void expire(String key, long timeoutSeconds) {
+        redisTemplate.expire(key, timeoutSeconds, TimeUnit.SECONDS);
+    }
+
 
     public void expireValues(String key, int timeout) {
         redisTemplate.expire(key, timeout, TimeUnit.MILLISECONDS);
@@ -60,5 +68,9 @@ public class RedisService {
 
     public Set<String> getAllKeys(String pattern) {
         return redisTemplate.keys(pattern);
+    }
+
+    public void cacheReviewsData(String key, String data, Duration duration) {
+        redisTemplate.opsForValue().set(key, data, duration);
     }
 }
