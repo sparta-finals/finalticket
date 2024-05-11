@@ -1,0 +1,55 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [ dev, main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Java setup
+        uses: actions/setup-java@v1
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Make executable gradlew
+        run: chmod +x ./gradlew
+        shell: bash
+
+      - name: Build and Test
+        run: ./gradlew build test
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Build Docker image
+        run: docker build -t ttdpe/finalticket:${{ github.sha }} .
+
+      - name: Save Docker image to TAR
+        run: docker save ttdpe/finalticket:${{ github.sha }} -o ./finalticket.tar
+
+      - name: Delete all files in S3 bucket
+        run: aws s3 rm s3://${{ secrets.S3_BUCKET_NAME }} --recursive --quiet
+
+      - name: Upload Docker image to S3
+        run: aws s3 cp ./finalticket.tar s3://${{ secrets.S3_BUCKET_NAME }}/finalticket_${{ github.sha }}.tar
+
+      - name: Deploy to AWS EC2 from S3
+        run: |
+            aws ssm send-command \
+              --document-name "AWS-RunShellScript" \
+              --targets '[{"Key":"instanceids","Values":["${{ secrets.EC2_INSTANCE_ID }}"]}]' \
+              --parameters 'commands=["aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/finalticket_${{ github.sha }}.tar /tmp/finalticket.tar", "docker stop finalticket || true", "docker rm finalticket || true", "docker load -i /tmp/finalticket.tar", "docker run -d -p 8080:8080 --name finalticket ttdpe/finalticket:${{ github.sha }}"]' \
+              --max-concurrency "1" \
+              --max-errors "1"
+#dfs

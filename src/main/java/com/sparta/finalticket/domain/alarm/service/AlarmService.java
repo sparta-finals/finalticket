@@ -293,11 +293,11 @@ public class AlarmService {
 
     private User getUserAlarmById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new AlarmUserNotFoundException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new AlarmUserNotFoundException("사용자를 찾을 수 없습니다."));
     }
 
     private Game getGameAlarmById(Long gameId) {
         return gameRepository.findById(gameId)
-                .orElseThrow(() -> new AlarmGameNotFoundException("경기를 찾을 수 없습니다."));
+            .orElseThrow(() -> new AlarmGameNotFoundException("경기를 찾을 수 없습니다."));
     }
 }

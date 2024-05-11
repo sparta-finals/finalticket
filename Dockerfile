@@ -5,10 +5,10 @@ FROM azul/zulu-openjdk:17
 WORKDIR /app
 
 # 호스트의 JAR 파일을 Docker 이미지의 작업 디렉토리로 복사합니다.
-COPY target/FINAL-TICKET.jar /app/FINAL-TICKET.jar
+COPY ./build/libs/finalticket-0.0.1-SNAPSHOT.jar finalticket.jar
 
 # 포트 매핑
 EXPOSE 8080
 
 # 애플리케이션을 실행합니다.
-CMD ["java", "-jar", "FINAL-TICKET.jar"]
+CMD ["java", "-jar", "finalticket.jar"]
