@@ -3,7 +3,9 @@
 * **프로젝트 이름** : **FinalTicket**
 * **프로젝트 제작기간** : 2024.03.26 ~ 2024.05.08
 * **프로젝트 설명** : 
-소규모 스포츠 경기 티켓팅 사이트<br>
+소규모 스포츠 경기 티켓팅 사이트
+https://destiny-velvet-40a.notion.site/FINAL-TICKET-8d0e0d7cab3b4fdbbbfaf19ea306cd56
+<br>
 ### ⚙개발환경
 *********************
 
